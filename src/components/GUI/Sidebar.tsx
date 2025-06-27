@@ -1,15 +1,20 @@
-import type { CSSProperties } from "react";
+import { SidebarIcon } from "@phosphor-icons/react";
+import styles from "../../styles/Sidebar.module.css"
+import ActionBar from "./Actionbar";
 
 export default function Sidebar() {
     return (
-        <div className="sidebar" style={style}>
+        <div className={styles.sidebar} style={{left: 0}}>
+            <div className={styles.menu}>
+                <div className={styles.section}>
+                    <div className={styles.container}>
+                        Graphyr
+                        <SidebarIcon size={20} className={`${styles.icon} ${styles.button}`}/>
+                    </div>
+                </div>
+            </div>
+            <ActionBar/>
         </div>
     );
 }
 
-const style: CSSProperties = {
-    width: "15vw",
-    height: "100vh",
-    backgroundColor: "#282828",
-    borderRight: "1px solid #3C3C3C"
-}

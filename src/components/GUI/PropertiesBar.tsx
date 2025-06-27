@@ -1,15 +1,8 @@
-import type { CSSProperties } from "react";
+import styles from "../../styles/Sidebar.module.css"
 
 export default function PropertiesBar() {
     return (
-        <div className="properties-bar" style={style}>
+        <div className={styles.sidebar} style={{right: 0}}>
         </div>
     );
-}
-
-const style: CSSProperties = {
-    width: "15vw",
-    height: "100vh",
-    backgroundColor: "#282828",
-    borderLeft: "1px solid #3C3C3C"
 }

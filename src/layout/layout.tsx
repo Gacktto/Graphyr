@@ -14,10 +14,10 @@ export default function Layout() {
 }
 
 const style: CSSProperties = {
+    position: 'relative',
     width: "100vw",
     height: "100vh",
     display: "flex",
     alignItems: "start",
     justifyContent: "start",
-
 }

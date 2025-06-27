@@ -1,12 +1,33 @@
 .canvas {
-    position: absolute;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: rgb(29, 29, 29);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.frame {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    left:0;
+    align-items: start;
+    justify-content: start;
+    flex-direction: column;
+    width: fit-content;
+    height: fit-content;
+}
+
+.frameInfo {
+    background-color: #444444;
     width: 100%;
-    background-color: rgb(29, 29, 29);
-    color: white;
-    height: 100%;
-    z-index: 2;
+    box-sizing: border-box;
+    padding: 10px;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    font-weight: bold;
 }

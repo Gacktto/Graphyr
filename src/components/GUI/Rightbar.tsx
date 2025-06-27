@@ -10,11 +10,11 @@ export default function Rightbar() {
                     <div className={styles.container}>
                         <div className={`${buttonStyles.button} ${buttonStyles.primary}`}>
                             Publish
-                            <GlobeIcon className={styles.icon}/>
+                            <GlobeIcon size={20} className={styles.icon}/>
                         </div>
                         <div className={`${buttonStyles.button} ${buttonStyles.primary}`}>
-                            Share
-                            <ShareFatIcon weight="fill" className={styles.icon}/>
+                            {/* Share */}
+                            <ShareFatIcon weight="fill" size={20} className={styles.icon}/>
                         </div>
                     </div>
                 </div>

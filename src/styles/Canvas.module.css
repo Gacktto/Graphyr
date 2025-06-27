@@ -1,0 +1,12 @@
+.canvas {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left:0;
+    width: 100%;
+    background-color: rgb(29, 29, 29);
+    color: white;
+    height: 100%;
+    z-index: 2;
+}

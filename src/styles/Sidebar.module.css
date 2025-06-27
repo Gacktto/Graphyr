@@ -9,6 +9,11 @@
     z-index: 99;
 }
 
+.title {
+    font-size: medium;
+    font-weight: bold;
+}
+
 .menu {
     min-width: 300px;
     height: 100%;

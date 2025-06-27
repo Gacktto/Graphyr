@@ -8,7 +8,7 @@ export default function Leftbar() {
             <div className={styles.menu} style={{borderRight: "1px solid #3c3c3c"}}>
                 <div className={styles.section}>
                     <div className={styles.container} style={{justifyContent: "space-between", alignItems: "center"}}>
-                        Graphyr
+                        <p className={styles.title}>Graphyr</p>
                         <SidebarIcon size={20} className={`${styles.icon} ${styles.button}`}/>
                     </div>
                 </div>

@@ -13,14 +13,14 @@
     min-width: 300px;
     height: 100%;
     background-color: #282828;
-    border-right: 1px solid #3C3C3C;
 }
 
 .container {
     width: 100%;
     display: flex;
     align-items: start;
-    justify-content: space-between;
+    justify-content: start;
+    gap: 10px;
 }
 
 .section {

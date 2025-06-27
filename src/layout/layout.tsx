@@ -1,14 +1,14 @@
 import type { CSSProperties } from "react"
-import PropertiesBar from "../components/GUI/PropertiesBar"
-import Sidebar from "../components/GUI/Sidebar"
+import Rightbar from "../components/GUI/Rightbar"
+import Leftbar from "../components/GUI/Leftbar"
 import Canvas from "../components/GUI/Canvas"
 
 export default function Layout() {
     return (
         <div className="layout" style={style}>
-            <Sidebar/>
+            <Leftbar/>
             <Canvas/>
-            <PropertiesBar/>
+            <Rightbar/>
         </div>
     )
 }

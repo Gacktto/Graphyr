@@ -67,6 +67,7 @@
 }
 
 .group {
+    position: relative;
     display: flex;
     align-items: start;
     justify-content: start;
@@ -74,7 +75,12 @@
     gap: 5px;
 }
 
+.group.fill {
+    width: 100%;
+}
+
 .groupContent {
+    position: relative;
     display: flex;
     align-items: start;
     justify-content: start;
@@ -82,6 +88,7 @@
     border: 1px solid #3C3C3C;
     padding: 2px;
     border-radius: 5px;
+    box-sizing: border-box;
 }
 
 .groupInput {
@@ -96,6 +103,10 @@
     border-radius: 5px;
     border: 1px solid #3C3C3C;
     border-radius: 5px;
+}
+
+.groupInput.disabled {
+    opacity: 0.5;
 }
 
 .input {
@@ -117,9 +128,15 @@
     justify-content: center;
     height: 100%;
     width: fit-content;
+    text-wrap: nowrap;
     font-size: smaller;
     opacity: 0.5;
     padding: 3px;
     box-sizing: border-box;
     letter-spacing: 0.4px;
+}
+
+.buttonOptions {
+    width: 100%;
+    justify-content: space-around;
 }

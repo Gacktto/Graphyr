@@ -6,6 +6,7 @@ export type ElementNode = {
   type: string;
   name: string;
   children?: ElementNode[];
+  style?: React.CSSProperties;
 };
 
 type TreeViewProps = {

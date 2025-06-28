@@ -29,12 +29,13 @@ export function renderElement(
           data-canvas-element
           onClick={handleClick}
           style={{
-            outline: isSelected ? "2px solid #007aff" : "none",
-            margin: "0 auto",
-            width: 1300,
-            minHeight: 600,
-            backgroundColor: "#fff",
-            position: "relative",
+              outline: isSelected ? "2px solid #007aff" : "none",
+              margin: "0 auto",
+              width: node.style?.width || "1300px",
+              minHeight: 600,
+              backgroundColor: "#fff",
+              position: "relative",
+              ...node.style,
           }}
         >
           {node.children?.map((child) =>
@@ -51,12 +52,13 @@ export function renderElement(
           onClick={handleClick}
           style={{
             ...commonStyle,
-            backgroundColor: "red",
-            width: 200,
-            height: 200,
+            backgroundColor: node.style?.backgroundColor || "red",
+            width: node.style?.width || 200,
+            height: node.style?.height || 200,
+            ...node.style,
           }}
         >
-          {node.name}
+          {/* {node.name} */}
           {node.children?.map((child) =>
             renderElement(child, selectedId, onSelect)
           )}
@@ -71,10 +73,11 @@ export function renderElement(
           onClick={handleClick}
           style={{
             ...commonStyle,
-            backgroundColor: "#007aff",
-            color: "#fff",
-            width: "fit-content",
-            padding: 0,
+            backgroundColor: node.style?.backgroundColor || "#007aff",
+            color: node.style?.color || "#fff",
+            width: node.style?.width || "fit-content",
+            padding: node.style?.padding || 0,
+            ...node.style,
           }}
         >
           {node.name}

@@ -3,7 +3,7 @@ import type { ElementNode } from "../components/TreeView/TreeView";
 
 type CanvasContextType = {
   elements: ElementNode[];
-  setElements: (els: ElementNode[]) => void;
+  setElements: React.Dispatch<React.SetStateAction<ElementNode[]>>;
   selectedId: string | null;
   setSelectedId: (id: string | null) => void;
 };

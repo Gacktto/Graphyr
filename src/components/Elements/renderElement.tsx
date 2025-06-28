@@ -1,11 +1,14 @@
 import React, { type JSX } from "react";
 import type { ElementNode } from "../TreeView/TreeView";
+import { useCanvas } from "../../context/CanvasContext";
 
 export function renderElement(
   node: ElementNode,
   selectedId: string | null,
   onSelect: (id: string) => void
 ): JSX.Element | null {
+  const { elementsRef } = useCanvas(); // importa o ref
+
   const isSelected = node.id === selectedId;
 
   const handleClick = (e: React.MouseEvent) => {
@@ -13,12 +16,14 @@ export function renderElement(
     onSelect(node.id);
   };
 
+  const registerRef = (el: HTMLElement | null) => {
+    if (el) {
+      elementsRef.current[node.id] = el;
+    }
+  };
+
   const commonStyle: React.CSSProperties = {
     outline: isSelected ? "2px solid #007aff" : "none",
-    position: "absolute",
-    top: node.type === "div" ? 100 : 150,
-    left: node.type === "div" ? 100 : 200,
-    padding: 10,
   };
 
   switch (node.type) {
@@ -26,16 +31,18 @@ export function renderElement(
       return (
         <div
           key={node.id}
+          ref={registerRef}
+          data-element-id={node.id}
           data-canvas-element
           onClick={handleClick}
           style={{
-              outline: isSelected ? "2px solid #007aff" : "none",
-              margin: "0 auto",
-              width: node.style?.width || "1300px",
-              minHeight: 600,
-              backgroundColor: "#fff",
-              position: "relative",
-              ...node.style,
+            outline: isSelected ? "2px solid #007aff" : "none",
+            margin: "0 auto",
+            width: node.style?.width || "1300px",
+            minHeight: 600,
+            backgroundColor: "#fff",
+            position: "relative",
+            ...node.style,
           }}
         >
           {node.children?.map((child) =>
@@ -48,17 +55,20 @@ export function renderElement(
       return (
         <div
           key={node.id}
+          ref={registerRef}
+          data-element-id={node.id}
           data-canvas-element
           onClick={handleClick}
           style={{
             ...commonStyle,
             backgroundColor: node.style?.backgroundColor || "red",
             width: node.style?.width || 200,
+            display: node.style?.display || "flex",
+            position: node.style?.position || "absolute",
             height: node.style?.height || 200,
             ...node.style,
           }}
         >
-          {/* {node.name} */}
           {node.children?.map((child) =>
             renderElement(child, selectedId, onSelect)
           )}
@@ -69,6 +79,8 @@ export function renderElement(
       return (
         <button
           key={node.id}
+          ref={registerRef}
+          data-element-id={node.id}
           data-canvas-element
           onClick={handleClick}
           style={{

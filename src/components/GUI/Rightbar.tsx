@@ -16,15 +16,28 @@ import {
     ArrowFatLinesUpIcon,
     ArrowFatLinesLeftIcon,
     ArrowFatLinesRightIcon,
+    NetworkIcon,
+    NetworkSlashIcon,
+    CornersOutIcon
 } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
 
 import { useCanvas } from "../../context/CanvasContext";
 import type { ElementNode } from "../TreeView/TreeView";
 
 export default function Rightbar() {
 
-    const { elements, setElements, selectedId } = useCanvas();
+    const { elements, setElements, selectedId, elementsRef } = useCanvas();
     const selectedElement = findElementById(elements, selectedId); // função auxiliar abaixo
+    const [computedStyles, setComputedStyles] = useState<CSSStyleDeclaration | null>(null);
+
+    useEffect(() => {
+        if (selectedId && elementsRef.current[selectedId]) {
+            const el = elementsRef.current[selectedId]!;
+            const computed = getComputedStyle(el);
+            setComputedStyles(computed);
+        }
+    }, [selectedId, elementsRef]);
 
     function findElementById(nodes: ElementNode[], id: string | null): ElementNode | null {
         for (const node of nodes) {
@@ -38,30 +51,30 @@ export default function Rightbar() {
     }
 
     function updateElementStyle(id: string, newStyle: React.CSSProperties) {
-    setElements((prevElements: ElementNode[]) => {
-        const updateNode = (node: ElementNode): ElementNode => {
-        if (node.id === id) {
-            return {
-            ...node,
-            style: {
-                ...node.style,
-                ...newStyle,
-            },
+        setElements((prevElements: ElementNode[]) => {
+            const updateNode = (node: ElementNode): ElementNode => {
+            if (node.id === id) {
+                return {
+                ...node,
+                style: {
+                    ...node.style,
+                    ...newStyle,
+                },
+                };
+            }
+
+            if (node.children) {
+                return {
+                ...node,
+                children: node.children.map(updateNode),
+                };
+            }
+
+            return node;
             };
-        }
 
-        if (node.children) {
-            return {
-            ...node,
-            children: node.children.map(updateNode),
-            };
-        }
-
-        return node;
-        };
-
-        return prevElements.map(updateNode);
-    });
+            return prevElements.map(updateNode);
+        });
     }
 
 
@@ -165,6 +178,35 @@ export default function Rightbar() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Row Start */}
+                        <div className={styles.row}>
+                            <div className={styles.group}>
+                                <div className={styles.groupTitle}>Type</div>
+                                <div className={styles.groupContent}>
+                                    <NetworkIcon className={`${styles.icon} ${styles.button}`}
+                                        onClick={() => {
+                                            const currentType = selectedElement?.style?.position;
+                                            console.log(currentType);
+
+                                            updateElementStyle(selectedId!, {
+                                                position: currentType === "relative" ? currentType : "relative",
+                                            });
+                                        }}
+                                    />
+                                    <NetworkSlashIcon className={`${styles.icon} ${styles.button}`}
+                                        onClick={() => {
+                                            const currentType = selectedElement?.style?.position;
+                                            console.log(currentType);
+
+                                            updateElementStyle(selectedId!, {
+                                                position: currentType === "absolute" ? currentType : "absolute",
+                                            });
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -182,8 +224,13 @@ export default function Rightbar() {
                                         <div className={styles.inputLabel}>W</div>
                                         <input 
                                             type="text" 
-                                            className={styles.input} 
-                                            value={String(selectedElement?.style?.width || "").replace("px", "")}
+                                            className={styles.input}
+                                            value={
+                                                selectedElement?.style?.width !== undefined
+                                                    ? String(selectedElement.style.width).replace("px", "")
+                                                    : ""
+                                            }
+                                            placeholder={computedStyles?.width?.replace("px", "")}
                                             onChange={(e) => {
                                                 const value = e.target.value;
                                                 updateElementStyle(selectedId!, { width: value ? `${value}px` : undefined });
@@ -195,7 +242,12 @@ export default function Rightbar() {
                                         <input 
                                             type="text" 
                                             className={styles.input} 
-                                            value={String(selectedElement?.style?.height || "").replace("px", "")}
+                                            value={
+                                                selectedElement?.style?.height !== undefined
+                                                    ? String(selectedElement.style.height).replace("px", "")
+                                                    : ""
+                                            }
+                                            placeholder={computedStyles?.height?.replace("px", "")}
                                             onChange={(e) => {
                                                 const value = e.target.value;
                                                 updateElementStyle(selectedId!, { height: value ? `${value}px` : undefined });
@@ -212,7 +264,14 @@ export default function Rightbar() {
                                 <div className={styles.group} style={{flexDirection: "row", gap: "10px"}}>
                                     <div className={`${styles.groupInput} ${styles.disabled}`}>
                                         <div className={styles.inputLabel}>min</div>
-                                        <input type="text" disabled className={styles.input}/>
+                                        <input type="text" disabled className={styles.input}
+                                            value={
+                                                selectedElement?.style?.minWidth !== undefined
+                                                    ? String(selectedElement.style.minWidth).replace("px", "")
+                                                    : ""
+                                            }
+                                            placeholder={computedStyles?.minWidth?.replace("px", "")}
+                                        />
                                     </div>
                                     <div className={`${styles.groupInput} ${styles.disabled}`}>
                                         <div className={styles.inputLabel}>max</div>
@@ -239,10 +298,47 @@ export default function Rightbar() {
                             <div className={`${styles.group} ${styles.fill}`}>
                                 <div className={styles.groupTitle}>Display Direction</div>
                                 <div className={`${styles.groupContent} ${styles.buttonOptions}`}>
-                                    <ArrowFatLinesDownIcon className={`${styles.icon} ${styles.button}`}/>
-                                    <ArrowFatLinesUpIcon className={`${styles.icon} ${styles.button}`}/>
-                                    <ArrowFatLinesRightIcon className={`${styles.icon} ${styles.button}`}/>
-                                    <ArrowFatLinesLeftIcon className={`${styles.icon} ${styles.button}`}/>
+                                    <ArrowFatLinesDownIcon className={`${styles.icon} ${styles.button}`} 
+                                        onClick={() => {
+                                            const currentDisplay = selectedElement?.style?.display;
+                                            console.log(currentDisplay);
+
+                                            updateElementStyle(selectedId!, {
+                                                display: currentDisplay === "flex" ? currentDisplay : "flex",
+                                                flexDirection: "column"
+                                            });
+                                        }}
+                                    />
+                                    <ArrowFatLinesUpIcon className={`${styles.icon} ${styles.button}`}
+                                        onClick={() => {
+                                            const currentDisplay = selectedElement?.style?.display;
+
+                                            updateElementStyle(selectedId!, {
+                                                display: currentDisplay === "flex" ? currentDisplay : "flex",
+                                                flexDirection: "column-reverse"
+                                            });
+                                        }}
+                                    />
+                                    <ArrowFatLinesRightIcon className={`${styles.icon} ${styles.button}`}
+                                        onClick={() => {
+                                            const currentDisplay = selectedElement?.style?.display;
+
+                                            updateElementStyle(selectedId!, {
+                                                display: currentDisplay === "flex" ? currentDisplay : "flex",
+                                                flexDirection: "row"
+                                            });
+                                        }}
+                                    />
+                                    <ArrowFatLinesLeftIcon className={`${styles.icon} ${styles.button}`}
+                                        onClick={() => {
+                                            const currentDisplay = selectedElement?.style?.display;
+
+                                            updateElementStyle(selectedId!, {
+                                                display: currentDisplay === "flex" ? currentDisplay : "flex",
+                                                flexDirection: "row-reverse"
+                                            });
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -292,19 +388,55 @@ export default function Rightbar() {
                                 <div className={styles.group} style={{flexDirection: "row", gap: "10px"}}>
                                     <div className={`${styles.groupInput}`}>
                                         <div className={styles.inputLabel}>T</div>
-                                        <input type="text" className={styles.input}/>
+                                        <input
+                                            type="text" 
+                                            className={styles.input} 
+                                            value={
+                                            selectedElement?.style?.paddingTop !== undefined
+                                                ? String(selectedElement.style.paddingTop).replace("px", "")
+                                                : ""
+                                            }
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                updateElementStyle(selectedId!, { paddingTop: value ? `${value}px` : undefined });
+                                            }}
+                                        />
                                     </div>
                                     <div className={`${styles.groupInput}`}>
                                         <div className={styles.inputLabel}>B</div>
-                                        <input type="text" className={styles.input}/>
+                                        <input
+                                            type="text" 
+                                            className={styles.input} 
+                                            value={String(selectedElement?.style?.paddingBottom || "").replace("px", "")}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                updateElementStyle(selectedId!, { paddingBottom: value ? `${value}px` : undefined });
+                                            }}
+                                        />
                                     </div>
                                     <div className={`${styles.groupInput}`}>
                                         <div className={styles.inputLabel}>L</div>
-                                        <input type="text" className={styles.input}/>
+                                        <input
+                                            type="text" 
+                                            className={styles.input} 
+                                            value={String(selectedElement?.style?.paddingLeft || "").replace("px", "")}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                updateElementStyle(selectedId!, { paddingLeft: value ? `${value}px` : undefined });
+                                            }}
+                                        />
                                     </div>
                                     <div className={`${styles.groupInput}`}>
                                         <div className={styles.inputLabel}>R</div>
-                                        <input type="text" className={styles.input}/>
+                                        <input
+                                            type="text" 
+                                            className={styles.input} 
+                                            value={String(selectedElement?.style?.paddingRight || "").replace("px", "")}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                updateElementStyle(selectedId!, { paddingRight: value ? `${value}px` : undefined });
+                                            }}
+                                        />
                                     </div>
                                 </div>
                             </div>

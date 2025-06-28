@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, useRef, type ReactNode } from "react";
 import type { ElementNode } from "../components/TreeView/TreeView";
 
 type CanvasContextType = {
@@ -6,11 +6,13 @@ type CanvasContextType = {
   setElements: React.Dispatch<React.SetStateAction<ElementNode[]>>;
   selectedId: string | null;
   setSelectedId: (id: string | null) => void;
+  elementsRef: React.MutableRefObject<Record<string, HTMLElement | null>>;
 };
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
 export function CanvasProvider({ children }: { children: ReactNode }) {
+    const elementsRef = useRef<Record<string, HTMLElement | null>>({});
   const [elements, setElements] = useState<ElementNode[]>([
     {
       id: "1",
@@ -28,7 +30,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   return (
-    <CanvasContext.Provider value={{ elements, setElements, selectedId, setSelectedId }}>
+    <CanvasContext.Provider value={{ elements, setElements, selectedId, setSelectedId, elementsRef }}>
       {children}
     </CanvasContext.Provider>
   );

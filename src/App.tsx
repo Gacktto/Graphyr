@@ -1,11 +1,11 @@
 import Layout from "./layout/layout";
-
+import { CanvasProvider } from "./context/CanvasContext";
 
 const App = () => {
   return (
-    <div>
-      <Layout/>
-    </div>
+    <CanvasProvider>
+      <Layout />
+    </CanvasProvider>
   );
 };
 

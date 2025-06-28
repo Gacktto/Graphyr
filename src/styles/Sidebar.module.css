@@ -16,6 +16,7 @@
 
 .menu {
     min-width: 300px;
+    max-width: 300px;
     height: 100%;
     background-color: #282828;
 }
@@ -40,11 +41,85 @@
 }
 
 .icon {
-    width: fit-content;
+    width: 20px;
     height: fit-content;
 }
 
 .icon.button:hover {
     cursor: pointer;
     color: rgba(255, 255, 255, 0.6);
+}
+
+.row {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    width: 100%;
+    height: fit-content;
+    box-sizing: border-box;
+    gap: 10px;
+}
+
+.groupTitle {
+    font-size: smaller;
+    opacity: 0.5;
+    letter-spacing: 0.4px;
+}
+
+.group {
+    display: flex;
+    align-items: start;
+    justify-content: start;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.groupContent {
+    display: flex;
+    align-items: start;
+    justify-content: start;
+    gap: 5px;
+    border: 1px solid #3C3C3C;
+    padding: 2px;
+    border-radius: 5px;
+}
+
+.groupInput {
+    position: relative;
+    display: flex;
+    align-items: start;
+    justify-content: start;
+    width: 100%;
+    height: 20px;
+    gap: 5px;
+    padding: 2px;
+    border-radius: 5px;
+    border: 1px solid #3C3C3C;
+    border-radius: 5px;
+}
+
+.input {
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    border-radius: 5px;
+    color: white;
+}
+
+.input:focus {
+    outline: none;
+}
+
+.inputLabel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: fit-content;
+    font-size: smaller;
+    opacity: 0.5;
+    padding: 3px;
+    box-sizing: border-box;
+    letter-spacing: 0.4px;
 }

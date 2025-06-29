@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useRef, type ReactNode } from "react";
+import { createContext, useContext, useState, useRef, type ReactNode, useMemo } from "react";
 import type { ElementNode } from "../components/TreeView/TreeView";
 
 type CanvasContextType = {
@@ -29,8 +29,16 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const contextValue = useMemo(() => ({
+        elements,
+        setElements,
+        selectedId,
+        setSelectedId,
+        elementsRef
+    }), [elements, selectedId]); 
+
   return (
-    <CanvasContext.Provider value={{ elements, setElements, selectedId, setSelectedId, elementsRef }}>
+    <CanvasContext.Provider  value={contextValue}>
       {children}
     </CanvasContext.Provider>
   );

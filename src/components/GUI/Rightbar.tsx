@@ -18,17 +18,21 @@ import {
     ArrowFatLinesRightIcon,
     NetworkIcon,
     NetworkSlashIcon,
-    CornersOutIcon
+    CornersOutIcon,
+    EyeIcon,
+    DiceFiveIcon,
+    EyeClosedIcon
 } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import { useCanvas } from "../../context/CanvasContext";
 import type { ElementNode } from "../TreeView/TreeView";
 
-export default function Rightbar() {
+import { ColorPicker } from "../ColorPicker/ColorPicker";
 
+export default function Rightbar() {
     const { elements, setElements, selectedId, elementsRef } = useCanvas();
-    const selectedElement = findElementById(elements, selectedId); // função auxiliar abaixo
+    const selectedElement = findElementById(elements, selectedId);
     const [computedStyles, setComputedStyles] = useState<CSSStyleDeclaration | null>(null);
 
     useEffect(() => {
@@ -36,6 +40,8 @@ export default function Rightbar() {
             const el = elementsRef.current[selectedId]!;
             const computed = getComputedStyle(el);
             setComputedStyles(computed);
+        } else {
+            setComputedStyles(null);
         }
     }, [selectedId, elementsRef]);
 
@@ -51,33 +57,52 @@ export default function Rightbar() {
     }
 
     function updateElementStyle(id: string, newStyle: React.CSSProperties) {
-        setElements((prevElements: ElementNode[]) => {
-            const updateNode = (node: ElementNode): ElementNode => {
-            if (node.id === id) {
-                return {
-                ...node,
-                style: {
-                    ...node.style,
-                    ...newStyle,
-                },
-                };
-            }
+  setElements((prevElements: ElementNode[]) => {
+    let changed = false;
 
-            if (node.children) {
-                return {
-                ...node,
-                children: node.children.map(updateNode),
-                };
-            }
-
-            return node;
-            };
-
-            return prevElements.map(updateNode);
+    const updateNode = (node: ElementNode): ElementNode => {
+      if (node.id === id) {
+        const currentStyle = node.style || {};
+        const styleChanged = Object.entries(newStyle).some(([key, value]) => {
+        return currentStyle[key as keyof React.CSSProperties] !== value;
         });
-    }
+        if (!styleChanged) return node;
+        changed = true;
+        return {
+          ...node,
+          style: {
+            ...currentStyle,
+            ...newStyle,
+          },
+        };
+      }
+
+      if (node.children) {
+        const newChildren = node.children.map(updateNode);
+        if (newChildren.some((c, i) => c !== node.children![i])) {
+          changed = true;
+          return {
+            ...node,
+            children: newChildren,
+          };
+        }
+      }
+
+      return node;
+    };
+
+    const next = prevElements.map(updateNode);
+    return changed ? next : prevElements;
+  });
+}
 
 
+
+    const handleBackgroundColorChange = useCallback((newColor: string) => {
+        if (selectedId) {
+            updateElementStyle(selectedId, { backgroundColor: newColor });
+        }
+    }, [selectedId, updateElementStyle]);
 
     return (
         <div className={styles.sidebar} style={{right: 0}}>
@@ -561,22 +586,331 @@ export default function Rightbar() {
                             <div className={`${styles.group} ${styles.fill}`}>
                                 <div className={styles.groupTitle}>Overflow X</div>
                                 <div className={`${styles.groupInput}`}>
-                                    <select className={`${styles.input} ${styles.select}`}>
-                                        <option value="Auto">Auto</option>
-                                        <option value="Hidden">Hidden</option>
-                                        <option value="Visible">Visible</option>
-                                        <option value="Scroll">Scroll</option>
+                                    <select className={`${styles.input} ${styles.select}`}
+                                        value={selectedElement?.style?.overflowX || ""}
+                                        onChange={(e) =>
+                                            updateElementStyle(selectedId!, {
+                                                overflowX: e.target.value as React.CSSProperties["overflowX"] || "auto",
+                                            })
+                                        }
+                                    >
+                                        <option value="auto">Auto</option>
+                                        <option value="hidden">Hidden</option>
+                                        <option value="visible">Visible</option>
+                                        <option value="scroll">Scroll</option>
                                     </select>
                                 </div>
                             </div>
                             <div className={`${styles.group} ${styles.fill}`}>
                                 <div className={styles.groupTitle}>Overflow Y</div>
                                 <div className={`${styles.groupInput}`}>
-                                    <select className={`${styles.input} ${styles.select}`}>
-                                        <option value="Auto">Auto</option>
-                                        <option value="Hidden">Hidden</option>
-                                        <option value="Visible">Visible</option>
-                                        <option value="Scroll">Scroll</option>
+                                    <select className={`${styles.input} ${styles.select}`}
+                                        value={selectedElement?.style?.overflowY || ""}
+                                        onChange={(e) =>
+                                            updateElementStyle(selectedId!, {
+                                                overflowY: e.target.value as React.CSSProperties["overflowY"] || "auto",
+                                            })
+                                        }
+                                    >
+                                        <option value="auto">Auto</option>
+                                        <option value="hidden">Hidden</option>
+                                        <option value="visible">Visible</option>
+                                        <option value="scroll">Scroll</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+                {/* Section Start */}
+                 <div className={styles.section}>
+                    <div className={styles.container} style={{flexDirection: "column"}}>
+                        Appearence
+
+                        {/* Row Start */}
+                        <div className={styles.row}>
+                            <div className={`${styles.group} ${styles.fill}`}>
+                                <div className={styles.groupTitle}>Visibility</div>
+                                <div className={`${styles.group} ${styles.fill}`} style={{flexDirection: "row", gap: "10px"}}>
+                                    <div className={styles.groupInput}>
+                                        <DiceFiveIcon className={`${styles.inputIcon}`}/>
+                                        <input 
+                                            type="text" 
+                                            className={styles.input}
+                                            value={
+                                                selectedElement?.style?.opacity !== undefined
+                                                    ? selectedElement.style.opacity
+                                                    : ""
+                                            }
+                                            placeholder={computedStyles?.opacity}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                updateElementStyle(selectedId!, { opacity: value ? value : undefined });
+                                            }}
+                                        />
+                                    </div>
+                                    <div className={`${styles.groupContent} ${styles.buttonOptions}`}>
+                                        <EyeIcon
+                                            className={`${styles.icon} ${styles.button}`}
+                                            onClick={() => {
+                                                const currentDisplay = selectedElement?.style?.display;
+
+                                                updateElementStyle(selectedId!, {
+                                                    display: currentDisplay === "flex" ? currentDisplay : "flex",
+                                                });
+                                            }}
+                                        />
+                                        <EyeClosedIcon
+                                            className={`${styles.icon} ${styles.button}`}
+                                            onClick={() => {
+                                                const currentDisplay = selectedElement?.style?.display;
+
+                                                updateElementStyle(selectedId!, {
+                                                    display: currentDisplay === "none" ? currentDisplay : "none",
+                                                });
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Row Start */}
+                        <div className={styles.row}>
+                            <div className={`${styles.group} ${styles.fill}`}>
+                                <div className={styles.groupTitle}>Background</div>
+                                <div className={`${styles.groupContent}`}>
+                                    {selectedElement && (
+                                        <ColorPicker
+                                            color={selectedElement.style?.backgroundColor || 'rgba(255, 255, 255, 1)'}
+                                            key={selectedId}
+                                            onChange={handleBackgroundColorChange}
+                                            debounceMs={200}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Row Start */}
+                        {["column", "column-reverse", "row", "row-reverse"].includes(selectedElement?.style?.flexDirection || "") && (
+                        <div className={styles.row}>
+                            <div className={`${styles.group} ${styles.fill}`}>
+                                <div className={styles.groupTitle}>Align</div>
+
+                                <div className={`${styles.groupContent} ${styles.buttonOptions}`}>
+                                {/* Horizontal alignment (aparece se for column ou column-reverse) */}
+                                {["column", "column-reverse"].includes(selectedElement?.style?.flexDirection || "") && (
+                                    <>
+                                    <AlignLeftIcon
+                                        className={`${styles.icon} ${styles.button}`}
+                                        onClick={() =>
+                                            updateElementStyle(selectedId!, { alignItems: "flex-start" })
+                                        }
+                                    />
+                                    <AlignCenterHorizontalIcon
+                                        className={`${styles.icon} ${styles.button}`}
+                                        onClick={() =>
+                                            updateElementStyle(selectedId!, { alignItems: "center" })
+                                        }
+                                    />
+                                    <AlignRightIcon
+                                        className={`${styles.icon} ${styles.button}`}
+                                        onClick={() =>
+                                            updateElementStyle(selectedId!, { alignItems: "flex-end" })
+                                        }
+                                    />
+                                    </>
+                                )}
+
+                                {/* Vertical alignment (aparece se for row ou row-reverse) */}
+                                {["row", "row-reverse"].includes(selectedElement?.style?.flexDirection || "") && (
+                                    <>
+                                    <AlignTopIcon
+                                        className={`${styles.icon} ${styles.button}`}
+                                        onClick={() =>
+                                            updateElementStyle(selectedId!, { alignItems: "flex-start" })
+                                        }
+                                    />
+                                    <AlignCenterVerticalIcon
+                                        className={`${styles.icon} ${styles.button}`}
+                                        onClick={() =>
+                                            updateElementStyle(selectedId!, { alignItems: "center" })
+                                        }
+                                    />
+                                    <AlignBottomIcon
+                                        className={`${styles.icon} ${styles.button}`}
+                                        onClick={() =>
+                                            updateElementStyle(selectedId!, { alignItems: "flex-end" })
+                                        }
+                                    />
+                                    </>
+                                )}
+                                </div>
+
+                            </div>
+                        </div>
+                        )}
+
+                        {/* Row Start */}
+                        <div className={styles.row}>
+                            <div className={`${styles.group} ${styles.fill}`}>
+                                <div className={styles.groupTitle}>Justify</div>
+                                <div className={`${styles.groupInput}`}>
+                                    <select
+                                        className={`${styles.input} ${styles.select}`}
+                                        value={selectedElement?.style?.justifyContent || ""}
+                                        onChange={(e) =>
+                                            updateElementStyle(selectedId!, {
+                                                justifyContent: e.target.value || undefined,
+                                            })
+                                        }
+                                    >
+                                        <option value="">Default</option>
+                                        <option value="flex-start">Start</option>
+                                        <option value="center">Center</option>
+                                        <option value="flex-end">End</option>
+                                        <option value="space-between">Space Between</option>
+                                        <option value="space-around">Space Around</option>
+                                        <option value="space-evenly">Space Evenly</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className={styles.group}>
+                                <div className={styles.groupTitle}>Gap</div>
+                                <div className={`${styles.groupInput} ${["column", "column-reverse", "row", "row-reverse"].includes(selectedElement?.style?.flexDirection || "") ? "" : styles.disabled}`}>
+                                    <input
+                                        type="text" 
+                                        disabled={
+                                            ["column", "column-reverse", "row", "row-reverse"].includes(selectedElement?.style?.flexDirection || "") ? false : true
+                                        } 
+                                        className={styles.input}
+                                        value={
+                                            selectedElement?.style?.gap !== undefined
+                                                ? String(selectedElement.style.gap).replace("px", "")
+                                                : ""
+                                        }
+                                        placeholder={computedStyles?.gap?.replace("px", "")}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            updateElementStyle(selectedId!, { gap: value ? `${value}px` : undefined });
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Row Start */}
+                        <div className={styles.row}>
+                            <div className={styles.group}>
+                                <div className={styles.groupTitle}>Padding</div>
+                                <div className={styles.group} style={{flexDirection: "row", gap: "10px"}}>
+                                    <div className={`${styles.groupInput}`}>
+                                        <div className={styles.inputLabel}>T</div>
+                                        <input
+                                            type="text" 
+                                            className={styles.input} 
+                                            value={
+                                                selectedElement?.style?.paddingTop !== undefined
+                                                    ? String(selectedElement.style.paddingTop).replace("px", "")
+                                                    : ""
+                                            }
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                updateElementStyle(selectedId!, { paddingTop: value ? `${value}px` : undefined });
+                                            }}
+                                        />
+                                    </div>
+                                    <div className={`${styles.groupInput}`}>
+                                        <div className={styles.inputLabel}>B</div>
+                                        <input
+                                            type="text" 
+                                            className={styles.input} 
+                                            value={
+                                                selectedElement?.style?.paddingBottom !== undefined
+                                                    ? String(selectedElement.style.paddingBottom).replace("px", "")
+                                                    : ""
+                                            }
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                updateElementStyle(selectedId!, { paddingBottom: value ? `${value}px` : undefined });
+                                            }}
+                                        />
+                                    </div>
+                                    <div className={`${styles.groupInput}`}>
+                                        <div className={styles.inputLabel}>L</div>
+                                        <input
+                                            type="text" 
+                                            className={styles.input} 
+                                            value={
+                                                selectedElement?.style?.paddingLeft !== undefined
+                                                    ? String(selectedElement.style.paddingLeft).replace("px", "")
+                                                    : ""
+                                            }
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                updateElementStyle(selectedId!, { paddingLeft: value ? `${value}px` : undefined });
+                                            }}
+                                        />
+                                    </div>
+                                    <div className={`${styles.groupInput}`}>
+                                        <div className={styles.inputLabel}>R</div>
+                                        <input
+                                            type="text" 
+                                            className={styles.input} 
+                                            value={
+                                                selectedElement?.style?.paddingRight !== undefined
+                                                    ? String(selectedElement.style.paddingRight).replace("px", "")
+                                                    : ""
+                                            }
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                updateElementStyle(selectedId!, { paddingRight: value ? `${value}px` : undefined });
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Row Start */}
+                        <div className={styles.row}>
+                            <div className={`${styles.group} ${styles.fill}`}>
+                                <div className={styles.groupTitle}>Overflow X</div>
+                                <div className={`${styles.groupInput}`}>
+                                    <select className={`${styles.input} ${styles.select}`}
+                                        value={selectedElement?.style?.overflowX || ""}
+                                        onChange={(e) =>
+                                            updateElementStyle(selectedId!, {
+                                                overflowX: e.target.value as React.CSSProperties["overflowX"] || "auto",
+                                            })
+                                        }
+                                    >
+                                        <option value="auto">Auto</option>
+                                        <option value="hidden">Hidden</option>
+                                        <option value="visible">Visible</option>
+                                        <option value="scroll">Scroll</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className={`${styles.group} ${styles.fill}`}>
+                                <div className={styles.groupTitle}>Overflow Y</div>
+                                <div className={`${styles.groupInput}`}>
+                                    <select className={`${styles.input} ${styles.select}`}
+                                        value={selectedElement?.style?.overflowY || ""}
+                                        onChange={(e) =>
+                                            updateElementStyle(selectedId!, {
+                                                overflowY: e.target.value as React.CSSProperties["overflowY"] || "auto",
+                                            })
+                                        }
+                                    >
+                                        <option value="auto">Auto</option>
+                                        <option value="hidden">Hidden</option>
+                                        <option value="visible">Visible</option>
+                                        <option value="scroll">Scroll</option>
                                     </select>
                                 </div>
                             </div>

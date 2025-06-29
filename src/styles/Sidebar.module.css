@@ -120,6 +120,17 @@
     color: white;
 }
 
+.input.number {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.input.number::-webkit-outer-spin-button,
+.input.number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .input:focus {
     outline: none;
 }
@@ -154,4 +165,10 @@
 .select option{
     cursor: pointer;
     color: black;
+}
+
+.currentColor {
+    height: 100%;
+    width: 20px;
+    border-radius: 3px;
 }

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { hsvaToRgba, rgbaToHex, rgbaToHsva, hexToRgba, type HSVA, type RGBA } from './color';
+import styles from "../../styles/Sidebar.module.css";
 import './ColorPicker.css';
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -153,27 +154,41 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ color, onChange, debou
           style={{ left: `${hsva.s}%`, top: `${100 - hsva.v}%`, backgroundColor: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` }}
         />
       </div>
-      <div className="controls-wrapper">
+      <div className={"controls-wrapper"}>
         <div className="color-preview" style={{ backgroundColor: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` }} />
         <div className="sliders">
           <div className="slider hue-slider" ref={hueRef} onMouseDown={createDragHandler(hueRef, handleHueChange)} onTouchStart={createDragHandler(hueRef, handleHueChange)}>
             <div className="picker-handle" style={{ left: `${(hsva.h / 360) * 100}%` }} />
           </div>
           <div className="slider alpha-slider" ref={alphaRef} onMouseDown={createDragHandler(alphaRef, handleAlphaChange)} onTouchStart={createDragHandler(alphaRef, handleAlphaChange)}>
-            <div className="alpha-gradient" style={{ background: `linear-gradient(to right, transparent, hsl(${hsva.h}, 100%, 50%))` }} />
-            <div className="picker-handle" style={{ left: `${hsva.a * 100}%` }} />
+            <div className="alpha-gradient" style={{ background: `linear-gradient(to right, transparent, rgb(${rgba.r}, ${rgba.g}, ${rgba.b}))` }} />
+            <div className="picker-handle" style={{ left: `${hsva.a * 100}%`, backgroundColor: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` }} />
           </div>
         </div>
       </div>
-      <div className="input-fields">
-        <div className="input-group hex-input">
-          <input type="text" value={rgbaToHex({ r: rgba.r, g: rgba.g, b: rgba.b, a: rgba.a })} onChange={handleHexChange} />
-          <label>HEX</label>
+      <div className={styles.group}>
+        <div className={styles.groupInput}>
+          <div className={styles.inputLabel}>HEX</div>
+          <input className={`${styles.input}`} type="text" value={rgbaToHex({ r: rgba.r, g: rgba.g, b: rgba.b, a: rgba.a })} onChange={handleHexChange} />
         </div>
-        <div className="input-group"><input type="number" min="0" max="255" value={rgba.r} onChange={e => handleRgbaChange('r', e.target.value)} /><label>R</label></div>
-        <div className="input-group"><input type="number" min="0" max="255" value={rgba.g} onChange={e => handleRgbaChange('g', e.target.value)} /><label>G</label></div>
-        <div className="input-group"><input type="number" min="0" max="255" value={rgba.b} onChange={e => handleRgbaChange('b', e.target.value)} /><label>B</label></div>
-        <div className="input-group alpha-input"><input type="number" step="0.01" min="0" max="1" value={rgba.a.toFixed(2)} onChange={e => handleRgbaChange('a', e.target.value)} /><label>A</label></div>
+        <div className={`${styles.group} ${styles.fill}`} style={{flexDirection: "row", gap: "10px"}}>
+            <div className={styles.groupInput}>
+                <div className={styles.inputLabel}>R</div>
+                <input className={`${styles.input} ${styles.number}`} type="number" min="0" max="255" value={rgba.r} onChange={e => handleRgbaChange('r', e.target.value)} />
+            </div>
+            <div className={styles.groupInput}>
+                <div className={styles.inputLabel}>G</div>
+                <input className={`${styles.input} ${styles.number}`} type="number" min="0" max="255" value={rgba.g} onChange={e => handleRgbaChange('g', e.target.value)} />
+            </div>
+            <div className={styles.groupInput}>
+                <div className={styles.inputLabel}>B</div>
+                <input className={`${styles.input} ${styles.number}`} type="number" min="0" max="255" value={rgba.b} onChange={e => handleRgbaChange('b', e.target.value)} />
+            </div>
+            <div className={styles.groupInput}>
+                <div className={styles.inputLabel}>A</div>
+                <input className={`${styles.input} ${styles.number}`} type="number" step="0.01" min="0" max="1" value={rgba.a.toFixed(2)} onChange={e => handleRgbaChange('a', e.target.value)} />
+            </div>
+        </div>
       </div>
     </div>
   );

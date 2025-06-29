@@ -114,6 +114,7 @@
   color: #fff;
   text-align: center;
   font-size: 12px;
+  appearance: textfield;
   -moz-appearance: textfield; /* Firefox */
 }
 .input-group input::-webkit-outer-spin-button,

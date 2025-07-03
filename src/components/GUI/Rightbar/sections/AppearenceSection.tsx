@@ -9,7 +9,6 @@ import {
 import type { ElementNode } from '../../../TreeView/TreeView';
 import { ColorControl } from '../../../ColorPicker/ColorControl';
 
-// Definimos as props que este componente precisa receber
 interface AppearanceSectionProps {
     selectedElement: ElementNode | null;
     computedStyles: CSSStyleDeclaration | null;
@@ -92,8 +91,6 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = React.memo(
                             onClick={onColorControlClick}
                         />
                     </div>
-                    {/* Row Start - Border e outros */}
-                    {/* Você pode continuar movendo o resto do JSX da seção de aparência para cá */}
                     {/* Row Start */}
                     <div className={styles.row}>
                         <div className={styles.group}>

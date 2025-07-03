@@ -31,3 +31,12 @@
     border-top-left-radius: 5px;
     font-weight: bold;
 }
+
+.canvas.cursor {
+    cursor: default;
+}
+
+.canvas.div,
+.canvas.text {
+    cursor: crosshair; 
+}

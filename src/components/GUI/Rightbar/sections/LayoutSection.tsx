@@ -14,7 +14,6 @@ import {
 } from '@phosphor-icons/react';
 import type { ElementNode } from '../../../TreeView/TreeView';
 
-// Props necessárias para esta seção
 interface LayoutSectionProps {
     selectedElement: ElementNode | null;
     computedStyles: CSSStyleDeclaration | null;

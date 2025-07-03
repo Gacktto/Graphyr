@@ -1,5 +1,5 @@
 import styles from '../../styles/Treeview.module.css';
-import { SquareIcon } from '@phosphor-icons/react';
+import { SquareIcon, TextTIcon, BoundingBoxIcon } from '@phosphor-icons/react';
 
 export type ElementNode = {
     id: string;
@@ -15,6 +15,17 @@ type TreeViewProps = {
     onSelect: (id: string) => void;
 };
 
+const NodeIcon = ({ type }: { type: string }) => {
+    switch (type) {
+        case 'text':
+            return <TextTIcon weight="fill" size={15} color="rgb(158, 2, 96)" />;
+        case 'frame':
+            return <BoundingBoxIcon weight="fill" size={15} color="rgb(100, 100, 100)" />;
+        default:
+            return <SquareIcon weight="fill" size={15} color="rgb(2, 96, 158)" />;
+    }
+};
+
 export default function TreeView({
     elements,
     selectedId,
@@ -27,20 +38,14 @@ export default function TreeView({
             <div
                 key={node.id}
                 className={`${styles.node} ${isSelected ? styles.active : ''}`}
-                style={{
-                    paddingLeft: depth * 20,
-                }}
+                style={{ paddingLeft: depth * 20 }}
                 onClick={(e) => {
                     e.stopPropagation();
                     onSelect(node.id);
                 }}
             >
                 <div className={styles.line}>
-                    <SquareIcon
-                        weight="fill"
-                        size={15}
-                        color="rgb(2, 96, 158)"
-                    />
+                    <NodeIcon type={node.type} />
                     <span className={styles.nodeName}>{node.name}</span>
                 </div>
                 <div className={styles.children}>

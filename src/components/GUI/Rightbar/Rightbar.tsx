@@ -113,7 +113,6 @@ export default function Rightbar() {
         [selectedId, updateElementStyle]
     );
 
-    // --- FUNÇÃO PARA ABRIR O PICKER ---
     const handleColorControlClick = (
         event: React.MouseEvent,
         property: keyof React.CSSProperties
@@ -212,29 +211,32 @@ export default function Rightbar() {
                     </div>
                 </div>
 
-                {/* Section Start */}
-                <PositionSection
-                    selectedElement={selectedElement}
-                    computedStyles={computedStyles}
-                    onStyleChange={handleStyleChange}
-                />
+                {selectedElement ? (
+                    <>
+                        <PositionSection
+                            selectedElement={selectedElement}
+                            computedStyles={computedStyles}
+                            onStyleChange={handleStyleChange}
+                        />
 
-                {/* Section Start */}
-                <LayoutSection
-                    selectedElement={selectedElement}
-                    computedStyles={computedStyles}
-                    onStyleChange={handleStyleChange}
-                />
+                        <LayoutSection
+                            selectedElement={selectedElement}
+                            computedStyles={computedStyles}
+                            onStyleChange={handleStyleChange}
+                        />
 
-                {/* Section Start */}
-                <AppearanceSection
-                    selectedElement={selectedElement}
-                    computedStyles={computedStyles}
-                    onStyleChange={handleStyleChange}
-                    onColorControlClick={handleColorControlClick}
-                />
-
-                {/* Section Start */}
+                        <AppearanceSection
+                            selectedElement={selectedElement}
+                            computedStyles={computedStyles}
+                            onStyleChange={handleStyleChange}
+                            onColorControlClick={handleColorControlClick}
+                        />
+                    </>
+                ) : (
+                    <div className={styles.section}>
+                        <p style={{textAlign: 'center', opacity: 0.5}}>Selecione um elemento para editar.</p>
+                    </div>
+                )}
             </div>
             {pickerState && selectedElement && (
                 <div

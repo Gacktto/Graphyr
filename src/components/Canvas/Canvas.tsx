@@ -1,22 +1,114 @@
-// src/components/Canvas/Canvas.tsx
-import { useRef } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import styles from '../../styles/Canvas.module.css';
 import { useCanvasTransform } from './useCanvasTransform';
-import { renderElement } from '../Elements/renderElement';
+import { ElementRenderer } from '../Elements/renderElement';
 import { useCanvas } from '../../context/CanvasContext';
+
+type DrawingState = {
+  startX: number;
+  startY: number;
+  currentX: number;
+  currentY: number;
+  parentId: string | null;
+}
 
 export default function Canvas() {
     const canvasRef = useRef<HTMLDivElement>(null);
     const innerRef = useRef<HTMLDivElement>(null);
 
-    const { elements, selectedId, setSelectedId } = useCanvas();
-    const { scale, offset } = useCanvasTransform(
-        canvasRef as React.RefObject<HTMLDivElement>,
-        innerRef as React.RefObject<HTMLDivElement>
-    );
+    const { elements, selectedId, setSelectedId, activeTool, setActiveTool, addElement } = useCanvas();
+    const { scale, offset } = useCanvasTransform(canvasRef as React.RefObject<HTMLDivElement>, innerRef as React.RefObject<HTMLDivElement>);
+    const [drawingState, setDrawingState] = useState<DrawingState | null>(null);
+
+    const getCoordsInWorld = useCallback((e: MouseEvent | React.MouseEvent): { x: number, y: number } => {
+        if (!canvasRef.current) return { x: 0, y: 0 };
+        const canvasRect = canvasRef.current.getBoundingClientRect();
+        return {
+            x: (e.clientX - canvasRect.left - offset.x) / scale,
+            y: (e.clientY - canvasRect.top - offset.y) / scale
+        };
+    }, [offset, scale]);
+
+    const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (activeTool === 'cursor' || e.button !== 0) {
+            if((e.target as HTMLElement).dataset.canvasElement === undefined) {
+                setSelectedId(null);
+            }
+            return;
+        }
+        e.preventDefault();
+        
+        const targetElement = (e.target as HTMLElement).closest('[data-canvas-element]');
+        const parentId = targetElement ? targetElement.getAttribute('data-element-id') : '1';
+        
+        const { x, y } = getCoordsInWorld(e);
+        setDrawingState({ startX: x, startY: y, currentX: x, currentY: y, parentId });
+    };
+
+    useEffect(() => {
+        if (!drawingState) return;
+
+        const handleWindowMouseMove = (e: MouseEvent) => {
+            const { x, y } = getCoordsInWorld(e);
+            setDrawingState(prev => prev ? { ...prev, currentX: x, currentY: y } : null);
+        };
+
+        const handleWindowMouseUp = (_e: MouseEvent) => {
+            if (!drawingState || activeTool === 'cursor') return;
+            const { startX, startY, currentX, currentY, parentId } = drawingState;
+            const width = Math.abs(currentX - startX);
+            const height = Math.abs(currentY - startY);
+
+            if (width > 5 && height > 5) {
+                const newElementStyle: React.CSSProperties = {
+                    // left: `${Math.min(startX, currentX)}px`,
+                    // top: `${Math.min(startY, currentY)}px`,
+                    position: "relative",
+                    width: `${width}px`,
+                    height: `${height}px`,
+                };
+                addElement(activeTool, { parentId, style: newElementStyle });
+            }
+            setDrawingState(null);
+            setActiveTool('cursor');
+        };
+
+        window.addEventListener('mousemove', handleWindowMouseMove);
+        window.addEventListener('mouseup', handleWindowMouseUp);
+
+        return () => {
+            window.removeEventListener('mousemove', handleWindowMouseMove);
+            window.removeEventListener('mouseup', handleWindowMouseUp);
+        };
+    }, [drawingState, activeTool, addElement, getCoordsInWorld, setActiveTool]);
+
+    const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (activeTool === 'cursor') return;
+        const { x, y } = getCoordsInWorld(e);
+        const targetElement = (e.target as HTMLElement).closest('[data-canvas-element]');
+        const parentId = targetElement ? targetElement.getAttribute('data-element-id') : '1';
+        const newElementStyle: React.CSSProperties = { left: `${x}px`, top: `${y}px` };
+        addElement(activeTool, { parentId, style: newElementStyle });
+        setActiveTool('cursor');
+    };
+
+    const getGhostStyle = (): React.CSSProperties => {
+        if (!drawingState) return { display: 'none' };
+        const { startX, startY, currentX, currentY } = drawingState;
+        return {
+            position: 'absolute',
+            left: Math.min(startX, currentX),
+            top: Math.min(startY, currentY),
+            width: Math.abs(currentX - startX),
+            height: Math.abs(currentY - startY),
+            backgroundColor: 'rgba(0, 122, 255, 0.2)',
+            border: '1px solid rgba(0, 122, 255, 0.8)',
+            zIndex: '9999'
+        };
+    };
 
     return (
-        <div ref={canvasRef} className={styles.canvas}>
+        <div ref={canvasRef} className={`${styles.canvas} ${styles[activeTool]}`}>
             <div
                 ref={innerRef}
                 style={{
@@ -26,10 +118,11 @@ export default function Canvas() {
                     height: '100%',
                     position: 'absolute',
                 }}
+                onMouseDown={handleMouseDown}
+                onDoubleClick={handleDoubleClick}
             >
-                {elements.map((el) =>
-                    renderElement(el, selectedId, setSelectedId)
-                )}
+                {drawingState && <div style={getGhostStyle()} />}
+                {elements.map((el) => <ElementRenderer key={el.id} node={el} />)}
             </div>
         </div>
     );

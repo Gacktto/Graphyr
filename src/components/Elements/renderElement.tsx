@@ -1,103 +1,106 @@
-import React, { type JSX } from 'react';
+import React from 'react';
 import type { ElementNode } from '../TreeView/TreeView';
 import { useCanvas } from '../../context/CanvasContext';
 
-export function renderElement(
-    node: ElementNode,
-    selectedId: string | null,
-    onSelect: (id: string) => void
-): JSX.Element | null {
-    const { elementsRef } = useCanvas(); // importa o ref
+export interface ElementRendererProps {
+  node: ElementNode;
+}
+
+export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(({ node }) => {
+    const { 
+      elementsRef, setElements, selectedId, setSelectedId, 
+      activeTool
+    } = useCanvas();
 
     const isSelected = node.id === selectedId;
 
     const handleClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onSelect(node.id);
+        e.stopPropagation(); 
+        if (activeTool === 'cursor') {
+            setSelectedId(node.id);
+        }
+    };
+
+    const handleTextBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+        const newText = e.currentTarget.innerText;
+        setElements(prev => {
+            const updateName = (nodes: ElementNode[]): ElementNode[] => {
+                return nodes.map(n => {
+                    if (n.id === node.id) {
+                        return { ...n, name: newText };
+                    }
+                    if (n.children) {
+                        return { ...n, children: updateName(n.children) };
+                    }
+                    return n;
+                });
+            };
+            return updateName(prev);
+        });
     };
 
     const registerRef = (el: HTMLElement | null) => {
-        if (el) {
-            elementsRef.current[node.id] = el;
-        }
+        if (el) elementsRef.current[node.id] = el;
     };
 
     const commonStyle: React.CSSProperties = {
         outline: isSelected ? '2px solid #007aff' : 'none',
+        outlineOffset: isSelected ? '2px' : '0px',
     };
+
+    const finalStyle = { ...commonStyle, ...node.style };
+
+    const renderChildren = () => 
+        node.children?.map(child => <ElementRenderer key={child.id} node={child} />);
 
     switch (node.type) {
         case 'frame':
+            const frameStyle = {
+                ...finalStyle,
+                width: node.style?.width || '1300px',
+                minHeight: node.style?.minHeight || '800px',
+                backgroundColor: node.style?.backgroundColor || '#fff',
+                position: 'relative',
+            };
             return (
-                <div
-                    key={node.id}
-                    ref={registerRef}
-                    data-element-id={node.id}
-                    data-canvas-element
+                <div key={node.id} ref={registerRef} data-element-id={node.id} data-canvas-element
                     onClick={handleClick}
-                    style={{
-                        outline: isSelected ? '2px solid #007aff' : 'none',
-                        margin: '0 auto',
-                        width: node.style?.width || '1300px',
-                        minHeight: 600,
-                        backgroundColor: '#fff',
-                        position: 'relative',
-                        ...node.style,
-                    }}
+                    style={frameStyle}
                 >
-                    {node.children?.map((child) =>
-                        renderElement(child, selectedId, onSelect)
-                    )}
+                    {renderChildren()}
                 </div>
             );
-
         case 'div':
             return (
-                <div
-                    key={node.id}
-                    ref={registerRef}
-                    data-element-id={node.id}
-                    data-canvas-element
+                <div key={node.id} ref={registerRef} data-element-id={node.id} data-canvas-element
                     onClick={handleClick}
-                    style={{
-                        ...commonStyle,
-                        backgroundColor: node.style?.backgroundColor || 'red',
-                        width: node.style?.width || 200,
-                        display: node.style?.display || 'flex',
-                        position: node.style?.position || 'absolute',
-                        height: node.style?.height || 200,
-                        ...node.style,
-                    }}
+                    style={finalStyle}
                 >
-                    {node.children?.map((child) =>
-                        renderElement(child, selectedId, onSelect)
-                    )}
+                    {renderChildren()}
                 </div>
             );
-
+        case 'text':
+             return (
+                <div key={node.id} ref={registerRef} data-element-id={node.id} data-canvas-element
+                    onClick={handleClick}
+                    style={finalStyle}
+                    contentEditable={isSelected}
+                    suppressContentEditableWarning={true}
+                    onBlur={handleTextBlur}
+                >
+                    {node.name}
+                </div>
+            );
         case 'button':
             return (
-                <button
-                    key={node.id}
-                    ref={registerRef}
-                    data-element-id={node.id}
-                    data-canvas-element
+                <button key={node.id} ref={registerRef} data-element-id={node.id} data-canvas-element
                     onClick={handleClick}
-                    style={{
-                        ...commonStyle,
-                        backgroundColor:
-                            node.style?.backgroundColor || '#007aff',
-                        color: node.style?.color || '#fff',
-                        width: node.style?.width || 'fit-content',
-                        padding: node.style?.padding || 0,
-                        ...node.style,
-                    }}
+                    style={finalStyle}
                 >
                     {node.name}
                 </button>
             );
-
         default:
             return null;
     }
-}
+});

@@ -14,7 +14,6 @@ export function useCanvasTransform(
     const panStart = useRef({ x: 0, y: 0 });
     const offsetStart = useRef<Offset>({ x: 0, y: 0 });
 
-    // --- Zoom com CTRL + Wheel ---
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -29,6 +28,8 @@ export function useCanvasTransform(
                 Math.max(scale + delta * zoomIntensity, 0.3),
                 4
             );
+
+            console.log('Wheel event fired!', { ctrlKey: e.ctrlKey });
 
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
@@ -48,7 +49,6 @@ export function useCanvasTransform(
         return () => canvas.removeEventListener('wheel', handleWheel);
     }, [canvasRef, scale, offset]);
 
-    // --- Pan com botão esquerdo ---
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -68,7 +68,7 @@ export function useCanvasTransform(
             if (e.code === 'Space') {
                 spacePressed.current = false;
                 if (!isPanning.current) {
-                    canvas.style.cursor = 'default';
+                    canvas.style.cursor = '';
                 }
             }
         };
@@ -93,7 +93,7 @@ export function useCanvasTransform(
 
         const handleMouseUp = () => {
             isPanning.current = false;
-            canvas.style.cursor = spacePressed.current ? 'grab' : 'default';
+            canvas.style.cursor = spacePressed.current ? 'grab' : '';
         };
 
         window.addEventListener('keydown', handleKeyDown);
@@ -111,7 +111,6 @@ export function useCanvasTransform(
         };
     }, [canvasRef, offset, setOffset]);
 
-    // --- Auto centralizar elementos visíveis ---
     useEffect(() => {
         const canvas = canvasRef.current;
         const inner = innerRef.current;

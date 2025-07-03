@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
     BoundingBoxIcon,
     CursorIcon,
@@ -11,29 +10,30 @@ import {
     TableIcon,
 } from '@phosphor-icons/react';
 import styles from '../../styles/Actionbar.module.css';
+import { useCanvas } from '../../context/CanvasContext';
 
 export default function ActionBar() {
-    const [selected, setSelected] = useState<string | null>(null);
+    const { activeTool, setActiveTool } = useCanvas();
 
-    const icons = [
-        { name: 'Cursor', icon: CursorIcon },
-        { name: 'Text', icon: TextTIcon },
-        { name: 'Frame', icon: BoundingBoxIcon },
-        { name: 'Chart Bar Horizontal', icon: ChartBarHorizontalIcon },
-        { name: 'Chart Pie', icon: ChartPieIcon },
-        { name: 'Chart Line', icon: ChartLineIcon },
-        { name: 'Chart Donut', icon: ChartDonutIcon },
-        { name: 'Chart Bar', icon: ChartBarIcon },
-        { name: 'Table', icon: TableIcon },
+    const tools = [
+        { name: 'Cursor', icon: CursorIcon, type: 'cursor' as const },
+        { name: 'Text', icon: TextTIcon, type: 'text' as const },
+        { name: 'Frame', icon: BoundingBoxIcon, type: 'div' as const },
+        { name: 'Chart Bar Horizontal', icon: ChartBarHorizontalIcon, type: 'div' as const },
+        { name: 'Chart Pie', icon: ChartPieIcon, type: 'div' as const },
+        { name: 'Chart Line', icon: ChartLineIcon, type: 'div' as const },
+        { name: 'Chart Donut', icon: ChartDonutIcon, type: 'div' as const },
+        { name: 'Chart Bar', icon: ChartBarIcon, type: 'div' as const },
+        { name: 'Table', icon: TableIcon, type: 'div' as const },
     ];
 
     return (
-        <div className={styles.actionbar}>
-            {icons.map(({ name, icon: Icon }) => (
+         <div className={styles.actionbar}>
+            {tools.map(({ name, icon: Icon, type }) => (
                 <div title={name} key={name}>
                     <Icon
-                        className={`${styles.icon} ${styles.button} ${selected === name ? styles.active : ''}`}
-                        onClick={() => setSelected(name)}
+                        className={`${styles.icon} ${styles.button} ${activeTool === type ? styles.active : ''}`}
+                        onClick={() => setActiveTool(type)}
                     />
                 </div>
             ))}

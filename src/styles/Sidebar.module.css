@@ -32,7 +32,7 @@
 
 .section {
     padding: 10px;
-    border-bottom: 1px solid #3C3C3C;
+    border-bottom: 1px solid #3c3c3c;
     display: flex;
     width: 100%;
     align-items: start;
@@ -86,7 +86,7 @@
     align-items: start;
     justify-content: start;
     gap: 5px;
-    border: 1px solid #3C3C3C;
+    border: 1px solid #3c3c3c;
     padding: 2px;
     border-radius: 5px;
     box-sizing: border-box;
@@ -103,7 +103,7 @@
     gap: 5px;
     padding: 2px;
     border-radius: 5px;
-    border: 1px solid #3C3C3C;
+    border: 1px solid #3c3c3c;
     border-radius: 5px;
 }
 
@@ -121,14 +121,14 @@
 }
 
 .input.number {
-  appearance: textfield;
-  -moz-appearance: textfield;
+    appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 .input.number::-webkit-outer-spin-button,
 .input.number::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .input:focus {
@@ -162,7 +162,7 @@
     justify-content: space-around;
 }
 
-.select option{
+.select option {
     cursor: pointer;
     color: black;
 }

@@ -1,139 +1,172 @@
 .color-picker {
-  width: 100%;
-  background: #2c2c2c;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  color: #fff;
-  user-select: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    width: 100%;
+    background: #2c2c2c;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow:
+        0 10px 20px rgba(0, 0, 0, 0.19),
+        0 6px 6px rgba(0, 0, 0, 0.23);
+    font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+        sans-serif;
+    color: #fff;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .saturation-box {
-  width: 100%;
-  height: 100px;
-  position: relative;
-  border-radius: 4px;
-  overflow: hidden;
-  cursor: crosshair;
+    width: 100%;
+    height: 100px;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: crosshair;
 }
 
 .saturation-value-gradient {
-  position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
-  background: linear-gradient(to right, white, transparent);
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(to right, white, transparent);
 }
 
 .saturation-black-gradient {
-  position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
-  background: linear-gradient(to top, black, transparent);
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(to top, black, transparent);
 }
 
 .picker-handle {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  border: 3px solid white;
-  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.5);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    border: 3px solid white;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
 }
 
 .controls-wrapper {
-  display: flex;
-  align-items: center;
-  /* margin-top: 12px; */
+    display: flex;
+    align-items: center;
+    /* margin-top: 12px; */
 }
 
 .color-preview {
-  width: 32px;
-  height: 32px;
-  border-radius: 3px;
-  /* border: 1px solid #444; */
-  /* background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%); */
-  /* background-size: 10px 10px; */
-  /* background-position: 0 0, 0 5px, 5px -5px, -5px 0px; */
+    width: 32px;
+    height: 32px;
+    border-radius: 3px;
+    /* border: 1px solid #444; */
+    /* background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%); */
+    /* background-size: 10px 10px; */
+    /* background-position: 0 0, 0 5px, 5px -5px, -5px 0px; */
 }
 
 .sliders {
-  flex-grow: 1;
-  margin-left: 12px;
+    flex-grow: 1;
+    margin-left: 12px;
 }
 
 .slider {
-  position: relative;
-  width: 100%;
-  height: 12px;
-  border-radius: 3px;
-  cursor: pointer;
+    position: relative;
+    width: 100%;
+    height: 12px;
+    border-radius: 3px;
+    cursor: pointer;
 }
 
 .slider .picker-handle {
-  width: 10px;
-  height: 10px;
-  top: 50%;
+    width: 10px;
+    height: 10px;
+    top: 50%;
 }
 
 .hue-slider {
-  background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red);
+    background: linear-gradient(
+        to right,
+        red,
+        yellow,
+        lime,
+        cyan,
+        blue,
+        magenta,
+        red
+    );
 }
 
 .alpha-slider {
-  margin-top: 8px;
-  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%);
-  background-size: 10px 10px;
-  background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+    margin-top: 8px;
+    background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+    background-size: 10px 10px;
+    background-position:
+        0 0,
+        0 5px,
+        5px -5px,
+        -5px 0px;
 }
 .alpha-gradient {
     position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     border-radius: 3px;
 }
 
-
 .input-fields {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 12px;
-  gap: 8px;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 8px;
 }
 
 .input-group {
-  position: relative;
-  text-align: center;
+    position: relative;
+    text-align: center;
 }
 
 .input-group input {
-  width: 100%;
-  padding: 8px 4px 4px 4px;
-  background: #3a3a3a;
-  border: 1px solid #555;
-  border-radius: 4px;
-  color: #fff;
-  text-align: center;
-  font-size: 12px;
-  appearance: textfield;
-  -moz-appearance: textfield; /* Firefox */
+    width: 100%;
+    padding: 8px 4px 4px 4px;
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #fff;
+    text-align: center;
+    font-size: 12px;
+    appearance: textfield;
+    -moz-appearance: textfield; /* Firefox */
 }
 .input-group input::-webkit-outer-spin-button,
 .input-group input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .input-group label {
-  position: absolute;
-  bottom: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  color: #aaa;
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #aaa;
 }
 
-.hex-input { flex-grow: 1.5; }
-.alpha-input { flex-grow: 0.8; }
+.hex-input {
+    flex-grow: 1.5;
+}
+.alpha-input {
+    flex-grow: 0.8;
+}

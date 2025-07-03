@@ -1,12 +1,12 @@
-import Layout from "./layout/layout";
-import { CanvasProvider } from "./context/CanvasContext";
+import Layout from './layout/layout';
+import { CanvasProvider } from './context/CanvasContext';
 
 const App = () => {
-  return (
-    <CanvasProvider>
-      <Layout />
-    </CanvasProvider>
-  );
+    return (
+        <CanvasProvider>
+            <Layout />
+        </CanvasProvider>
+    );
 };
 
 export default App;

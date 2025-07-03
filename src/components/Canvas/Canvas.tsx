@@ -5,44 +5,67 @@ import { ElementRenderer } from '../Elements/renderElement';
 import { useCanvas } from '../../context/CanvasContext';
 
 type DrawingState = {
-  startX: number;
-  startY: number;
-  currentX: number;
-  currentY: number;
-  parentId: string | null;
-}
+    startX: number;
+    startY: number;
+    currentX: number;
+    currentY: number;
+    parentId: string | null;
+};
 
 export default function Canvas() {
     const canvasRef = useRef<HTMLDivElement>(null);
     const innerRef = useRef<HTMLDivElement>(null);
 
-    const { elements, selectedId, setSelectedId, activeTool, setActiveTool, addElement } = useCanvas();
-    const { scale, offset } = useCanvasTransform(canvasRef as React.RefObject<HTMLDivElement>, innerRef as React.RefObject<HTMLDivElement>);
+    const {
+        elements,
+        selectedId,
+        setSelectedId,
+        activeTool,
+        setActiveTool,
+        addElement,
+    } = useCanvas();
+    const { scale, offset } = useCanvasTransform(
+        canvasRef as React.RefObject<HTMLDivElement>,
+        innerRef as React.RefObject<HTMLDivElement>
+    );
     const [drawingState, setDrawingState] = useState<DrawingState | null>(null);
 
-    const getCoordsInWorld = useCallback((e: MouseEvent | React.MouseEvent): { x: number, y: number } => {
-        if (!canvasRef.current) return { x: 0, y: 0 };
-        const canvasRect = canvasRef.current.getBoundingClientRect();
-        return {
-            x: (e.clientX - canvasRect.left - offset.x) / scale,
-            y: (e.clientY - canvasRect.top - offset.y) / scale
-        };
-    }, [offset, scale]);
+    const getCoordsInWorld = useCallback(
+        (e: MouseEvent | React.MouseEvent): { x: number; y: number } => {
+            if (!canvasRef.current) return { x: 0, y: 0 };
+            const canvasRect = canvasRef.current.getBoundingClientRect();
+            return {
+                x: (e.clientX - canvasRect.left - offset.x) / scale,
+                y: (e.clientY - canvasRect.top - offset.y) / scale,
+            };
+        },
+        [offset, scale]
+    );
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
         if (activeTool === 'cursor' || e.button !== 0) {
-            if((e.target as HTMLElement).dataset.canvasElement === undefined) {
+            if ((e.target as HTMLElement).dataset.canvasElement === undefined) {
                 setSelectedId(null);
             }
             return;
         }
         e.preventDefault();
-        
-        const targetElement = (e.target as HTMLElement).closest('[data-canvas-element]');
-        const parentId = targetElement ? targetElement.getAttribute('data-element-id') : '1';
-        
+
+        const targetElement = (e.target as HTMLElement).closest(
+            '[data-canvas-element]'
+        );
+        const parentId = targetElement
+            ? targetElement.getAttribute('data-element-id')
+            : '1';
+
         const { x, y } = getCoordsInWorld(e);
-        setDrawingState({ startX: x, startY: y, currentX: x, currentY: y, parentId });
+        setDrawingState({
+            startX: x,
+            startY: y,
+            currentX: x,
+            currentY: y,
+            parentId,
+        });
     };
 
     useEffect(() => {
@@ -50,12 +73,15 @@ export default function Canvas() {
 
         const handleWindowMouseMove = (e: MouseEvent) => {
             const { x, y } = getCoordsInWorld(e);
-            setDrawingState(prev => prev ? { ...prev, currentX: x, currentY: y } : null);
+            setDrawingState((prev) =>
+                prev ? { ...prev, currentX: x, currentY: y } : null
+            );
         };
 
         const handleWindowMouseUp = (_e: MouseEvent) => {
             if (!drawingState || activeTool === 'cursor') return;
-            const { startX, startY, currentX, currentY, parentId } = drawingState;
+            const { startX, startY, currentX, currentY, parentId } =
+                drawingState;
             const width = Math.abs(currentX - startX);
             const height = Math.abs(currentY - startY);
 
@@ -63,7 +89,7 @@ export default function Canvas() {
                 const newElementStyle: React.CSSProperties = {
                     // left: `${Math.min(startX, currentX)}px`,
                     // top: `${Math.min(startY, currentY)}px`,
-                    position: "relative",
+                    position: 'relative',
                     width: `${width}px`,
                     height: `${height}px`,
                 };
@@ -85,9 +111,16 @@ export default function Canvas() {
     const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (activeTool === 'cursor') return;
         const { x, y } = getCoordsInWorld(e);
-        const targetElement = (e.target as HTMLElement).closest('[data-canvas-element]');
-        const parentId = targetElement ? targetElement.getAttribute('data-element-id') : '1';
-        const newElementStyle: React.CSSProperties = { left: `${x}px`, top: `${y}px` };
+        const targetElement = (e.target as HTMLElement).closest(
+            '[data-canvas-element]'
+        );
+        const parentId = targetElement
+            ? targetElement.getAttribute('data-element-id')
+            : '1';
+        const newElementStyle: React.CSSProperties = {
+            left: `${x}px`,
+            top: `${y}px`,
+        };
         addElement(activeTool, { parentId, style: newElementStyle });
         setActiveTool('cursor');
     };
@@ -103,12 +136,15 @@ export default function Canvas() {
             height: Math.abs(currentY - startY),
             backgroundColor: 'rgba(0, 122, 255, 0.2)',
             border: '1px solid rgba(0, 122, 255, 0.8)',
-            zIndex: '9999'
+            zIndex: '9999',
         };
     };
 
     return (
-        <div ref={canvasRef} className={`${styles.canvas} ${styles[activeTool]}`}>
+        <div
+            ref={canvasRef}
+            className={`${styles.canvas} ${styles[activeTool]}`}
+        >
             <div
                 ref={innerRef}
                 style={{
@@ -122,7 +158,9 @@ export default function Canvas() {
                 onDoubleClick={handleDoubleClick}
             >
                 {drawingState && <div style={getGhostStyle()} />}
-                {elements.map((el) => <ElementRenderer key={el.id} node={el} />)}
+                {elements.map((el) => (
+                    <ElementRenderer key={el.id} node={el} />
+                ))}
             </div>
         </div>
     );

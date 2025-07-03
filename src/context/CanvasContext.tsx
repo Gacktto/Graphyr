@@ -14,7 +14,7 @@ export type ActiveTool = 'cursor' | 'text' | 'div';
 type AddElementOptions = {
     parentId: string | null;
     style?: React.CSSProperties;
-}
+};
 
 type CanvasContextType = {
     elements: ElementNode[];
@@ -35,7 +35,7 @@ const insertNodeIntoTree = (
     parentId: string | null
 ): ElementNode[] => {
     if (parentId === null) {
-        const rootFrameIndex = nodes.findIndex(n => n.type === 'frame');
+        const rootFrameIndex = nodes.findIndex((n) => n.type === 'frame');
         if (rootFrameIndex !== -1) {
             const newNodes = [...nodes];
             const rootFrame = { ...newNodes[rootFrameIndex] };
@@ -51,7 +51,10 @@ const insertNodeIntoTree = (
             return { ...node, children: [...(node.children || []), newNode] };
         }
         if (node.children) {
-            return { ...node, children: insertNodeIntoTree(node.children, newNode, parentId) };
+            return {
+                ...node,
+                children: insertNodeIntoTree(node.children, newNode, parentId),
+            };
         }
         return node;
     });
@@ -64,56 +67,80 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             id: '1',
             type: 'frame',
             name: 'Default',
-            style: { width: '1600px', height: '600px', position: 'relative', backgroundColor: '#FFF' },
+            style: {
+                width: '1600px',
+                height: '600px',
+                position: 'relative',
+                backgroundColor: '#FFF',
+            },
             children: [],
         },
     ]);
     const [selectedId, setSelectedId] = useState<string | null>('1');
     const [activeTool, setActiveTool] = useState<ActiveTool>('cursor');
 
-    const addElement = useCallback((type: 'div' | 'text', options: AddElementOptions) => {
-        const newId = crypto.randomUUID();
-        let newElement: ElementNode;
-        
-        const baseStyle = { ...options.style, position: 'relative' };
+    const addElement = useCallback(
+        (type: 'div' | 'text', options: AddElementOptions) => {
+            const newId = crypto.randomUUID();
+            let newElement: ElementNode;
 
-        if (type === 'div') {
-            const defaultDivStyle = {
-                width: '300px',
-                height: '200px',
-                backgroundColor: 'rgba(217, 217, 217, 1)'
-            };
-            
-            newElement = {
-                id: newId, type: 'div', name: 'New Frame',
-                style: { ...defaultDivStyle, ...baseStyle }, 
-                children: [],
-            };
-        } else {
-            const defaultTextStyle = {
-                fontSize: '16px',
-                color: 'rgba(0, 0, 0, 1)',
-                width: 'auto',
-                height: 'auto',
-            };
+            const baseStyle = { ...options.style, position: 'relative' };
 
-            newElement = {
-                id: newId, type: 'text', name: 'New Text',
-                style: { ...defaultTextStyle, ...baseStyle },
-            };
-        }
+            if (type === 'div') {
+                const defaultDivStyle = {
+                    width: '300px',
+                    height: '200px',
+                    backgroundColor: 'rgba(217, 217, 217, 1)',
+                };
 
-        setElements(currentElements => insertNodeIntoTree(currentElements, newElement, options.parentId));
-        setSelectedId(newId);
-    }, []);
+                newElement = {
+                    id: newId,
+                    type: 'div',
+                    name: 'New Frame',
+                    style: { ...defaultDivStyle, ...baseStyle },
+                    children: [],
+                };
+            } else {
+                const defaultTextStyle = {
+                    fontSize: '16px',
+                    color: 'rgba(0, 0, 0, 1)',
+                    width: 'auto',
+                    height: 'auto',
+                };
 
-    const contextValue = useMemo(() => ({
-        elements, setElements,
-        selectedId, setSelectedId,
-        elementsRef,
-        activeTool, setActiveTool,
-        addElement,
-    }), [elements, selectedId, activeTool, addElement]);
+                newElement = {
+                    id: newId,
+                    type: 'text',
+                    name: 'New Text',
+                    style: { ...defaultTextStyle, ...baseStyle },
+                };
+            }
+
+            setElements((currentElements) =>
+                insertNodeIntoTree(
+                    currentElements,
+                    newElement,
+                    options.parentId
+                )
+            );
+            setSelectedId(newId);
+        },
+        []
+    );
+
+    const contextValue = useMemo(
+        () => ({
+            elements,
+            setElements,
+            selectedId,
+            setSelectedId,
+            elementsRef,
+            activeTool,
+            setActiveTool,
+            addElement,
+        }),
+        [elements, selectedId, activeTool, addElement]
+    );
 
     return (
         <CanvasContext.Provider value={contextValue}>
@@ -124,6 +151,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
 
 export function useCanvas() {
     const ctx = useContext(CanvasContext);
-    if (!ctx) throw new Error('useCanvas deve ser usado dentro de CanvasProvider');
+    if (!ctx)
+        throw new Error('useCanvas deve ser usado dentro de CanvasProvider');
     return ctx;
 }

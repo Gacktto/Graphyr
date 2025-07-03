@@ -19,7 +19,11 @@ export default function ActionBar() {
         { name: 'Cursor', icon: CursorIcon, type: 'cursor' as const },
         { name: 'Text', icon: TextTIcon, type: 'text' as const },
         { name: 'Frame', icon: BoundingBoxIcon, type: 'div' as const },
-        { name: 'Chart Bar Horizontal', icon: ChartBarHorizontalIcon, type: 'div' as const },
+        {
+            name: 'Chart Bar Horizontal',
+            icon: ChartBarHorizontalIcon,
+            type: 'div' as const,
+        },
         { name: 'Chart Pie', icon: ChartPieIcon, type: 'div' as const },
         { name: 'Chart Line', icon: ChartLineIcon, type: 'div' as const },
         { name: 'Chart Donut', icon: ChartDonutIcon, type: 'div' as const },
@@ -28,7 +32,7 @@ export default function ActionBar() {
     ];
 
     return (
-         <div className={styles.actionbar}>
+        <div className={styles.actionbar}>
             {tools.map(({ name, icon: Icon, type }) => (
                 <div title={name} key={name}>
                     <Icon

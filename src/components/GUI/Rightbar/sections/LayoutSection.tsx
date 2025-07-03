@@ -23,7 +23,6 @@ interface LayoutSectionProps {
 export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
     ({ selectedElement, computedStyles, onStyleChange }) => {
         return (
-            
             <div className={styles.section}>
                 <div
                     className={styles.container}

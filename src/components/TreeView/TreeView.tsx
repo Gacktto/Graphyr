@@ -18,11 +18,21 @@ type TreeViewProps = {
 const NodeIcon = ({ type }: { type: string }) => {
     switch (type) {
         case 'text':
-            return <TextTIcon weight="fill" size={15} color="rgb(158, 2, 96)" />;
+            return (
+                <TextTIcon weight="fill" size={15} color="rgb(158, 2, 96)" />
+            );
         case 'frame':
-            return <BoundingBoxIcon weight="fill" size={15} color="rgb(100, 100, 100)" />;
+            return (
+                <BoundingBoxIcon
+                    weight="fill"
+                    size={15}
+                    color="rgb(100, 100, 100)"
+                />
+            );
         default:
-            return <SquareIcon weight="fill" size={15} color="rgb(2, 96, 158)" />;
+            return (
+                <SquareIcon weight="fill" size={15} color="rgb(2, 96, 158)" />
+            );
     }
 };
 

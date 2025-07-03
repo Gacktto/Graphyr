@@ -234,7 +234,9 @@ export default function Rightbar() {
                     </>
                 ) : (
                     <div className={styles.section}>
-                        <p style={{textAlign: 'center', opacity: 0.5}}>Selecione um elemento para editar.</p>
+                        <p style={{ textAlign: 'center', opacity: 0.5 }}>
+                            Selecione um elemento para editar.
+                        </p>
                     </div>
                 )}
             </div>

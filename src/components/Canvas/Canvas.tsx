@@ -34,6 +34,7 @@ export default function Canvas() {
 
     const {
         elements,
+        elementsRef,
         selectedId,
         setSelectedId,
         activeTool,
@@ -163,7 +164,12 @@ export default function Canvas() {
         e.stopPropagation();
         e.preventDefault();
         
-        if (!node.style) return;
+        const domElement = elementsRef.current[node.id];
+
+        if (!node.style || !domElement) return;
+
+        const computedWidth = domElement.offsetWidth;
+        const computedHeight = domElement.offsetHeight;
 
         setResizingState({
             elementId: node.id,
@@ -173,12 +179,12 @@ export default function Canvas() {
             originalStyle: {
                 top: parseFloat(node.style.top as string) || 0,
                 left: parseFloat(node.style.left as string) || 0,
-                width: parseFloat(node.style.width as string) || 0,
-                height: parseFloat(node.style.height as string) || 0,
+                width: computedWidth,
+                height: computedHeight,
                 position: node.style.position,
             }
         });
-    }, []);
+    }, [elementsRef]);
 
     useEffect(() => {
         if (!resizingState) return;

@@ -187,33 +187,18 @@ export default function Canvas() {
             const dx = (e.clientX - startX) / scale;
             const dy = (e.clientY - startY) / scale;
 
-            let { top, left, width, height } = originalStyle;
+            let { width, height } = originalStyle;
 
             if (handle.includes('b')) height = originalStyle.height + dy;
-            if (handle.includes('t')) {
-                height = originalStyle.height - dy;
-                top = originalStyle.top + dy;
-            }
+            if (handle.includes('t')) height = originalStyle.height - dy;
             if (handle.includes('r')) width = originalStyle.width + dx;
-            if (handle.includes('l')) {
-                width = originalStyle.width - dx;
-                left = originalStyle.left + dx;
-            }
+            if (handle.includes('l')) width = originalStyle.width - dx;
             
-            // Garante um tamanho mínimo para não inverter o elemento
             const minSize = 10;
-            if (width < minSize) {
-                width = minSize;
-                // Previne que 'left' continue mudando se a largura travar
-                if (handle.includes('l')) left = originalStyle.left + originalStyle.width - minSize;
-            }
-            if (height < minSize) {
-                height = minSize;
-                // Previne que 'top' continue mudando se a altura travar
-                if (handle.includes('t')) top = originalStyle.top + originalStyle.height - minSize;
-            }
+            width = Math.max(width, minSize);
+            height = Math.max(height, minSize);
 
-            updateElementStyle(elementId, { top: `${top}px`, left: `${left}px`, width: `${width}px`, height: `${height}px` });
+            updateElementStyle(elementId, { width: `${width}px`, height: `${height}px` });
         };
 
         const handleWindowMouseUp = () => {

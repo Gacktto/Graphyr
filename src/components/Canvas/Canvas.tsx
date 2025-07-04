@@ -28,6 +28,7 @@ type ResizingState = {
 };
 
 
+
 export default function Canvas() {
     const canvasRef = useRef<HTMLDivElement>(null);
     const innerRef = useRef<HTMLDivElement>(null);

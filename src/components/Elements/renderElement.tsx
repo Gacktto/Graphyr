@@ -68,7 +68,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
 
         const renderChildren = () =>
             node.children?.map((child) => (
-                <ElementRenderer key={child.id} node={child} onResizeStart={onResizeStart} />
+                <ElementRenderer key={child.id} node={child} onResizeStart={onResizeStart}/>
             ));
 
         if (node.type === 'frame' || node.type === 'div') {

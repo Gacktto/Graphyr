@@ -16,6 +16,12 @@ type AddElementOptions = {
     style?: React.CSSProperties;
 };
 
+type MoveElementOptions = {
+    draggedId: string;
+    targetId: string | null;
+    position: 'before' | 'after' | 'inside';
+};
+
 type CanvasContextType = {
     elements: ElementNode[];
     setElements: React.Dispatch<React.SetStateAction<ElementNode[]>>;
@@ -26,40 +32,110 @@ type CanvasContextType = {
     setActiveTool: (tool: ActiveTool) => void;
     addElement: (type: 'div' | 'text', options: AddElementOptions) => void;
     updateElementStyle: (id: string, newStyle: React.CSSProperties) => void;
+    moveElement: (options: MoveElementOptions) => void;
 };
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
-const insertNodeIntoTree = (
+// --- FUNÇÕES UTILITÁRIAS ROBUSTAS PARA MANIPULAR A ÁRVORE ---
+
+function findAndRemove(
     nodes: ElementNode[],
-    newNode: ElementNode,
-    parentId: string | null
-): ElementNode[] => {
-    if (parentId === null) {
-        const rootFrameIndex = nodes.findIndex((n) => n.type === 'frame');
-        if (rootFrameIndex !== -1) {
-            const newNodes = [...nodes];
-            const rootFrame = { ...newNodes[rootFrameIndex] };
-            rootFrame.children = [...(rootFrame.children || []), newNode];
-            newNodes[rootFrameIndex] = rootFrame;
-            return newNodes;
+    nodeId: string
+): [ElementNode | null, ElementNode[]] {
+    let found: ElementNode | null = null;
+
+    const newNodes = nodes.filter((node) => {
+        if (node.id === nodeId) {
+            found = node;
+            return false;
         }
-        return [...nodes, newNode];
+        return true;
+    });
+
+    if (found) {
+        return [found, newNodes];
     }
 
-    return nodes.map((node) => {
-        if (node.id === parentId) {
-            return { ...node, children: [...(node.children || []), newNode] };
-        }
+    for (let i = 0; i < newNodes.length; i++) {
+        const node = newNodes[i];
         if (node.children) {
-            return {
-                ...node,
-                children: insertNodeIntoTree(node.children, newNode, parentId),
-            };
+            const [foundNode, newChildren] = findAndRemove(node.children, nodeId);
+            if (foundNode) {
+                newNodes[i] = { ...node, children: newChildren };
+                return [foundNode, newNodes];
+            }
+        }
+    }
+
+    return [null, nodes];
+}
+
+function insert(
+    nodes: ElementNode[],
+    nodeToInsert: ElementNode,
+    targetId: string,
+    position: 'before' | 'after' | 'inside'
+): [boolean, ElementNode[]] {
+    if (position === 'inside') {
+        let inserted = false;
+        const newNodes = nodes.map((node) => {
+            if (inserted) return node;
+            if (node.id === targetId) {
+                inserted = true;
+                return {
+                    ...node,
+                    children: [...(node.children || []), nodeToInsert],
+                };
+            }
+            if (node.children) {
+                const [childInserted, newChildren] = insert(
+                    node.children,
+                    nodeToInsert,
+                    targetId,
+                    position
+                );
+                if (childInserted) {
+                    inserted = true;
+                    return { ...node, children: newChildren };
+                }
+            }
+            return node;
+        });
+        return [inserted, newNodes];
+    }
+
+    const targetIndex = nodes.findIndex((n) => n.id === targetId);
+    if (targetIndex !== -1) {
+        const newNodes = [...nodes];
+        newNodes.splice(
+            position === 'before' ? targetIndex : targetIndex + 1,
+            0,
+            nodeToInsert
+        );
+        return [true, newNodes];
+    }
+
+    let inserted = false;
+    const newNodes = nodes.map((node) => {
+        if (inserted) return node;
+        if (node.children) {
+            const [childInserted, newChildren] = insert(
+                node.children,
+                nodeToInsert,
+                targetId,
+                position
+            );
+            if (childInserted) {
+                inserted = true;
+                return { ...node, children: newChildren };
+            }
         }
         return node;
     });
-};
+    return [inserted, newNodes];
+}
+
 
 export function CanvasProvider({ children }: { children: ReactNode }) {
     const elementsRef = useRef<Record<string, HTMLElement | null>>({});
@@ -70,7 +146,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             name: 'Default',
             style: {
                 width: '1600px',
-                height: '600px',
+                height: '800px',
                 position: 'relative',
                 backgroundColor: '#FFF',
             },
@@ -84,92 +160,90 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         (type: 'div' | 'text', options: AddElementOptions) => {
             const newId = crypto.randomUUID();
             let newElement: ElementNode;
-
-            const baseStyle = { ...options.style };
-
+            const baseStyle = { ...options.style, position: 'absolute' as const };
             if (type === 'div') {
                 const defaultDivStyle = {
                     width: '300px',
                     height: '200px',
                     backgroundColor: 'rgba(217, 217, 217, 1)',
                 };
-
                 newElement = {
-                    id: newId,
-                    type: 'div',
-                    name: 'New Frame',
+                    id: newId, type: 'div', name: 'New Frame',
                     style: { ...defaultDivStyle, ...baseStyle },
                     children: [],
                 };
             } else {
                 const defaultTextStyle = {
-                    fontSize: '16px',
-                    color: 'rgba(0, 0, 0, 1)',
-                    width: 'auto',
-                    height: 'auto',
+                    fontSize: '16px', color: 'rgba(0, 0, 0, 1)',
+                    width: 'auto', height: 'auto',
                 };
-
                 newElement = {
-                    id: newId,
-                    type: 'text',
-                    name: 'New Text',
+                    id: newId, type: 'text', name: 'New Text',
                     style: { ...defaultTextStyle, ...baseStyle },
                 };
             }
-
-            setElements((currentElements) =>
-                insertNodeIntoTree(
-                    currentElements,
-                    newElement,
-                    options.parentId
-                )
-            );
+            setElements((currentElements) => {
+                const [, newTree] = insert(currentElements, newElement, options.parentId!, 'inside');
+                return newTree;
+            });
             setSelectedId(newId);
         },
         []
     );
 
-     const updateElementStyle = useCallback((id: string, newStyle: React.CSSProperties) => {
-        setElements((prevElements) => {
-            const updateNode = (node: ElementNode): ElementNode => {
-                if (node.id === id) {
-                    return {
-                        ...node,
-                        style: {
-                            ...node.style,
-                            ...newStyle,
-                        },
-                    };
+    const updateElementStyle = useCallback(
+        (id: string, newStyle: React.CSSProperties) => {
+            setElements((prevElements) => {
+                const updateNode = (node: ElementNode): ElementNode => {
+                    if (node.id === id) {
+                        return { ...node, style: { ...node.style, ...newStyle } };
+                    }
+                    if (node.children) {
+                        return { ...node, children: node.children.map(updateNode) };
+                    }
+                    return node;
+                };
+                return prevElements.map(updateNode);
+            });
+        },
+        []
+    );
+
+    const moveElement = useCallback((options: MoveElementOptions) => {
+        const { draggedId, targetId, position } = options;
+        if (draggedId === targetId) return;
+
+        setElements(currentElements => {
+            const [draggedNode, treeWithoutDragged] = findAndRemove(currentElements, draggedId);
+            if (!draggedNode) return currentElements;
+            
+            if (targetId === null) {
+                const rootFrameIndex = treeWithoutDragged.findIndex(n => n.type === 'frame');
+                if (rootFrameIndex !== -1) {
+                    const newTree = [...treeWithoutDragged];
+                    const rootFrame = {...newTree[rootFrameIndex]};
+                    rootFrame.children = [...(rootFrame.children || []), draggedNode];
+                    newTree[rootFrameIndex] = rootFrame;
+                    return newTree;
                 }
-                if (node.children) {
-                    return {
-                        ...node,
-                        children: node.children.map(updateNode),
-                    };
-                }
-                return node;
-            };
-            // Usamos uma verificação simples para evitar re-renderizações desnecessárias
-            const newElements = prevElements.map(updateNode);
-            return JSON.stringify(newElements) === JSON.stringify(prevElements) 
-                ? prevElements 
-                : newElements;
+                 return [...treeWithoutDragged, draggedNode];
+            }
+
+            const [, finalTree] = insert(treeWithoutDragged, draggedNode, targetId, position);
+            return finalTree;
         });
-    }, []); // Dependência vazia pois `setElements` é estáve
+    }, []);
 
     const contextValue = useMemo(
         () => ({
-            elements,
-            setElements,
-            selectedId,
-            setSelectedId,
+            elements, setElements,
+            selectedId, setSelectedId,
             elementsRef,
-            activeTool,
-            setActiveTool,
-            addElement,
-            updateElementStyle
+            activeTool, setActiveTool,
+            addElement, updateElementStyle,
+            moveElement,
         }),
-        [elements, selectedId, activeTool, addElement, updateElementStyle]
+        [elements, selectedId, activeTool, addElement, updateElementStyle, moveElement]
     );
 
     return (

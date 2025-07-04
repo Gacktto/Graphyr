@@ -26,3 +26,17 @@
     color: white;
     background-color: #444;
 }
+
+/* Em src/styles/Treeview.module.css */
+
+.node.top {
+    border-top: 2px solid #007aff;
+}
+
+.node.bottom {
+    border-bottom: 2px solid #007aff;
+}
+
+.node.middle {
+    background-color: rgba(0, 122, 255, 0.1);
+}

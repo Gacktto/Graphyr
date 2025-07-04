@@ -1,13 +1,19 @@
+// src/components/Elements/ElementRenderer.tsx (Versão Final Corrigida)
+
 import React from 'react';
 import type { ElementNode } from '../TreeView/TreeView';
 import { useCanvas } from '../../context/CanvasContext';
+import styles from '../../styles/Canvas.module.css';
+
+export type Handle = 'tl' | 't' | 'tr' | 'l' | 'r' | 'bl' | 'b' | 'br';
 
 export interface ElementRendererProps {
     node: ElementNode;
+    onResizeStart: (e: React.MouseEvent, handle: Handle, node: ElementNode) => void;
 }
 
 export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
-    ({ node }) => {
+    ({ node, onResizeStart }) => {
         const {
             elementsRef,
             setElements,
@@ -47,83 +53,95 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
             if (el) elementsRef.current[node.id] = el;
         };
 
-        const commonStyle: React.CSSProperties = {
+        const wrapperStyle: React.CSSProperties = {
+            ...node.style,
+            position: 'absolute',
             outline: isSelected ? '2px solid #007aff' : 'none',
-            outlineOffset: isSelected ? '2px' : '0px',
+            boxSizing: 'border-box',
         };
 
-        const finalStyle = { ...commonStyle, ...node.style };
+        const innerFillStyle: React.CSSProperties = {
+            width: '100%',
+            height: '100%',
+            boxSizing: 'border-box',
+            pointerEvents: 'none', 
+        };
+        
+        const handles: Handle[] = ['tl', 't', 'tr', 'l', 'r', 'bl', 'b', 'br'];
 
         const renderChildren = () =>
             node.children?.map((child) => (
-                <ElementRenderer key={child.id} node={child} />
+                <ElementRenderer key={child.id} node={child} onResizeStart={onResizeStart} />
             ));
 
-        switch (node.type) {
-            case 'frame':
-                const frameStyle = {
-                    ...finalStyle,
-                    width: node.style?.width || '1300px',
-                    minHeight: node.style?.minHeight || '800px',
-                    backgroundColor: node.style?.backgroundColor || '#fff',
-                    position: 'relative',
-                };
-                return (
-                    <div
-                        key={node.id}
-                        ref={registerRef}
-                        data-element-id={node.id}
-                        data-canvas-element
-                        onClick={handleClick}
-                        style={frameStyle}
-                    >
-                        {renderChildren()}
-                    </div>
-                );
-            case 'div':
-                return (
-                    <div
-                        key={node.id}
-                        ref={registerRef}
-                        data-element-id={node.id}
-                        data-canvas-element
-                        onClick={handleClick}
-                        style={finalStyle}
-                    >
-                        {renderChildren()}
-                    </div>
-                );
-            case 'text':
-                return (
-                    <div
-                        key={node.id}
-                        ref={registerRef}
-                        data-element-id={node.id}
-                        data-canvas-element
-                        onClick={handleClick}
-                        style={finalStyle}
-                        contentEditable={isSelected}
-                        suppressContentEditableWarning={true}
-                        onBlur={handleTextBlur}
-                    >
-                        {node.name}
-                    </div>
-                );
-            case 'button':
-                return (
-                    <button
-                        key={node.id}
-                        ref={registerRef}
-                        data-element-id={node.id}
-                        data-canvas-element
-                        onClick={handleClick}
-                        style={finalStyle}
-                    >
-                        {node.name}
-                    </button>
-                );
-            default:
-                return null;
+        if (node.type === 'frame' || node.type === 'div') {
+            return (
+                <div
+                    ref={registerRef}
+                    data-element-id={node.id}
+                    data-canvas-element
+                    onClick={handleClick}
+                    style={wrapperStyle}
+                >
+                    {renderChildren()}
+
+                    {isSelected && activeTool === 'cursor' && (
+                        <>
+                            {handles.map(handle => (
+                                <div
+                                    key={handle}
+                                    className={`${styles.resizeHandle} ${styles[`handle-${handle}`]}`}
+                                    onMouseDown={(e) => onResizeStart(e, handle, node)}
+                                />
+                            ))}
+                        </>
+                    )}
+                </div>
+            );
         }
+
+        if (node.type === 'text') {
+            return (
+                <div
+                    ref={registerRef}
+                    data-element-id={node.id}
+                    data-canvas-element
+                    onClick={handleClick}
+                    style={wrapperStyle}
+                    contentEditable={isSelected}
+                    suppressContentEditableWarning={true}
+                    onBlur={handleTextBlur}
+                >
+                    {node.name}
+                    {isSelected && activeTool === 'cursor' && (
+                        <>
+                            {handles.map(handle => (
+                                <div
+                                    key={handle}
+                                    className={`${styles.resizeHandle} ${styles[`handle-${handle}`]}`}
+                                    onMouseDown={(e) => onResizeStart(e, handle, node)}
+                                />
+                            ))}
+                        </>
+                    )}
+                </div>
+            );
+        }
+
+        if (node.type === 'button') {
+            return (
+                <button
+                    ref={registerRef}
+                    data-element-id={node.id}
+                    data-canvas-element
+                    onClick={handleClick}
+                    style={wrapperStyle}
+                >
+                    {node.name}
+                </button>
+            )
+        }
+
+        return null; 
     }
 );

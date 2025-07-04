@@ -40,3 +40,27 @@
 .canvas.text {
     cursor: crosshair;
 }
+
+.resizeHandle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: #fff;
+    border: 1px solid #007aff;
+    border-radius: 4px;
+    z-index: 10;
+}
+
+.handle-tl, .handle-br { cursor: nwse-resize; }
+.handle-tr, .handle-bl { cursor: nesw-resize; }
+.handle-t, .handle-b { cursor: ns-resize; }
+.handle-l, .handle-r { cursor: ew-resize; }
+
+.handle-tl { top: -4px; left: -4px; }
+.handle-t  { top: -4px; left: 50%; transform: translateX(-50%); }
+.handle-tr { top: -4px; right: -4px; }
+.handle-l  { top: 50%; left: -4px; transform: translateY(-50%); }
+.handle-r  { top: 50%; right: -4px; transform: translateY(-50%); }
+.handle-bl { bottom: -4px; left: -4px; }
+.handle-b  { bottom: -4px; left: 50%; transform: translateX(-50%); }
+.handle-br { bottom: -4px; right: -4px; }

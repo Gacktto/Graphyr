@@ -25,6 +25,7 @@ type CanvasContextType = {
     activeTool: ActiveTool;
     setActiveTool: (tool: ActiveTool) => void;
     addElement: (type: 'div' | 'text', options: AddElementOptions) => void;
+    updateElementStyle: (id: string, newStyle: React.CSSProperties) => void;
 };
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
@@ -128,6 +129,34 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         []
     );
 
+     const updateElementStyle = useCallback((id: string, newStyle: React.CSSProperties) => {
+        setElements((prevElements) => {
+            const updateNode = (node: ElementNode): ElementNode => {
+                if (node.id === id) {
+                    return {
+                        ...node,
+                        style: {
+                            ...node.style,
+                            ...newStyle,
+                        },
+                    };
+                }
+                if (node.children) {
+                    return {
+                        ...node,
+                        children: node.children.map(updateNode),
+                    };
+                }
+                return node;
+            };
+            // Usamos uma verificação simples para evitar re-renderizações desnecessárias
+            const newElements = prevElements.map(updateNode);
+            return JSON.stringify(newElements) === JSON.stringify(prevElements) 
+                ? prevElements 
+                : newElements;
+        });
+    }, []); // Dependência vazia pois `setElements` é estáve
+
     const contextValue = useMemo(
         () => ({
             elements,
@@ -138,8 +167,9 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             activeTool,
             setActiveTool,
             addElement,
+            updateElementStyle
         }),
-        [elements, selectedId, activeTool, addElement]
+        [elements, selectedId, activeTool, addElement, updateElementStyle]
     );
 
     return (

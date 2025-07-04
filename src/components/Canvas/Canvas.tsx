@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import styles from '../../styles/Canvas.module.css';
 import { useCanvasTransform } from './useCanvasTransform';
-import { ElementRenderer } from '../Elements/renderElement';
+import { ElementRenderer, type Handle } from '../Elements/renderElement';
 import { useCanvas } from '../../context/CanvasContext';
+import type { ElementNode } from '../TreeView/TreeView';
 
 type DrawingState = {
     startX: number;
@@ -11,6 +12,20 @@ type DrawingState = {
     currentY: number;
     parentId: string | null;
 };
+
+type ResizingState = {
+    elementId: string;
+    handle: Handle;
+    startX: number;
+    startY: number;
+    originalStyle: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+    };
+};
+
 
 export default function Canvas() {
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -23,12 +38,16 @@ export default function Canvas() {
         activeTool,
         setActiveTool,
         addElement,
+        updateElementStyle,
     } = useCanvas();
+
     const { scale, offset } = useCanvasTransform(
         canvasRef as React.RefObject<HTMLDivElement>,
         innerRef as React.RefObject<HTMLDivElement>
     );
+
     const [drawingState, setDrawingState] = useState<DrawingState | null>(null);
+    const [resizingState, setResizingState] = useState<ResizingState | null>(null);
 
     const getCoordsInWorld = useCallback(
         (e: MouseEvent | React.MouseEvent): { x: number; y: number } => {
@@ -43,13 +62,12 @@ export default function Canvas() {
     );
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (activeTool === 'cursor' || e.button !== 0) {
-            if ((e.target as HTMLElement).dataset.canvasElement === undefined) {
+        if (resizingState || activeTool === 'cursor' || e.button !== 0) {
+            if((e.target as HTMLElement).dataset.canvasElement === undefined) {
                 setSelectedId(null);
             }
             return;
         }
-        e.preventDefault();
 
         const targetElement = (e.target as HTMLElement).closest(
             '[data-canvas-element]'
@@ -140,6 +158,77 @@ export default function Canvas() {
         };
     };
 
+    const handleResizeStart = useCallback((e: React.MouseEvent, handle: Handle, node: ElementNode) => {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        if (!node.style) return;
+
+        setResizingState({
+            elementId: node.id,
+            handle,
+            startX: e.clientX,
+            startY: e.clientY,
+            originalStyle: {
+                top: parseFloat(node.style.top as string) || 0,
+                left: parseFloat(node.style.left as string) || 0,
+                width: parseFloat(node.style.width as string) || 0,
+                height: parseFloat(node.style.height as string) || 0,
+            }
+        });
+    }, []);
+
+    useEffect(() => {
+        if (!resizingState) return;
+
+        const handleWindowMouseMove = (e: MouseEvent) => {
+            const { handle, originalStyle, startX, startY, elementId } = resizingState;
+
+            const dx = (e.clientX - startX) / scale;
+            const dy = (e.clientY - startY) / scale;
+
+            let { top, left, width, height } = originalStyle;
+
+            if (handle.includes('b')) height = originalStyle.height + dy;
+            if (handle.includes('t')) {
+                height = originalStyle.height - dy;
+                top = originalStyle.top + dy;
+            }
+            if (handle.includes('r')) width = originalStyle.width + dx;
+            if (handle.includes('l')) {
+                width = originalStyle.width - dx;
+                left = originalStyle.left + dx;
+            }
+            
+            // Garante um tamanho mínimo para não inverter o elemento
+            const minSize = 10;
+            if (width < minSize) {
+                width = minSize;
+                // Previne que 'left' continue mudando se a largura travar
+                if (handle.includes('l')) left = originalStyle.left + originalStyle.width - minSize;
+            }
+            if (height < minSize) {
+                height = minSize;
+                // Previne que 'top' continue mudando se a altura travar
+                if (handle.includes('t')) top = originalStyle.top + originalStyle.height - minSize;
+            }
+
+            updateElementStyle(elementId, { top: `${top}px`, left: `${left}px`, width: `${width}px`, height: `${height}px` });
+        };
+
+        const handleWindowMouseUp = () => {
+            setResizingState(null);
+        };
+
+        window.addEventListener('mousemove', handleWindowMouseMove);
+        window.addEventListener('mouseup', handleWindowMouseUp);
+
+        return () => {
+            window.removeEventListener('mousemove', handleWindowMouseMove);
+            window.removeEventListener('mouseup', handleWindowMouseUp);
+        };
+    }, [resizingState, scale, updateElementStyle]);
+
     return (
         <div
             ref={canvasRef}
@@ -159,7 +248,7 @@ export default function Canvas() {
             >
                 {drawingState && <div style={getGhostStyle()} />}
                 {elements.map((el) => (
-                    <ElementRenderer key={el.id} node={el} />
+                    <ElementRenderer key={el.id} node={el} onResizeStart={handleResizeStart}/>
                 ))}
             </div>
         </div>

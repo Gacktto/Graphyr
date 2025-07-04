@@ -24,7 +24,7 @@ type PickerState = {
 };
 
 export default function Rightbar() {
-    const { elements, setElements, selectedId, elementsRef } = useCanvas();
+    const { elements, setElements, selectedId, elementsRef, updateElementStyle } = useCanvas();
     const selectedElement = findElementById(elements, selectedId);
     const [computedStyles, setComputedStyles] =
         useState<CSSStyleDeclaration | null>(null);
@@ -58,51 +58,51 @@ export default function Rightbar() {
         return null;
     }
 
-    function updateElementStyle(id: string, newStyle: React.CSSProperties) {
-        setElements((prevElements: ElementNode[]) => {
-            let changed = false;
+    // function updateElementStyle(id: string, newStyle: React.CSSProperties) {
+    //     setElements((prevElements: ElementNode[]) => {
+    //         let changed = false;
 
-            const updateNode = (node: ElementNode): ElementNode => {
-                if (node.id === id) {
-                    const currentStyle = node.style || {};
-                    const styleChanged = Object.entries(newStyle).some(
-                        ([key, value]) => {
-                            return (
-                                currentStyle[
-                                    key as keyof React.CSSProperties
-                                ] !== value
-                            );
-                        }
-                    );
-                    if (!styleChanged) return node;
-                    changed = true;
-                    return {
-                        ...node,
-                        style: {
-                            ...currentStyle,
-                            ...newStyle,
-                        },
-                    };
-                }
+    //         const updateNode = (node: ElementNode): ElementNode => {
+    //             if (node.id === id) {
+    //                 const currentStyle = node.style || {};
+    //                 const styleChanged = Object.entries(newStyle).some(
+    //                     ([key, value]) => {
+    //                         return (
+    //                             currentStyle[
+    //                                 key as keyof React.CSSProperties
+    //                             ] !== value
+    //                         );
+    //                     }
+    //                 );
+    //                 if (!styleChanged) return node;
+    //                 changed = true;
+    //                 return {
+    //                     ...node,
+    //                     style: {
+    //                         ...currentStyle,
+    //                         ...newStyle,
+    //                     },
+    //                 };
+    //             }
 
-                if (node.children) {
-                    const newChildren = node.children.map(updateNode);
-                    if (newChildren.some((c, i) => c !== node.children![i])) {
-                        changed = true;
-                        return {
-                            ...node,
-                            children: newChildren,
-                        };
-                    }
-                }
+    //             if (node.children) {
+    //                 const newChildren = node.children.map(updateNode);
+    //                 if (newChildren.some((c, i) => c !== node.children![i])) {
+    //                     changed = true;
+    //                     return {
+    //                         ...node,
+    //                         children: newChildren,
+    //                     };
+    //                 }
+    //             }
 
-                return node;
-            };
+    //             return node;
+    //         };
 
-            const next = prevElements.map(updateNode);
-            return changed ? next : prevElements;
-        });
-    }
+    //         const next = prevElements.map(updateNode);
+    //         return changed ? next : prevElements;
+    //     });
+    // }
 
     const handleStyleChange = useCallback(
         (newStyle: React.CSSProperties) => {

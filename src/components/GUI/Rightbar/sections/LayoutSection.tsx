@@ -13,6 +13,7 @@ import {
     ArrowFatLinesRightIcon,
 } from '@phosphor-icons/react';
 import type { ElementNode } from '../../../TreeView/TreeView';
+import { DimensionControl } from '../controls/DimensionControl';
 
 interface LayoutSectionProps {
     selectedElement: ElementNode | null;
@@ -33,67 +34,18 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                     <div className={styles.row}>
                         <div className={styles.group}>
                             <div className={styles.groupTitle}>Size</div>
-                            <div
-                                className={styles.group}
-                                style={{ flexDirection: 'row', gap: '10px' }}
-                            >
-                                <div className={styles.groupInput}>
-                                    <div className={styles.inputLabel}>W</div>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={
-                                            selectedElement?.style?.width !==
-                                            undefined
-                                                ? String(
-                                                      selectedElement.style
-                                                          .width
-                                                  ).replace('px', '')
-                                                : ''
-                                        }
-                                        placeholder={computedStyles?.width?.replace(
-                                            'px',
-                                            ''
-                                        )}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            onStyleChange({
-                                                width: value
-                                                    ? `${value}px`
-                                                    : undefined,
-                                            });
-                                        }}
-                                    />
-                                </div>
-                                <div className={styles.groupInput}>
-                                    <div className={styles.inputLabel}>H</div>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={
-                                            selectedElement?.style?.height !==
-                                            undefined
-                                                ? String(
-                                                      selectedElement.style
-                                                          .height
-                                                  ).replace('px', '')
-                                                : ''
-                                        }
-                                        placeholder={computedStyles?.height?.replace(
-                                            'px',
-                                            ''
-                                        )}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            onStyleChange({
-                                                height: value
-                                                    ? `${value}px`
-                                                    : undefined,
-                                            });
-                                        }}
-                                    />
-                                </div>
-                            </div>
+                            <DimensionControl
+                                label="W"
+                                value={selectedElement?.style?.width}
+                                placeholder={computedStyles?.width}
+                                onValueChange={(newValue) => onStyleChange({ width: newValue })}
+                            />
+                            <DimensionControl
+                                label="H"
+                                value={selectedElement?.style?.height}
+                                placeholder={computedStyles?.height}
+                                onValueChange={(newValue) => onStyleChange({ height: newValue })}
+                            />
                         </div>
                     </div>
                     {/* Row Start */}

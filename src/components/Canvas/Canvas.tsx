@@ -23,6 +23,7 @@ type ResizingState = {
         left: number;
         width: number;
         height: number;
+        position?: React.CSSProperties['position'];
     };
 };
 
@@ -174,6 +175,7 @@ export default function Canvas() {
                 left: parseFloat(node.style.left as string) || 0,
                 width: parseFloat(node.style.width as string) || 0,
                 height: parseFloat(node.style.height as string) || 0,
+                position: node.style.position,
             }
         });
     }, []);
@@ -187,18 +189,50 @@ export default function Canvas() {
             const dx = (e.clientX - startX) / scale;
             const dy = (e.clientY - startY) / scale;
 
-            let { width, height } = originalStyle;
+            let { top, left, width, height } = originalStyle;
 
             if (handle.includes('b')) height = originalStyle.height + dy;
-            if (handle.includes('t')) height = originalStyle.height - dy;
+            if (handle.includes('t')) {
+                height = originalStyle.height - dy;
+                top = originalStyle.top + dy;
+            }
             if (handle.includes('r')) width = originalStyle.width + dx;
-            if (handle.includes('l')) width = originalStyle.width - dx;
+            if (handle.includes('l')) {
+                width = originalStyle.width - dx;
+                left = originalStyle.left + dx;
+            }
             
             const minSize = 10;
-            width = Math.max(width, minSize);
-            height = Math.max(height, minSize);
+            if (width < minSize) {
+                width = minSize;
+                if (handle.includes('l')) left = originalStyle.left + originalStyle.width - minSize;
+            }
+            if (height < minSize) {
+                height = minSize;
+                if (handle.includes('t')) top = originalStyle.top + originalStyle.height - minSize;
+            }
 
-            updateElementStyle(elementId, { width: `${width}px`, height: `${height}px` });
+            const newStyle: React.CSSProperties = {};
+            
+            const isRelative = originalStyle.position === 'relative';
+
+            if (handle.includes('l') || handle.includes('r')) {
+                newStyle.width = `${width}px`;
+            }
+            if (handle.includes('t') || handle.includes('b')) {
+                newStyle.height = `${height}px`;
+            }
+
+            if (!isRelative) {
+                if (handle.includes('t')) {
+                    newStyle.top = `${top}px`;
+                }
+                if (handle.includes('l')) {
+                    newStyle.left = `${left}px`;
+                }
+            }
+            
+            updateElementStyle(elementId, newStyle);
         };
 
         const handleWindowMouseUp = () => {
@@ -212,7 +246,7 @@ export default function Canvas() {
             window.removeEventListener('mousemove', handleWindowMouseMove);
             window.removeEventListener('mouseup', handleWindowMouseUp);
         };
-    }, [resizingState, scale, updateElementStyle]);
+    }, [resizingState, scale, updateElementStyle, getCoordsInWorld]);
 
     return (
         <div

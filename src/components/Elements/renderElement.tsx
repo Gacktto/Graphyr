@@ -1,5 +1,3 @@
-// src/components/Elements/ElementRenderer.tsx (Versão Final Corrigida)
-
 import React from 'react';
 import type { ElementNode } from '../TreeView/TreeView';
 import { useCanvas } from '../../context/CanvasContext';
@@ -55,7 +53,6 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
 
         const wrapperStyle: React.CSSProperties = {
             ...node.style,
-            position: 'absolute',
             outline: isSelected ? '2px solid #007aff' : 'none',
             boxSizing: 'border-box',
         };

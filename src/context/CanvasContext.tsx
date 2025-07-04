@@ -85,7 +85,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             const newId = crypto.randomUUID();
             let newElement: ElementNode;
 
-            const baseStyle = { ...options.style, position: 'relative' };
+            const baseStyle = { ...options.style };
 
             if (type === 'div') {
                 const defaultDivStyle = {

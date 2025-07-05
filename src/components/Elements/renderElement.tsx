@@ -8,10 +8,11 @@ export type Handle = 'tl' | 't' | 'tr' | 'l' | 'r' | 'bl' | 'b' | 'br';
 export interface ElementRendererProps {
     node: ElementNode;
     onResizeStart: (e: React.MouseEvent, handle: Handle, node: ElementNode) => void;
+    onDragStart: (e: React.MouseEvent) => void;
 }
 
 export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
-    ({ node, onResizeStart }) => {
+    ({ node, onResizeStart, onDragStart }) => {
         const {
             elementsRef,
             setElements,
@@ -68,7 +69,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
 
         const renderChildren = () =>
             node.children?.map((child) => (
-                <ElementRenderer key={child.id} node={child} onResizeStart={onResizeStart}/>
+                <ElementRenderer key={child.id} node={child} onResizeStart={onResizeStart} onDragStart={onDragStart}/>
             ));
 
         if (node.type === 'frame' || node.type === 'div') {
@@ -78,6 +79,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     data-element-id={node.id}
                     data-canvas-element
                     onClick={handleClick}
+                    onMouseDown={onDragStart}
                     style={wrapperStyle}
                 >
                     {renderChildren()}
@@ -107,6 +109,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     style={wrapperStyle}
                     contentEditable={isSelected}
                     suppressContentEditableWarning={true}
+                    onMouseDown={onDragStart}
                     onBlur={handleTextBlur}
                 >
                     {node.name}

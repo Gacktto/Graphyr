@@ -193,6 +193,8 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                                                 currentType === 'relative'
                                                     ? currentType
                                                     : 'relative',
+                                            top: "",
+                                            left: ""
                                         });
                                     }}
                                 />

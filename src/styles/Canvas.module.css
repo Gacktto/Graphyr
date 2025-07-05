@@ -64,3 +64,14 @@
 .handle-bl { bottom: -4px; left: -4px; }
 .handle-b  { bottom: -4px; left: 50%; transform: translateX(-50%); }
 .handle-br { bottom: -4px; right: -4px; }
+
+.dropbefore {
+  border-top: 2px dashed #007aff;
+}
+.dropafter {
+  border-bottom: 2px dashed #007aff;
+}
+.dropinside {
+  outline: 2px dashed #007aff;
+}
+

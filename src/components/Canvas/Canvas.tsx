@@ -27,7 +27,15 @@ type ResizingState = {
     };
 };
 
-
+type DraggingState = {
+    elementId: string;
+    startX: number;
+    startY: number;
+    originalLeft: number;
+    originalTop: number;
+    offsetX: number;
+    offsetY: number;
+};
 
 export default function Canvas() {
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -51,6 +59,7 @@ export default function Canvas() {
 
     const [drawingState, setDrawingState] = useState<DrawingState | null>(null);
     const [resizingState, setResizingState] = useState<ResizingState | null>(null);
+    const [draggingState, setDraggingState] = useState<DraggingState | null>(null);
 
     const getCoordsInWorld = useCallback(
         (e: MouseEvent | React.MouseEvent): { x: number; y: number } => {
@@ -187,6 +196,74 @@ export default function Canvas() {
         });
     }, [elementsRef]);
 
+    const handleDragStart = useCallback((e: React.MouseEvent) => {
+        if (activeTool !== 'cursor' || e.button !== 0) return;
+
+        const target = e.target as HTMLElement;
+        const wrapper = target.closest('[data-canvas-element]') as HTMLElement;
+        if (!wrapper) return;
+
+        const id = wrapper.dataset.elementId;
+        if (!id) return;
+
+        const node = elements.find((n) => n.id === id || n.children?.some(c => c.id === id));
+        if (!node || !node.style) return;
+
+        const computedStyle = window.getComputedStyle(wrapper);
+        if (computedStyle.position === 'relative') return;
+
+        const { x: mouseX, y: mouseY } = getCoordsInWorld(e);
+
+        const rect = wrapper.getBoundingClientRect();
+        const canvasRect = canvasRef.current!.getBoundingClientRect();
+
+        const elementX = (rect.left - canvasRect.left - offset.x) / scale;
+        const elementY = (rect.top - canvasRect.top - offset.y) / scale;
+
+        const dx = mouseX - elementX;
+        const dy = mouseY - elementY;
+
+        setDraggingState({
+            elementId: id,
+            startX: mouseX,
+            startY: mouseY,
+            originalLeft: elementX,
+            originalTop: elementY,
+            offsetX: dx,
+            offsetY: dy,
+        });
+    }, [activeTool, elements, getCoordsInWorld, offset, scale]);
+
+
+    useEffect(() => {
+        if (!draggingState) return;
+
+        const handleMouseMove = (e: MouseEvent) => {
+            const { x, y } = getCoordsInWorld(e);
+            const dx = x - draggingState.startX;
+            const dy = y - draggingState.startY;
+
+            updateElementStyle(draggingState.elementId, {
+                left: `${draggingState.originalLeft + dx}px`,
+                top: `${draggingState.originalTop + dy}px`,
+            });
+        };
+
+        const handleMouseUp = () => {
+            setDraggingState(null);
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [draggingState, getCoordsInWorld, updateElementStyle]);
+
+
+
     useEffect(() => {
         if (!resizingState) return;
 
@@ -274,7 +351,7 @@ export default function Canvas() {
             >
                 {drawingState && <div style={getGhostStyle()} />}
                 {elements.map((el) => (
-                    <ElementRenderer key={el.id} node={el} onResizeStart={handleResizeStart}/>
+                    <ElementRenderer key={el.id} node={el} onResizeStart={handleResizeStart} onDragStart={handleDragStart}/>
                 ))}
             </div>
         </div>

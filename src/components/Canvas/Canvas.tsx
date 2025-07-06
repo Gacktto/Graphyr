@@ -50,6 +50,8 @@ export default function Canvas() {
         setActiveTool,
         addElement,
         updateElementStyle,
+        copySelectedElement,
+        pasteElement,
     } = useCanvas();
 
     const { scale, offset } = useCanvasTransform(
@@ -60,6 +62,31 @@ export default function Canvas() {
     const [drawingState, setDrawingState] = useState<DrawingState | null>(null);
     const [resizingState, setResizingState] = useState<ResizingState | null>(null);
     const [draggingState, setDraggingState] = useState<DraggingState | null>(null);
+
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.target as HTMLElement).isContentEditable) {
+                return;
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                e.preventDefault();
+                copySelectedElement();
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+                e.preventDefault();
+                pasteElement();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [copySelectedElement, pasteElement]);
 
     const getCoordsInWorld = useCallback(
         (e: MouseEvent | React.MouseEvent): { x: number; y: number } => {

@@ -33,11 +33,35 @@ type CanvasContextType = {
     addElement: (type: 'div' | 'text', options: AddElementOptions) => void;
     updateElementStyle: (id: string, newStyle: React.CSSProperties) => void;
     moveElement: (options: MoveElementOptions) => void;
+    copySelectedElement: () => void;
+    pasteElement: () => void;
 };
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
-// --- FUNÇÕES UTILITÁRIAS ROBUSTAS PARA MANIPULAR A ÁRVORE ---
+
+function findNode(nodes: ElementNode[], nodeId: string): ElementNode | null {
+    for (const node of nodes) {
+        if (node.id === nodeId) return node;
+        if (node.children) {
+            const found = findNode(node.children, nodeId);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+function deepCloneAndAssignNewIds(node: ElementNode): ElementNode {
+    const newNode: ElementNode = {
+        ...node,
+        id: crypto.randomUUID(),
+        name: node.name,
+    };
+    if (node.children) {
+        newNode.children = node.children.map(child => deepCloneAndAssignNewIds(child));
+    }
+    return newNode;
+}
 
 function findAndRemove(
     nodes: ElementNode[],
@@ -155,6 +179,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     ]);
     const [selectedId, setSelectedId] = useState<string | null>('1');
     const [activeTool, setActiveTool] = useState<ActiveTool>('cursor');
+    const [copiedElement, setCopiedElement] = useState<ElementNode | null>(null);
 
     const addElement = useCallback(
         (type: 'div' | 'text', options: AddElementOptions) => {
@@ -234,6 +259,35 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         });
     }, []);
 
+    const copySelectedElement = useCallback(() => {
+        if (!selectedId) return;
+        const elementToCopy = findNode(elements, selectedId);
+        if (elementToCopy) {
+            setCopiedElement(JSON.parse(JSON.stringify(elementToCopy))); 
+            console.log('Elemento copiado:', elementToCopy);
+        }
+    }, [selectedId, elements]);
+
+    const pasteElement = useCallback(() => {
+        if (!copiedElement) return;
+
+        const clonedNode = deepCloneAndAssignNewIds(copiedElement);
+        
+        if (clonedNode.style?.position) {
+           clonedNode.style.position = "relative";
+        }
+
+        const parentId = selectedId || '1';
+
+        setElements(currentElements => {
+            const [, newTree] = insert(currentElements, clonedNode, parentId, 'inside');
+            return newTree;
+        });
+        
+        setSelectedId(clonedNode.id);
+
+    }, [copiedElement, selectedId]);
+
     const contextValue = useMemo(
         () => ({
             elements, setElements,
@@ -242,8 +296,10 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             activeTool, setActiveTool,
             addElement, updateElementStyle,
             moveElement,
+            copySelectedElement,
+            pasteElement, 
         }),
-        [elements, selectedId, activeTool, addElement, updateElementStyle, moveElement]
+        [elements, selectedId, activeTool, addElement, updateElementStyle, moveElement, copySelectedElement, pasteElement]
     );
 
     return (

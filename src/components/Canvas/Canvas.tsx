@@ -52,6 +52,8 @@ export default function Canvas() {
         updateElementStyle,
         copySelectedElement,
         pasteElement,
+        undo,
+        redo
     } = useCanvas();
 
     const { scale, offset } = useCanvasTransform(
@@ -66,9 +68,7 @@ export default function Canvas() {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if ((e.target as HTMLElement).isContentEditable) {
-                return;
-            }
+            if ((e.target as HTMLElement).isContentEditable) return;
 
             if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
                 e.preventDefault();
@@ -79,14 +79,22 @@ export default function Canvas() {
                 e.preventDefault();
                 pasteElement();
             }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                undo();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'z') {
+                e.preventDefault();
+                redo();
+            }
+
         };
 
         window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [copySelectedElement, pasteElement, undo, redo]);
 
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [copySelectedElement, pasteElement]);
 
     const getCoordsInWorld = useCallback(
         (e: MouseEvent | React.MouseEvent): { x: number; y: number } => {

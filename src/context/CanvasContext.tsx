@@ -35,10 +35,11 @@ type CanvasContextType = {
     moveElement: (options: MoveElementOptions) => void;
     copySelectedElement: () => void;
     pasteElement: () => void;
+    undo: () => void;
+    redo: () => void;
 };
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
-
 
 function findNode(nodes: ElementNode[], nodeId: string): ElementNode | null {
     for (const node of nodes) {
@@ -160,8 +161,10 @@ function insert(
     return [inserted, newNodes];
 }
 
-
 export function CanvasProvider({ children }: { children: ReactNode }) {
+    const undoStack = useRef<ElementNode[][]>([]);
+    const redoStack = useRef<ElementNode[][]>([]);
+
     const elementsRef = useRef<Record<string, HTMLElement | null>>({});
     const [elements, setElements] = useState<ElementNode[]>([
         {
@@ -181,77 +184,120 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     const [activeTool, setActiveTool] = useState<ActiveTool>('cursor');
     const [copiedElement, setCopiedElement] = useState<ElementNode | null>(null);
 
-    const addElement = useCallback(
-        (type: 'div' | 'text', options: AddElementOptions) => {
-            const newId = crypto.randomUUID();
-            let newElement: ElementNode;
-            const baseStyle = { ...options.style, position: 'absolute' as const };
-            if (type === 'div') {
-                const defaultDivStyle = {
+    const updateElementsWithHistory = useCallback((updater: (prev: ElementNode[]) => ElementNode[]) => {
+        setElements(prev => {
+            undoStack.current.push(structuredClone(prev));
+            if (undoStack.current.length > 1000) undoStack.current.shift();
+            redoStack.current = [];
+            return updater(prev);
+        });
+    }, []);
+
+    const undo = useCallback(() => {
+        if (undoStack.current.length === 0) return;
+        setElements(prev => {
+            const last = undoStack.current.pop()!;
+            redoStack.current.push(structuredClone(prev));
+            return last;
+        });
+    }, []);
+
+    const redo = useCallback(() => {
+        if (redoStack.current.length === 0) return;
+        setElements(prev => {
+            const next = redoStack.current.pop()!;
+            undoStack.current.push(structuredClone(prev));
+            return next;
+        });
+    }, []);
+
+    const addElement = useCallback((type: 'div' | 'text', options: AddElementOptions) => {
+        const newId = crypto.randomUUID();
+        let newElement: ElementNode;
+        const baseStyle = { ...options.style, position: 'absolute' as const };
+
+        if (type === 'div') {
+            newElement = {
+                id: newId,
+                type: 'div',
+                name: 'New Frame',
+                style: {
                     width: '300px',
                     height: '200px',
                     backgroundColor: 'rgba(217, 217, 217, 1)',
-                };
-                newElement = {
-                    id: newId, type: 'div', name: 'New Frame',
-                    style: { ...defaultDivStyle, ...baseStyle },
-                    children: [],
-                };
-            } else {
-                const defaultTextStyle = {
-                    fontSize: '16px', color: 'rgba(0, 0, 0, 1)',
-                    width: 'auto', height: 'auto',
-                };
-                newElement = {
-                    id: newId, type: 'text', name: 'New Text',
-                    style: { ...defaultTextStyle, ...baseStyle },
-                };
-            }
-            setElements((currentElements) => {
-                const [, newTree] = insert(currentElements, newElement, options.parentId!, 'inside');
-                return newTree;
-            });
-            setSelectedId(newId);
-        },
-        []
-    );
+                    ...baseStyle,
+                },
+                children: [],
+            };
+        } else {
+            newElement = {
+                id: newId,
+                type: 'text',
+                name: 'New Text',
+                style: {
+                    fontSize: '16px',
+                    color: 'rgba(0, 0, 0, 1)',
+                    width: 'auto',
+                    height: 'auto',
+                    ...baseStyle,
+                },
+            };
+        }
 
-    const updateElementStyle = useCallback(
-        (id: string, newStyle: React.CSSProperties) => {
-            setElements((prevElements) => {
-                const updateNode = (node: ElementNode): ElementNode => {
-                    if (node.id === id) {
-                        return { ...node, style: { ...node.style, ...newStyle } };
-                    }
-                    if (node.children) {
-                        return { ...node, children: node.children.map(updateNode) };
-                    }
-                    return node;
-                };
-                return prevElements.map(updateNode);
-            });
-        },
-        []
-    );
+        updateElementsWithHistory((current) => {
+            const [, updated] = insert(current, newElement, options.parentId || '1', 'inside');
+            return updated;
+        });
+        setSelectedId(newId);
+    }, []);
+
+    const updateElementStyle = useCallback((id: string, newStyle: React.CSSProperties) => {
+        updateElementsWithHistory(prev => {
+            let changed = false;
+
+            const updateNode = (node: ElementNode): ElementNode => {
+                if (node.id === id) {
+                    const updatedStyle = { ...node.style, ...newStyle };
+
+                    const hasChanged = Object.entries(newStyle).some(
+                        ([key, value]) => node.style?.[key as keyof React.CSSProperties] !== value
+                    );
+
+                    if (!hasChanged) return node;
+
+                    changed = true;
+                    return { ...node, style: updatedStyle };
+                }
+
+                if (node.children) {
+                    const updatedChildren = node.children.map(updateNode);
+                    if (changed) return { ...node, children: updatedChildren };
+                }
+
+                return node;
+            };
+
+            const updatedTree = prev.map(updateNode);
+            return changed ? updatedTree : prev;
+        });
+    }, []);
+
 
     const moveElement = useCallback((options: MoveElementOptions) => {
         const { draggedId, targetId, position } = options;
         if (draggedId === targetId) return;
 
-        setElements(currentElements => {
+        updateElementsWithHistory(currentElements => {
             const [draggedNode, treeWithoutDragged] = findAndRemove(currentElements, draggedId);
             if (!draggedNode) return currentElements;
-            
+
             if (targetId === null) {
-                const rootFrameIndex = treeWithoutDragged.findIndex(n => n.type === 'frame');
-                if (rootFrameIndex !== -1) {
-                    const newTree = [...treeWithoutDragged];
-                    const rootFrame = {...newTree[rootFrameIndex]};
-                    rootFrame.children = [...(rootFrame.children || []), draggedNode];
-                    newTree[rootFrameIndex] = rootFrame;
-                    return newTree;
+                const root = treeWithoutDragged.find(n => n.type === 'frame');
+                if (root) {
+                    root.children = [...(root.children || []), draggedNode];
+                    return [...treeWithoutDragged];
                 }
-                 return [...treeWithoutDragged, draggedNode];
+                return [...treeWithoutDragged, draggedNode];
             }
 
             const [, finalTree] = insert(treeWithoutDragged, draggedNode, targetId, position);
@@ -263,44 +309,38 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         if (!selectedId) return;
         const elementToCopy = findNode(elements, selectedId);
         if (elementToCopy) {
-            setCopiedElement(JSON.parse(JSON.stringify(elementToCopy))); 
-            console.log('Elemento copiado:', elementToCopy);
+            setCopiedElement(JSON.parse(JSON.stringify(elementToCopy)));
         }
     }, [selectedId, elements]);
 
     const pasteElement = useCallback(() => {
         if (!copiedElement) return;
 
-        const clonedNode = deepCloneAndAssignNewIds(copiedElement);
+        const cloned = deepCloneAndAssignNewIds(copiedElement);
         
-        if (clonedNode.style?.position) {
-           clonedNode.style.position = "relative";
-        }
+        cloned.style = { ...cloned.style, position: 'relative' };
 
         const parentId = selectedId || '1';
 
-        setElements(currentElements => {
-            const [, newTree] = insert(currentElements, clonedNode, parentId, 'inside');
-            return newTree;
+        updateElementsWithHistory(prev => {
+            const [, tree] = insert(prev, cloned, parentId, 'inside');
+            return tree;
         });
-        
-        setSelectedId(clonedNode.id);
 
+        setSelectedId(cloned.id);
     }, [copiedElement, selectedId]);
 
-    const contextValue = useMemo(
-        () => ({
-            elements, setElements,
-            selectedId, setSelectedId,
-            elementsRef,
-            activeTool, setActiveTool,
-            addElement, updateElementStyle,
-            moveElement,
-            copySelectedElement,
-            pasteElement, 
-        }),
-        [elements, selectedId, activeTool, addElement, updateElementStyle, moveElement, copySelectedElement, pasteElement]
-    );
+    const contextValue = useMemo(() => ({
+        elements, setElements,
+        selectedId, setSelectedId,
+        elementsRef,
+        activeTool, setActiveTool,
+        addElement, updateElementStyle,
+        moveElement,
+        copySelectedElement,
+        pasteElement,
+        undo, redo,
+    }), [elements, selectedId, activeTool, addElement, updateElementStyle, moveElement, copySelectedElement, pasteElement, undo, redo]);
 
     return (
         <CanvasContext.Provider value={contextValue}>
@@ -311,7 +351,6 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
 
 export function useCanvas() {
     const ctx = useContext(CanvasContext);
-    if (!ctx)
-        throw new Error('useCanvas deve ser usado dentro de CanvasProvider');
+    if (!ctx) throw new Error('useCanvas deve ser usado dentro de CanvasProvider');
     return ctx;
 }

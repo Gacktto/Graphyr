@@ -9,7 +9,7 @@ import {
 } from 'react';
 import type { ElementNode } from '../components/TreeView/TreeView';
 
-export type ActiveTool = 'cursor' | 'text' | 'div';
+export type ActiveTool = 'cursor' | 'text' | 'div' | 'chartBarHorizontal'  | 'chartPie' | 'chartLine' | 'chartDonut' | 'chartBar' | 'table';
 
 type AddElementOptions = {
     parentId: string | null;

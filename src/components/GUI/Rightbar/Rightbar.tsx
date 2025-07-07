@@ -24,7 +24,7 @@ type PickerState = {
 };
 
 export default function Rightbar() {
-    const { elements, setElements, selectedId, elementsRef, updateElementStyle } = useCanvas();
+    const { elements, selectedId, elementsRef, updateElementStyle } = useCanvas();
     const selectedElement = findElementById(elements, selectedId);
     const [computedStyles, setComputedStyles] =
         useState<CSSStyleDeclaration | null>(null);

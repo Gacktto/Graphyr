@@ -57,13 +57,6 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
             outline: isSelected ? '2px solid #007aff' : 'none',
             boxSizing: 'border-box',
         };
-
-        const innerFillStyle: React.CSSProperties = {
-            width: '100%',
-            height: '100%',
-            boxSizing: 'border-box',
-            pointerEvents: 'none', 
-        };
         
         const handles: Handle[] = ['tl', 't', 'tr', 'l', 'r', 'bl', 'b', 'br'];
 

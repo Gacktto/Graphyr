@@ -30,7 +30,7 @@ type CanvasContextType = {
     elementsRef: React.MutableRefObject<Record<string, HTMLElement | null>>;
     activeTool: ActiveTool;
     setActiveTool: (tool: ActiveTool) => void;
-    addElement: (type: 'div' | 'text', options: AddElementOptions) => void;
+    addElement: (type: 'div' | 'text' |  'chartBarHorizontal'  | 'chartPie' | 'chartLine' | 'chartDonut' | 'chartBar' | 'table' , options: AddElementOptions) => void;
     updateElementStyle: (id: string, newStyle: React.CSSProperties) => void;
     moveElement: (options: MoveElementOptions) => void;
     copySelectedElement: () => void;
@@ -211,7 +211,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         });
     }, []);
 
-    const addElement = useCallback((type: 'div' | 'text', options: AddElementOptions) => {
+    const addElement = useCallback((type: 'div' | 'text' |  'chartBarHorizontal'  | 'chartPie' | 'chartLine' | 'chartDonut' | 'chartBar' | 'table' , options: AddElementOptions) => {
         const newId = crypto.randomUUID();
         let newElement: ElementNode;
         const baseStyle = { ...options.style, position: 'absolute' as const };

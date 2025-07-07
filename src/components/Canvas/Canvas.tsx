@@ -37,6 +37,11 @@ type DraggingState = {
     offsetY: number;
 };
 
+type GuideLine = {
+    type: 'vertical' | 'horizontal';
+    position: number;
+};
+
 export default function Canvas() {
     const canvasRef = useRef<HTMLDivElement>(null);
     const innerRef = useRef<HTMLDivElement>(null);
@@ -64,7 +69,7 @@ export default function Canvas() {
     const [drawingState, setDrawingState] = useState<DrawingState | null>(null);
     const [resizingState, setResizingState] = useState<ResizingState | null>(null);
     const [draggingState, setDraggingState] = useState<DraggingState | null>(null);
-
+    const [guideLines, setGuideLines] = useState<GuideLine[]>([]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -274,18 +279,93 @@ export default function Canvas() {
         if (!draggingState) return;
 
         const handleMouseMove = (e: MouseEvent) => {
+            const { elementId, originalLeft, originalTop, startX, startY } = draggingState;
+            
             const { x, y } = getCoordsInWorld(e);
-            const dx = x - draggingState.startX;
-            const dy = y - draggingState.startY;
+            const dx = x - startX;
+            const dy = y - startY;
 
-            updateElementStyle(draggingState.elementId, {
-                left: `${draggingState.originalLeft + dx}px`,
-                top: `${draggingState.originalTop + dy}px`,
+            let newLeft = originalLeft + dx;
+            let newTop = originalTop + dy;
+
+            const activeLines: GuideLine[] = [];
+            const SNAP_THRESHOLD = 5 / scale; 
+            const activeElementNode = elementsRef.current[elementId];
+            if (!activeElementNode) return;
+
+            const activeRect = {
+                left: newLeft,
+                top: newTop,
+                width: activeElementNode.offsetWidth,
+                height: activeElementNode.offsetHeight,
+                right: newLeft + activeElementNode.offsetWidth,
+                bottom: newTop + activeElementNode.offsetHeight,
+                centerX: newLeft + activeElementNode.offsetWidth / 2,
+                centerY: newTop + activeElementNode.offsetHeight / 2,
+            };
+            
+            const otherElements = elements.flatMap(node => node.id === '1' ? node.children || [] : [node]).filter(el => el.id !== elementId);
+
+            for (const targetNode of otherElements) {
+                const targetElement = elementsRef.current[targetNode.id];
+                if (!targetElement) continue;
+
+                const targetRect = {
+                    left: targetElement.offsetLeft,
+                    top: targetElement.offsetTop,
+                    width: targetElement.offsetWidth,
+                    height: targetElement.offsetHeight,
+                    right: targetElement.offsetLeft + targetElement.offsetWidth,
+                    bottom: targetElement.offsetTop + targetElement.offsetHeight,
+                    centerX: targetElement.offsetLeft + targetElement.offsetWidth / 2,
+                    centerY: targetElement.offsetTop + targetElement.offsetHeight / 2,
+                };
+
+                const checks = [
+                    { active: activeRect.left, target: targetRect.left, pos: 'left' },
+                    { active: activeRect.left, target: targetRect.right, pos: 'left' },
+                    { active: activeRect.left, target: targetRect.centerX, pos: 'left' },
+                    { active: activeRect.right, target: targetRect.left, pos: 'right' },
+                    { active: activeRect.right, target: targetRect.right, pos: 'right' },
+                    { active: activeRect.right, target: targetRect.centerX, pos: 'right' },
+                    { active: activeRect.centerX, target: targetRect.left, pos: 'centerX' },
+                    { active: activeRect.centerX, target: targetRect.right, pos: 'centerX' },
+                    { active: activeRect.centerX, target: targetRect.centerX, pos: 'centerX' },
+
+                    { active: activeRect.top, target: targetRect.top, pos: 'top' },
+                    { active: activeRect.top, target: targetRect.bottom, pos: 'top' },
+                    { active: activeRect.top, target: targetRect.centerY, pos: 'top' },
+                    { active: activeRect.bottom, target: targetRect.top, pos: 'bottom' },
+                    { active: activeRect.bottom, target: targetRect.bottom, pos: 'bottom' },
+                    { active: activeRect.bottom, target: targetRect.centerY, pos: 'bottom' },
+                    { active: activeRect.centerY, target: targetRect.top, pos: 'centerY' },
+                    { active: activeRect.centerY, target: targetRect.bottom, pos: 'centerY' },
+                    { active: activeRect.centerY, target: targetRect.centerY, pos: 'centerY' },
+                ];
+
+                for (const check of checks) {
+                    if (Math.abs(check.active - check.target) < SNAP_THRESHOLD) {
+                        if (['left', 'right', 'centerX'].includes(check.pos)) {
+                            newLeft = check.target - (activeRect[check.pos] - activeRect.left);
+                            activeLines.push({ type: 'vertical', position: check.target });
+                        } else {
+                            newTop = check.target - (activeRect[check.pos] - activeRect.top);
+                            activeLines.push({ type: 'horizontal', position: check.target });
+                        }
+                    }
+                }
+            }
+            
+            setGuideLines(activeLines);
+            updateElementStyle(elementId, {
+                left: `${newLeft}px`,
+                top: `${newTop}px`,
             });
         };
 
         const handleMouseUp = () => {
             setDraggingState(null);
+            setGuideLines([]);
         };
 
         window.addEventListener('mousemove', handleMouseMove);
@@ -295,7 +375,7 @@ export default function Canvas() {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [draggingState, getCoordsInWorld, updateElementStyle]);
+    }, [draggingState, getCoordsInWorld, updateElementStyle, elements, elementsRef, scale]);
 
 
 
@@ -356,6 +436,7 @@ export default function Canvas() {
 
         const handleWindowMouseUp = () => {
             setResizingState(null);
+            setGuideLines([]);
         };
 
         window.addEventListener('mousemove', handleWindowMouseMove);
@@ -385,6 +466,20 @@ export default function Canvas() {
                 onDoubleClick={handleDoubleClick}
             >
                 {drawingState && <div style={getGhostStyle()} />}
+                {guideLines.map((line, index) => (
+                    <div
+                        key={`guide-${index}`}
+                        style={{
+                            position: 'absolute',
+                            backgroundColor: '#FF0000', 
+                            ...(line.type === 'vertical'
+                                ? { left: line.position, top: 0, width: '1px', height: '100%' }
+                                : { top: line.position, left: 0, height: '1px', width: '100%' }),
+                            zIndex: 9998 
+                        }}
+                    />
+                ))}
+
                 {elements.map((el) => (
                     <ElementRenderer key={el.id} node={el} onResizeStart={handleResizeStart} onDragStart={handleDragStart}/>
                 ))}

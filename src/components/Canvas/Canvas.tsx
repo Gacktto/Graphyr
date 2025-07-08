@@ -37,6 +37,23 @@ type DraggingState = {
     offsetY: number;
 };
 
+type ActiveRect = {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    right: number;
+    bottom: number;
+    centerX: number;
+    centerY: number;
+};
+
+type SnapCheck = {
+    active: number;
+    target: number;
+    pos: keyof ActiveRect;
+};
+
 type GuideLine = {
     type: 'vertical' | 'horizontal';
     position: number;
@@ -293,7 +310,7 @@ export default function Canvas() {
             const activeElementNode = elementsRef.current[elementId];
             if (!activeElementNode) return;
 
-            const activeRect = {
+            const activeRect: ActiveRect = {
                 left: newLeft,
                 top: newTop,
                 width: activeElementNode.offsetWidth,
@@ -321,7 +338,7 @@ export default function Canvas() {
                     centerY: targetElement.offsetTop + targetElement.offsetHeight / 2,
                 };
 
-                const checks = [
+                const checks: SnapCheck[] = [
                     { active: activeRect.left, target: targetRect.left, pos: 'left' },
                     { active: activeRect.left, target: targetRect.right, pos: 'left' },
                     { active: activeRect.left, target: targetRect.centerX, pos: 'left' },
@@ -509,7 +526,7 @@ export default function Canvas() {
             window.removeEventListener('mousemove', handleWindowMouseMove);
             window.removeEventListener('mouseup', handleWindowMouseUp);
         };
-        
+
     }, [resizingState, scale, updateElementStyle, getCoordsInWorld, elements, elementsRef]);
 
     return (

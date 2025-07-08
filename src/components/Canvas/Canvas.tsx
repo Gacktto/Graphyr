@@ -384,7 +384,6 @@ export default function Canvas() {
 
         const handleWindowMouseMove = (e: MouseEvent) => {
             const { handle, originalStyle, startX, startY, elementId } = resizingState;
-
             const dx = (e.clientX - startX) / scale;
             const dy = (e.clientY - startY) / scale;
 
@@ -400,37 +399,101 @@ export default function Canvas() {
                 width = originalStyle.width - dx;
                 left = originalStyle.left + dx;
             }
+
+            const activeLines: GuideLine[] = [];
+            const SNAP_THRESHOLD = 5 / scale;
+
+            const activeRect = {
+                top, left, width, height,
+                right: left + width,
+                bottom: top + height,
+                centerX: left + width / 2,
+                centerY: top + height / 2,
+            };
+
+            const otherElements = elements.flatMap(node => node.id === '1' ? node.children || [] : [node]).filter(el => el.id !== elementId);
+
+            for (const targetNode of otherElements) {
+                const targetElement = elementsRef.current[targetNode.id];
+                if (!targetElement) continue;
+
+                const targetRect = {
+                    left: targetElement.offsetLeft,
+                    top: targetElement.offsetTop,
+                    right: targetElement.offsetLeft + targetElement.offsetWidth,
+                    bottom: targetElement.offsetTop + targetElement.offsetHeight,
+                    centerX: targetElement.offsetLeft + targetElement.offsetWidth / 2,
+                    centerY: targetElement.offsetTop + targetElement.offsetHeight / 2,
+                };
+
+                const verticalChecks = [targetRect.left, targetRect.centerX, targetRect.right];
+                const horizontalChecks = [targetRect.top, targetRect.centerY, targetRect.bottom];
+
+                if (handle.includes('r')) {
+                    for (const targetPos of verticalChecks) {
+                        if (Math.abs(activeRect.right - targetPos) < SNAP_THRESHOLD) {
+                            width = targetPos - left;
+                            activeLines.push({ type: 'vertical', position: targetPos });
+                            break; 
+                        }
+                    }
+                }
+                if (handle.includes('l')) {
+                    for (const targetPos of verticalChecks) {
+                        if (Math.abs(activeRect.left - targetPos) < SNAP_THRESHOLD) {
+                            const originalRight = originalStyle.left + originalStyle.width;
+                            left = targetPos;
+                            width = originalRight - left;
+                            activeLines.push({ type: 'vertical', position: targetPos });
+                            break;
+                        }
+                    }
+                }
+                
+                if (handle.includes('b')) {
+                    for (const targetPos of horizontalChecks) {
+                        if (Math.abs(activeRect.bottom - targetPos) < SNAP_THRESHOLD) {
+                            height = targetPos - top;
+                            activeLines.push({ type: 'horizontal', position: targetPos });
+                            break;
+                        }
+                    }
+                }
+                if (handle.includes('t')) {
+                    for (const targetPos of horizontalChecks) {
+                        if (Math.abs(activeRect.top - targetPos) < SNAP_THRESHOLD) {
+                            const originalBottom = originalStyle.top + originalStyle.height;
+                            top = targetPos;
+                            height = originalBottom - top;
+                            activeLines.push({ type: 'horizontal', position: targetPos });
+                            break;
+                        }
+                    }
+                }
+            }
             
             const minSize = 10;
             if (width < minSize) {
-                width = minSize;
                 if (handle.includes('l')) left = originalStyle.left + originalStyle.width - minSize;
+                width = minSize;
             }
             if (height < minSize) {
-                height = minSize;
                 if (handle.includes('t')) top = originalStyle.top + originalStyle.height - minSize;
+                height = minSize;
             }
 
             const newStyle: React.CSSProperties = {};
-            
             const isRelative = originalStyle.position === 'relative';
 
-            if (handle.includes('l') || handle.includes('r')) {
-                newStyle.width = `${width}px`;
-            }
-            if (handle.includes('t') || handle.includes('b')) {
-                newStyle.height = `${height}px`;
-            }
+            if (handle.includes('l') || handle.includes('r')) newStyle.width = `${width}px`;
+            if (handle.includes('t') || handle.includes('b')) newStyle.height = `${height}px`;
 
             if (!isRelative) {
-                if (handle.includes('t')) {
-                    newStyle.top = `${top}px`;
-                }
-                if (handle.includes('l')) {
-                    newStyle.left = `${left}px`;
-                }
+                if (handle.includes('t')) newStyle.top = `${top}px`;
+                if (handle.includes('l')) newStyle.left = `${left}px`;
             }
             
+            setGuideLines(activeLines);
             updateElementStyle(elementId, newStyle);
         };
 
@@ -446,7 +509,8 @@ export default function Canvas() {
             window.removeEventListener('mousemove', handleWindowMouseMove);
             window.removeEventListener('mouseup', handleWindowMouseUp);
         };
-    }, [resizingState, scale, updateElementStyle, getCoordsInWorld]);
+        
+    }, [resizingState, scale, updateElementStyle, getCoordsInWorld, elements, elementsRef]);
 
     return (
         <div

@@ -92,6 +92,37 @@
     box-sizing: border-box;
 }
 
+.groupChoices {
+    position: relative;
+    display: flex;
+    width: 100%;
+    align-items: start;
+    justify-content: start;
+    border: 1px solid #3c3c3c;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.choice {
+    opacity: 1;
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.choice:hover{
+    opacity: 0.8;
+}
+
+.choice.active{
+    background-color: #3c3c3c;
+}
+
 .groupInput {
     position: relative;
     display: flex;

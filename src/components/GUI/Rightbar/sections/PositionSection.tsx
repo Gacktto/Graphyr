@@ -10,8 +10,6 @@ import {
     FlipHorizontalIcon,
     FlipVerticalIcon,
     AngleIcon,
-    NetworkIcon,
-    NetworkSlashIcon,
 } from '@phosphor-icons/react';
 import type { ElementNode } from '../../../TreeView/TreeView';
 
@@ -178,11 +176,28 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                     </div>
                     {/* Row Start */}
                     <div className={styles.row}>
-                        <div className={styles.group}>
+                        <div className={`${styles.group} ${styles.fill}`}>
                             <div className={styles.groupTitle}>Type</div>
-                            <div className={styles.groupContent}>
-                                <NetworkIcon
-                                    className={`${styles.icon} ${styles.button}`}
+                            <div className={styles.groupChoices}>
+                                <div 
+                                    className={`${styles.choice} ${selectedElement?.style?.position === "absolute" ? styles.active : ""}`}
+                                    onClick={() => {
+                                        const currentType =
+                                            selectedElement?.style?.position;
+                                        console.log(currentType);
+
+                                        onStyleChange({
+                                            position:
+                                                currentType === 'absolute'
+                                                    ? currentType
+                                                    : 'absolute',
+                                        });
+                                    }}
+                                    >
+                                        Absolute
+                                </div>
+                                <div 
+                                    className={`${styles.choice} ${selectedElement?.style?.position === "relative" ? styles.active : ""}`}
                                     onClick={() => {
                                         const currentType =
                                             selectedElement?.style?.position;
@@ -197,22 +212,9 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                                             left: ""
                                         });
                                     }}
-                                />
-                                <NetworkSlashIcon
-                                    className={`${styles.icon} ${styles.button}`}
-                                    onClick={() => {
-                                        const currentType =
-                                            selectedElement?.style?.position;
-                                        console.log(currentType);
-
-                                        onStyleChange({
-                                            position:
-                                                currentType === 'absolute'
-                                                    ? currentType
-                                                    : 'absolute',
-                                        });
-                                    }}
-                                />
+                                    >
+                                        Relative
+                                </div>
                             </div>
                         </div>
                     </div>

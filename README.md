@@ -26,7 +26,7 @@
 ## Features
 
 * **Dynamic Canvas:** A flexible space to bring your pages and dashboards to life.
-* **Frames (Artboards):** Organize your designs within distinct containers, perfect for creating different sections or page views.
+* **Frame:** A space to create your designs that will be published.
 * **Floating Action Bar:** Quickly select creation modes and tools from an intuitive, accessible toolbar.
 * **CSS-Based Properties Panel:** Edit element properties like colors, dimensions, and spacing using familiar CSS-based controls.
 * **Element Tree View:** Easily view, select, and organize your elements in a hierarchical layer panel.

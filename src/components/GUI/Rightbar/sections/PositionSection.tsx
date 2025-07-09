@@ -180,7 +180,7 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                             <div className={styles.groupTitle}>Type</div>
                             <div className={styles.groupChoices}>
                                 <div 
-                                    className={`${styles.choice} ${selectedElement?.style?.position === "absolute" ? styles.active : ""}`}
+                                    className={`${styles.choice} ${selectedElement?.style?.position === "absolute" ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentType =
                                             selectedElement?.style?.position;
@@ -197,7 +197,7 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                                         Absolute
                                 </div>
                                 <div 
-                                    className={`${styles.choice} ${selectedElement?.style?.position === "relative" ? styles.active : ""}`}
+                                    className={`${styles.choice} ${selectedElement?.style?.position === "relative" ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentType =
                                             selectedElement?.style?.position;

@@ -104,7 +104,6 @@
 }
 
 .choice {
-    opacity: 1;
     position: relative;
     flex: 1;
     display: flex;
@@ -112,15 +111,20 @@
     justify-content: center;
     padding: 5px 10px;
     box-sizing: border-box;
-    cursor: pointer;
 }
 
-.choice:hover{
-    opacity: 0.8;
+.choice.inactive:hover {
+    color: rgba(255, 255, 255, 0.8);
 }
 
-.choice.active{
+.active {
     background-color: #3c3c3c;
+    user-select: none;
+}
+
+.inactive {
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .groupInput {

@@ -1,7 +1,7 @@
 <h1 align="center">Graphyr</h1>
 
 <p align="center">
-  <strong>No-code web platform for building fully customized data dashboards</strong>
+  <strong>A no-code web platform for building fully customized data dashboards.</strong>
 </p>
 
 <p align="center">
@@ -13,63 +13,58 @@
 
 ## Overview
 
-**Graphyr** is (would be) a powerful online editor that gives you full creative control to design beautiful and interactive data dashboards from scratch, without code. Inspired on moderns web no-code/low-code editors.
+**Graphyr** is a powerful online editor that gives you full creative control to design beautiful and interactive data dashboards from scratch, without code. It is inspired by modern no-code/low-code web editors, aiming to be a flexible open-source alternative.
 
 ## Summary
 
 * [Features](#features)
-* [Techs](#techs)
+* [Tech Stack](#tech-stack)
 * [Run Locally](#run-locally)
-  * [Requirements](#requirements)
-  * [Installation](#installation)
 * [Roadmap](#roadmap)
 * [License](#license)
 
-
 ## Features
 
-Some features that have already been implemented
+* **Dynamic Canvas:** A flexible space to bring your pages and dashboards to life.
+* **Frames (Artboards):** Organize your designs within distinct containers, perfect for creating different sections or page views.
+* **Floating Action Bar:** Quickly select creation modes and tools from an intuitive, accessible toolbar.
+* **CSS-Based Properties Panel:** Edit element properties like colors, dimensions, and spacing using familiar CSS-based controls.
+* **Element Tree View:** Easily view, select, and organize your elements in a hierarchical layer panel.
+* **Smart Guides & Snapping:** Precisely align elements with smart guides and automatic snapping for a pixel-perfect layout.
+* **Intuitive Element Resizing:** Resize any element by simply dragging its handles.
+* **Essential Keyboard Shortcuts:**
+  | Action | Shortcut |
+  | :--- | :--- |
+  | Copy / Paste | `Ctrl + C` / `Ctrl + V` |
+  | Delete | `Delete` |
+  | Undo / Redo | `Ctrl + Z` / `Ctrl + Shift + Z` |
+  | Zoom In / Out | `Ctrl + Mouse Wheel` |
+  | Move Canvas | `Space + Drag` |
 
-* **Canvas:** A space to create your pages.
-* **Frame:** A space to create your designs.
-* **Action Bar:** A floating bar on the left side to select the creation mode.
-* **Properties Panel:** A bar on the right side to edit the properties of elements, based on CSS properties.
-* **Tree View Panel:** A bar on the left side to show your element tree and organize them.
-* **Keyboard Shortcuts:**
-  *  **Copy & Paste:** `Ctrl + c` `Ctrl + v`
-  *  **Delete:** `Delete`
-  *  **Undo & Redo:** `Ctrl + z` `Ctrl + Shift + z`
-  *  **Zoom in/out:** `Ctrl + Mouse Wheel`
-  *  **Move Canvas:** `Space + Mouse Left Button + Drag`
-* **Resize Element Handles:** The element can be resized by dragging its corners.
-* **Guidelines & Snap:** Guidelines when resizing or dragging elements.
-
-
-## Techs
+## Tech Stack
 
 * **Frontend:** [React](https://reactjs.org/) with [TypeScript](https://www.typescriptlang.org/)
-* **Canvas:** [React](https://reactjs.org/)
-* **States:** [React Context](https://react.dev/reference/react/createContext)
-* **Backend:** Not yet
-* **Socket:** Not yet
+* **State Management:** [React Context](https://react.dev/reference/react/createContext)
+* **Canvas Rendering:** [React](https://reactjs.org/)
 * **Build Tool:** [Vite](https://vitejs.dev/)
-
+* **Backend:** `(Not yet implemented)`
+* **Real-time Communication:** `(Not yet implemented)`
 
 ## Run Locally
 
 ### Requirements
 
-* [Node.js](https://nodejs.org/) (`v18.x`++)
+* [Node.js](https://nodejs.org/) (`v18.x` or higher)
 * [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
 
 ### Installation
 
-1.  **Clone repo:**
+1.  **Clone the repository:**
     ```sh
     git clone https://github.com/Gacktto/graphyr.git
     ```
 
-2.  **Go to Graphyr dir:**
+2.  **Navigate to the project directory:**
     ```sh
     cd Graphyr
     ```
@@ -81,28 +76,25 @@ Some features that have already been implemented
     yarn install
     ```
 
-5.  **Start the development server:**
+4.  **Start the development server:**
     ```sh
     npm run dev
     # or
     yarn dev
     ```
 
-6.  **Open the launched server address in the browser.**
-
+5.  **Open your browser** and navigate to the local address provided by Vite.
 
 ## Roadmap
 
-Next features that will be in the project
+Next features that will be in the project:
 
-* [ ] Import/Export Data Tables
-* [ ] Canvas grid
-* [ ] Components
-* [ ] Text transformation options
-* [ ] Real-time collaboration
-* [ ] User account
-* [ ] Persistent project storage
-
+* [ ] Data Integration (Import/Export CSV, JSON)
+* [ ] Customizable Grid & Layout Aids
+* [ ] Reusable Components
+* [ ] Advanced Text Transformation Options
+* [ ] Real-time Collaboration (via WebSockets)
+* [ ] User Authentication & Cloud Project Storage
 
 ## License
 

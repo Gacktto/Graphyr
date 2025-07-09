@@ -113,7 +113,7 @@ export default function Canvas() {
                 redo();
             }
 
-            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+            if ((e.key === 'Delete') && selectedId) {
                 e.preventDefault();
                 deleteElement(selectedId);
             }

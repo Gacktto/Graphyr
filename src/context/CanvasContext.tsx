@@ -327,7 +327,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             return tree;
         });
 
-        setSelectedId(cloned.id);
+        // setSelectedId(cloned.id);
     }, [copiedElement, selectedId]);
 
     const contextValue = useMemo(() => ({

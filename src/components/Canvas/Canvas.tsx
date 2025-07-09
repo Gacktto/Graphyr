@@ -75,7 +75,8 @@ export default function Canvas() {
         copySelectedElement,
         pasteElement,
         undo,
-        redo
+        redo,
+        deleteElement
     } = useCanvas();
 
     const { scale, offset } = useCanvasTransform(
@@ -106,9 +107,15 @@ export default function Canvas() {
                 e.preventDefault();
                 undo();
             }
+
             if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'z') {
                 e.preventDefault();
                 redo();
+            }
+
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+                e.preventDefault();
+                deleteElement(selectedId);
             }
 
         };

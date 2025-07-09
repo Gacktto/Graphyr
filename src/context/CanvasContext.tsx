@@ -37,6 +37,7 @@ type CanvasContextType = {
     pasteElement: () => void;
     undo: () => void;
     redo: () => void;
+    deleteElement: (idToDelete: string) => void;
 };
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
@@ -330,6 +331,22 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         // setSelectedId(cloned.id);
     }, [copiedElement, selectedId]);
 
+    const deleteElement = useCallback((idToDelete: string) => {
+        if (idToDelete === '1') {
+            return;
+        }
+
+        updateElementsWithHistory(currentElements => {
+            const [, newTree] = findAndRemove(currentElements, idToDelete);
+            return newTree;
+        });
+
+        if (selectedId === idToDelete) {
+            setSelectedId(null);
+        }
+
+    }, [selectedId, updateElementsWithHistory]);
+
     const contextValue = useMemo(() => ({
         elements, setElements,
         selectedId, setSelectedId,
@@ -340,7 +357,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         copySelectedElement,
         pasteElement,
         undo, redo,
-    }), [elements, selectedId, activeTool, addElement, updateElementStyle, moveElement, copySelectedElement, pasteElement, undo, redo]);
+        deleteElement,
+    }), [elements, selectedId, activeTool, addElement, updateElementStyle, moveElement, copySelectedElement, pasteElement, undo, redo, deleteElement]);
 
     return (
         <CanvasContext.Provider value={contextValue}>

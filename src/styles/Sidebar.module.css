@@ -122,6 +122,14 @@
     user-select: none;
 }
 
+.active.toggled {
+    cursor: pointer;
+}
+
+.active.toggled:hover {
+    opacity: 0.8;
+}
+
 .inactive {
     cursor: pointer;
     color: rgba(255, 255, 255, 0.5);

@@ -84,9 +84,7 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                                 <div 
                                     className={`${styles.choice} ${selectedElement?.style?.position === "relative" ? styles.active : styles.inactive}`}
                                     onClick={() => {
-                                        const currentType =
-                                            selectedElement?.style?.position;
-                                        console.log(currentType);
+                                        const currentType = selectedElement?.style?.position;
 
                                         onStyleChange({
                                             position:
@@ -103,18 +101,42 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                             </div>
 
                             <div className={`${styles.group} ${styles.fill}`}>
-                                <div className={styles.groupTitle}>
-                                    Flip
-                                </div>
+                                <div className={styles.groupTitle}>Flip</div>
                                 <div className={styles.groupChoices}>
-                                    <div className={styles.choice}>
-                                        <ArrowsLeftRightIcon className={`${styles.icon}`}/>
+                                    <div
+                                    className={`${styles.choice} ${selectedElement?.style?.transform?.includes('scaleX(-1)') ? `${styles.active} ${styles.toggled}` : styles.inactive}`}
+                                    onClick={() => {
+                                        const transform = selectedElement?.style?.transform || '';
+                                        const hasFlipX = transform.includes('scaleX(-1)');
+                                        const hasFlipY = transform.includes('scaleY(-1)');
+
+                                        const newFlipX = hasFlipX ? 'scaleX(1)' : 'scaleX(-1)';
+                                        const flipY = hasFlipY ? 'scaleY(-1)' : 'scaleY(1)';
+
+                                        onStyleChange({ transform: `${newFlipX} ${flipY}` });
+                                    }}
+                                    >
+                                    <ArrowsLeftRightIcon className={styles.icon} weight={selectedElement?.style?.transform?.includes('scaleX(-1)') ? "fill" : "regular"} />
                                     </div>
-                                    <div className={styles.choice}>
-                                        <ArrowsDownUpIcon className={`${styles.icon}`}/>
+
+                                    <div
+                                    className={`${styles.choice} ${selectedElement?.style?.transform?.includes('scaleY(-1)') ? `${styles.active} ${styles.toggled}` : styles.inactive}`}
+                                    onClick={() => {
+                                        const transform = selectedElement?.style?.transform || '';
+                                        const hasFlipX = transform.includes('scaleX(-1)');
+                                        const hasFlipY = transform.includes('scaleY(-1)');
+
+                                        const flipX = hasFlipX ? 'scaleX(-1)' : 'scaleX(1)';
+                                        const newFlipY = hasFlipY ? 'scaleY(1)' : 'scaleY(-1)';
+
+                                        onStyleChange({ transform: `${flipX} ${newFlipY}` });
+                                    }}
+                                    >
+                                    <ArrowsDownUpIcon className={styles.icon} weight={selectedElement?.style?.transform?.includes('scaleY(-1)') ? "fill" : "regular"} />
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
 

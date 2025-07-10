@@ -164,10 +164,9 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                 Display Direction
                             </div>
                             <div
-                                className={`${styles.groupContent} ${styles.buttonOptions}`}
+                                className={`${styles.groupChoices} ${styles.buttonOptions}`}
                             >
-                                <ArrowFatLinesDownIcon
-                                    className={`${styles.icon} ${styles.button}`}
+                                <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "column" ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentDisplay =
                                             selectedElement?.style?.display;
@@ -181,9 +180,10 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                             flexDirection: 'column',
                                         });
                                     }}
-                                />
-                                <ArrowFatLinesUpIcon
-                                    className={`${styles.icon} ${styles.button}`}
+                                >
+                                    <ArrowFatLinesDownIcon className={`${styles.icon}`}/>
+                                </div>
+                                <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "column-reverse" ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentDisplay =
                                             selectedElement?.style?.display;
@@ -196,9 +196,10 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                             flexDirection: 'column-reverse',
                                         });
                                     }}
-                                />
-                                <ArrowFatLinesRightIcon
-                                    className={`${styles.icon} ${styles.button}`}
+                                >
+                                    <ArrowFatLinesUpIcon className={`${styles.icon}`}/>
+                                </div>
+                                <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "row" ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentDisplay =
                                             selectedElement?.style?.display;
@@ -211,9 +212,10 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                             flexDirection: 'row',
                                         });
                                     }}
-                                />
-                                <ArrowFatLinesLeftIcon
-                                    className={`${styles.icon} ${styles.button}`}
+                                >
+                                    <ArrowFatLinesRightIcon className={`${styles.icon}`}/>
+                                </div>
+                                <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "row-reverse" ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentDisplay =
                                             selectedElement?.style?.display;
@@ -226,7 +228,9 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                             flexDirection: 'row-reverse',
                                         });
                                     }}
-                                />
+                                >
+                                    <ArrowFatLinesLeftIcon className={`${styles.icon}`}/>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -240,160 +244,115 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                         <div className={styles.row}>
                             <div className={`${styles.group} ${styles.fill}`}>
                                 <div className={styles.groupTitle}>Align</div>
-
+                                    <div className={styles.groupChoices}>
+                                        <div className={`${styles.choice}  ${selectedElement?.style?.alignItems === "flex-start" ? styles.active : styles.inactive}`}
+                                            onClick={() =>
+                                                onStyleChange({
+                                                    alignItems:
+                                                        'flex-start',
+                                                })
+                                            }
+                                        >
+                                            {['row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || ''
+                                            ) ? <AlignTopIcon className={`${styles.icon}`}/> : <AlignLeftIcon className={`${styles.icon}`}/>}
+                                        </div>
+                                        <div className={`${styles.choice} ${selectedElement?.style?.alignItems === "center" ? styles.active : styles.inactive}`}
+                                            onClick={() =>
+                                                onStyleChange({
+                                                    alignItems: 'center',
+                                                })
+                                            }
+                                        >
+                                            {['row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || ''
+                                            ) ? <AlignCenterVerticalIcon className={`${styles.icon}`}/> : <AlignCenterHorizontalIcon className={`${styles.icon}`}/>}
+                                        </div>
+                                        <div className={`${styles.choice} ${selectedElement?.style?.alignItems === "flex-end" ? styles.active : styles.inactive}`}
+                                            onClick={() =>
+                                                onStyleChange({
+                                                    alignItems: 'flex-end',
+                                                })
+                                            }
+                                        >
+                                            {['row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || ''
+                                            ) ? <AlignBottomIcon className={`${styles.icon}`}/> : <AlignRightIcon className={`${styles.icon}`}/>}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    )}
+                    {/* Row Start */}
+                    {[
+                        'column',
+                        'column-reverse',
+                        'row',
+                        'row-reverse',
+                    ].includes(selectedElement?.style?.flexDirection || '') && (
+                        <div className={styles.row}>
+                            <div className={`${styles.group} ${styles.fill}`}>
+                                <div className={styles.groupTitle}>Justify</div>
+                                <div className={`${styles.groupInput}`}>
+                                    <select
+                                        className={`${styles.input} ${styles.select}`}
+                                        value={
+                                            selectedElement?.style
+                                                ?.justifyContent || ''
+                                        }
+                                        onChange={(e) =>
+                                            onStyleChange({
+                                                justifyContent:
+                                                    e.target.value || undefined,
+                                            })
+                                        }
+                                    >
+                                        <option value="">Default</option>
+                                        <option value="flex-start">Start</option>
+                                        <option value="center">Center</option>
+                                        <option value="flex-end">End</option>
+                                        <option value="space-between">
+                                            Space Between
+                                        </option>
+                                        <option value="space-around">
+                                            Space Around
+                                        </option>
+                                        <option value="space-evenly">
+                                            Space Evenly
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className={styles.group}>
+                                <div className={styles.groupTitle}>Gap</div>
                                 <div
-                                    className={`${styles.groupContent} ${styles.buttonOptions}`}
+                                    className={`${styles.groupInput} ${['column', 'column-reverse', 'row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || '') ? '' : styles.disabled}`}
                                 >
-                                    {/* Horizontal alignment (aparece se for column ou column-reverse) */}
-                                    {['column', 'column-reverse'].includes(
-                                        selectedElement?.style?.flexDirection ||
+                                    <input
+                                        type="text"
+                                        className={styles.input}
+                                        value={
+                                            selectedElement?.style?.gap !==
+                                            undefined
+                                                ? String(
+                                                    selectedElement.style.gap
+                                                ).replace('px', '')
+                                                : ''
+                                        }
+                                        placeholder={computedStyles?.gap?.replace(
+                                            'px',
                                             ''
-                                    ) && (
-                                        <>
-                                            <AlignLeftIcon
-                                                className={`${styles.icon} ${styles.button}`}
-                                                onClick={() =>
-                                                    onStyleChange({
-                                                        alignItems:
-                                                            'flex-start',
-                                                    })
-                                                }
-                                            />
-                                            <AlignCenterHorizontalIcon
-                                                className={`${styles.icon} ${styles.button}`}
-                                                onClick={() =>
-                                                    onStyleChange({
-                                                        alignItems: 'center',
-                                                    })
-                                                }
-                                            />
-                                            <AlignRightIcon
-                                                className={`${styles.icon} ${styles.button}`}
-                                                onClick={() =>
-                                                    onStyleChange({
-                                                        alignItems: 'flex-end',
-                                                    })
-                                                }
-                                            />
-                                        </>
-                                    )}
-
-                                    {/* Vertical alignment (aparece se for row ou row-reverse) */}
-                                    {['row', 'row-reverse'].includes(
-                                        selectedElement?.style?.flexDirection ||
-                                            ''
-                                    ) && (
-                                        <>
-                                            <AlignTopIcon
-                                                className={`${styles.icon} ${styles.button}`}
-                                                onClick={() =>
-                                                    onStyleChange({
-                                                        alignItems:
-                                                            'flex-start',
-                                                    })
-                                                }
-                                            />
-                                            <AlignCenterVerticalIcon
-                                                className={`${styles.icon} ${styles.button}`}
-                                                onClick={() =>
-                                                    onStyleChange({
-                                                        alignItems: 'center',
-                                                    })
-                                                }
-                                            />
-                                            <AlignBottomIcon
-                                                className={`${styles.icon} ${styles.button}`}
-                                                onClick={() =>
-                                                    onStyleChange({
-                                                        alignItems: 'flex-end',
-                                                    })
-                                                }
-                                            />
-                                        </>
-                                    )}
+                                        )}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            onStyleChange({
+                                                gap: value
+                                                    ? `${value}px`
+                                                    : undefined,
+                                            });
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>
                     )}
-                    {/* Row Start */}
-                    <div className={styles.row}>
-                        <div className={`${styles.group} ${styles.fill}`}>
-                            <div className={styles.groupTitle}>Justify</div>
-                            <div className={`${styles.groupInput}`}>
-                                <select
-                                    className={`${styles.input} ${styles.select}`}
-                                    value={
-                                        selectedElement?.style
-                                            ?.justifyContent || ''
-                                    }
-                                    onChange={(e) =>
-                                        onStyleChange({
-                                            justifyContent:
-                                                e.target.value || undefined,
-                                        })
-                                    }
-                                >
-                                    <option value="">Default</option>
-                                    <option value="flex-start">Start</option>
-                                    <option value="center">Center</option>
-                                    <option value="flex-end">End</option>
-                                    <option value="space-between">
-                                        Space Between
-                                    </option>
-                                    <option value="space-around">
-                                        Space Around
-                                    </option>
-                                    <option value="space-evenly">
-                                        Space Evenly
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className={styles.group}>
-                            <div className={styles.groupTitle}>Gap</div>
-                            <div
-                                className={`${styles.groupInput} ${['column', 'column-reverse', 'row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || '') ? '' : styles.disabled}`}
-                            >
-                                <input
-                                    type="text"
-                                    disabled={
-                                        [
-                                            'column',
-                                            'column-reverse',
-                                            'row',
-                                            'row-reverse',
-                                        ].includes(
-                                            selectedElement?.style
-                                                ?.flexDirection || ''
-                                        )
-                                            ? false
-                                            : true
-                                    }
-                                    className={styles.input}
-                                    value={
-                                        selectedElement?.style?.gap !==
-                                        undefined
-                                            ? String(
-                                                  selectedElement.style.gap
-                                              ).replace('px', '')
-                                            : ''
-                                    }
-                                    placeholder={computedStyles?.gap?.replace(
-                                        'px',
-                                        ''
-                                    )}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        onStyleChange({
-                                            gap: value
-                                                ? `${value}px`
-                                                : undefined,
-                                        });
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    </div>
                     {/* Row Start */}
                     <div className={styles.row}>
                         <div className={styles.group}>

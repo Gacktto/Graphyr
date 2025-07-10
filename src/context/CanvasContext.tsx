@@ -215,7 +215,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     const addElement = useCallback((type: 'div' | 'text' |  'chartBarHorizontal'  | 'chartPie' | 'chartLine' | 'chartDonut' | 'chartBar' | 'table' , options: AddElementOptions) => {
         const newId = crypto.randomUUID();
         let newElement: ElementNode;
-        const baseStyle = { ...options.style, position: 'absolute' as const };
+        const baseStyle = { ...options.style};
 
         if (type === 'div') {
             newElement = {
@@ -258,21 +258,42 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
 
             const updateNode = (node: ElementNode): ElementNode => {
                 if (node.id === id) {
+                    let updatedChildren = node.children;
+
+                    if (newStyle.display === 'flex' && node.children) {
+                        changed = true; 
+                        updatedChildren = node.children.map(child => ({
+                            ...child,
+                            style: {
+                                ...child.style,
+                                left: '',
+                                top: '', 
+                            }
+                        }));
+                    }
+
                     const updatedStyle = { ...node.style, ...newStyle };
 
-                    const hasChanged = Object.entries(newStyle).some(
+                    const styleHasChanged = Object.entries(newStyle).some(
                         ([key, value]) => node.style?.[key as keyof React.CSSProperties] !== value
                     );
 
-                    if (!hasChanged) return node;
+                    if (styleHasChanged) {
+                        changed = true;
+                    }
+                    
+                    if (!changed) return node;
+                    
+                    return { ...node, style: updatedStyle, children: updatedChildren };
 
-                    changed = true;
-                    return { ...node, style: updatedStyle };
                 }
 
                 if (node.children) {
-                    const updatedChildren = node.children.map(updateNode);
-                    if (changed) return { ...node, children: updatedChildren };
+                    const newChildren = node.children.map(updateNode);
+
+                    if (changed) {
+                        return { ...node, children: newChildren };
+                    }
                 }
 
                 return node;

@@ -59,9 +59,29 @@ type GuideLine = {
     position: number;
 };
 
+function findNodeAndParent(
+    nodes: ElementNode[],
+    nodeId: string,
+    parent: ElementNode | null = null
+): { node: ElementNode; parent: ElementNode | null } | null {
+    for (const n of nodes) {
+        if (n.id === nodeId) {
+            return { node: n, parent: parent };
+        }
+        if (n.children) {
+            const found = findNodeAndParent(n.children, nodeId, n);
+            if (found) {
+                return found;
+            }
+        }
+    }
+    return null;
+}
+
 export default function Canvas() {
     const canvasRef = useRef<HTMLDivElement>(null);
     const innerRef = useRef<HTMLDivElement>(null);
+    const spacePressed = useRef(false);
 
     const {
         elements,
@@ -93,6 +113,11 @@ export default function Canvas() {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.target as HTMLElement).isContentEditable) return;
 
+            if (e.code === 'Space') {
+                e.preventDefault();
+                spacePressed.current = true;
+            }
+
             if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
                 e.preventDefault();
                 copySelectedElement();
@@ -118,10 +143,22 @@ export default function Canvas() {
                 deleteElement(selectedId);
             }
 
+            
+        };
+        
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                spacePressed.current = false;
+            }
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
     }, [copySelectedElement, pasteElement, undo, redo]);
 
 
@@ -180,13 +217,43 @@ export default function Canvas() {
             const height = Math.abs(currentY - startY);
 
             if (width > 5 && height > 5) {
+
+                const findParentNode = (nodes: ElementNode[], id: string | null): ElementNode | null => {
+                    if (!id) return null;
+                    for (const node of nodes) {
+                        if (node.id === id) return node;
+                        if (node.children) {
+                            const found = findParentNode(node.children, id);
+                            if (found) return found;
+                        }
+                    }
+                    return null;
+                };
+
+                const parentNode = findParentNode(elements, parentId);
+
+                let positionValue: 'relative' | 'absolute' = 'absolute';
+                let left = `${Math.min(startX, currentX)}px`;
+                let top = `${Math.min(startY, currentY)}px`;
+
+                if (parentNode?.style) {
+                    if (parentNode.style.position === 'relative' || parentNode.style.display === 'flex') {
+                        positionValue = 'relative';
+                    }
+                    if (parentNode.style.display === 'flex') {
+                        left = '';
+                        top = '';
+                    }
+                }
+
                 const newElementStyle: React.CSSProperties = {
-                    // left: `${Math.min(startX, currentX)}px`,
-                    // top: `${Math.min(startY, currentY)}px`,
-                    position: 'relative',
+                    left: left,
+                    top: top,
+                    position: positionValue,
                     width: `${width}px`,
                     height: `${height}px`,
                 };
+
                 addElement(activeTool, { parentId, style: newElementStyle });
             }
             setDrawingState(null);
@@ -200,7 +267,8 @@ export default function Canvas() {
             window.removeEventListener('mousemove', handleWindowMouseMove);
             window.removeEventListener('mouseup', handleWindowMouseUp);
         };
-    }, [drawingState, activeTool, addElement, getCoordsInWorld, setActiveTool]);
+
+    }, [drawingState, activeTool, addElement, getCoordsInWorld, setActiveTool, elements]);
 
     const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (activeTool === 'cursor') return;
@@ -261,23 +329,34 @@ export default function Canvas() {
     }, [elementsRef]);
 
     const handleDragStart = useCallback((e: React.MouseEvent) => {
+        if (spacePressed.current) return;
+
         if (activeTool !== 'cursor' || e.button !== 0) return;
 
         const target = e.target as HTMLElement;
+
         const wrapper = target.closest('[data-canvas-element]') as HTMLElement;
+
         if (!wrapper) return;
 
         const id = wrapper.dataset.elementId;
+
         if (!id) return;
 
-        const node = elements.find((n) => n.id === id || n.children?.some(c => c.id === id));
+        const result = findNodeAndParent(elements, id);
+
+        if (!result) return;
+
+        const { node, parent } = result;
+
+
+        if (parent && parent.style?.display === 'flex') {
+            return;
+        }
+
         if (!node || !node.style) return;
 
-        const computedStyle = window.getComputedStyle(wrapper);
-        if (computedStyle.position === 'relative') return;
-
         const { x: mouseX, y: mouseY } = getCoordsInWorld(e);
-
         const rect = wrapper.getBoundingClientRect();
         const canvasRect = canvasRef.current!.getBoundingClientRect();
 
@@ -296,7 +375,8 @@ export default function Canvas() {
             offsetX: dx,
             offsetY: dy,
         });
-    }, [activeTool, elements, getCoordsInWorld, offset, scale]);
+
+        }, [activeTool, elements, getCoordsInWorld, offset, scale]);
 
 
     useEffect(() => {

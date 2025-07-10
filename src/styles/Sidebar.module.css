@@ -42,7 +42,7 @@
 }
 
 .icon {
-    width: 20px;
+    width: 15px;
     height: fit-content;
 }
 
@@ -76,7 +76,7 @@
     gap: 5px;
 }
 
-.group.fill {
+.fill {
     width: 100%;
 }
 
@@ -206,4 +206,44 @@
     height: 100%;
     width: 20px;
     border-radius: 3px;
+}
+
+.handlePosition {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.buttonPosition {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background-color: #3c3c3c;
+    cursor: pointer;
+}
+
+.buttonPosition:hover {
+    background-color: #8d8d8d;
+}
+
+.buttonPosition.active {
+    background-color: white;
+    cursor: default;
+}
+
+.buttonPosition.active::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 15px;
+    height: 15px;
+    transform: translate(-50%, -50%);
+    border-radius: 2px;
+    border: 1px solid white;
 }

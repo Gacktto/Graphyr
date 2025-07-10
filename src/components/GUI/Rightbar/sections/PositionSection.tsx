@@ -1,14 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from '../../../../styles/Sidebar.module.css';
 import {
-    AlignBottomIcon,
-    AlignLeftIcon,
-    AlignRightIcon,
-    AlignTopIcon,
-    AlignCenterHorizontalIcon,
-    AlignCenterVerticalIcon,
-    FlipHorizontalIcon,
-    FlipVerticalIcon,
+    ArrowsLeftRightIcon,
+    ArrowsDownUpIcon,
     AngleIcon,
 } from '@phosphor-icons/react';
 import type { ElementNode } from '../../../TreeView/TreeView';
@@ -19,8 +13,26 @@ interface PositionSectionProps {
     onStyleChange: (style: React.CSSProperties) => void;
 }
 
+const positionConfigs = [
+  { id: 'topLeft', style: { top: 0, left: 0, right: '', bottom: '', margin: 'auto' } },
+  { id: 'top', style: { top: 0, left: 0, right: 0, bottom: '', margin: 'auto' } },
+  { id: 'topRight', style: { top: 0, left: '', right: 0, bottom: '', margin: 'auto' } },
+  { id: 'left', style: { top: 0, left: 0, right: '', bottom: 0, margin: 'auto' } },
+  { id: 'center', style: { top: 0, left: 0, right: 0, bottom: 0, margin: 'auto' } },
+  { id: 'right', style: { top: 0, left: '', right: 0, bottom: 0, margin: 'auto' } },
+  { id: 'bottomLeft', style: { top: '', left: 0, right: '', bottom: 0, margin: 'auto' } },
+  { id: 'bottom', style: { top: '', left: 0, right: 0, bottom: 0, margin: 'auto' } },
+  { id: 'bottomRight', style: { top: '', left: '', right: 0, bottom: 0, margin: 'auto' } },
+];
+
 export const PositionSection: React.FC<PositionSectionProps> = React.memo(
     ({ selectedElement, computedStyles, onStyleChange }) => {
+        const [activePosition, setActivePosition] = useState<string | null>(null);
+
+        const handlePositionClick = (config: typeof positionConfigs[number]) => {
+            setActivePosition(config.id);
+            onStyleChange(config.style);
+        };
         return (
             <div className={styles.section}>
                 <div
@@ -30,50 +42,82 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                     Position
                     {/* Row Start */}
                     <div className={styles.row}>
-                        <div className={styles.group}>
+                        <div className={`${styles.group}`} style={{height: "100%"}}>
                             <div className={styles.groupTitle}>
-                                Vertical Align
+                                Align
                             </div>
-                            <div className={styles.groupContent}>
-                                <AlignBottomIcon
-                                    className={`${styles.icon} ${styles.button}`}
-                                />
-                                <AlignCenterVerticalIcon
-                                    className={`${styles.icon} ${styles.button}`}
-                                />
-                                <AlignTopIcon
-                                    className={`${styles.icon} ${styles.button}`}
-                                />
+                            <div className={`${styles.groupContent}`}>
+                                <div className={styles.handlePosition}>
+                                    {positionConfigs.map((config) => (
+                                        <div
+                                            key={config.id}
+                                            className={`${styles.buttonPosition} ${
+                                                activePosition === config.id ? styles.active : ''
+                                            }`}
+                                            onClick={() => handlePositionClick(config)}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                        <div className={styles.group}>
-                            <div className={styles.groupTitle}>
-                                Horizontal Align
+
+                        <div className={`${styles.group} ${styles.fill}`}>
+                            <div className={styles.groupTitle}>Type</div>
+                            <div className={styles.groupChoices}>
+                                <div 
+                                    className={`${styles.choice} ${selectedElement?.style?.position === "absolute" ? styles.active : styles.inactive}`}
+                                    onClick={() => {
+                                        const currentType =
+                                            selectedElement?.style?.position;
+                                        console.log(currentType);
+
+                                        onStyleChange({
+                                            position:
+                                                currentType === 'absolute'
+                                                    ? currentType
+                                                    : 'absolute',
+                                        });
+                                    }}
+                                    >
+                                        Absolute
+                                </div>
+                                <div 
+                                    className={`${styles.choice} ${selectedElement?.style?.position === "relative" ? styles.active : styles.inactive}`}
+                                    onClick={() => {
+                                        const currentType =
+                                            selectedElement?.style?.position;
+                                        console.log(currentType);
+
+                                        onStyleChange({
+                                            position:
+                                                currentType === 'relative'
+                                                    ? currentType
+                                                    : 'relative',
+                                            top: "",
+                                            left: ""
+                                        });
+                                    }}
+                                    >
+                                        Relative
+                                </div>
                             </div>
-                            <div className={styles.groupContent}>
-                                <AlignLeftIcon
-                                    className={`${styles.icon} ${styles.button}`}
-                                />
-                                <AlignCenterHorizontalIcon
-                                    className={`${styles.icon} ${styles.button}`}
-                                />
-                                <AlignRightIcon
-                                    className={`${styles.icon} ${styles.button}`}
-                                />
-                            </div>
-                        </div>
-                        <div className={styles.group}>
-                            <div className={styles.groupTitle}>Flip</div>
-                            <div className={styles.groupContent}>
-                                <FlipHorizontalIcon
-                                    className={`${styles.icon} ${styles.button}`}
-                                />
-                                <FlipVerticalIcon
-                                    className={`${styles.icon} ${styles.button}`}
-                                />
+
+                            <div className={`${styles.group} ${styles.fill}`}>
+                                <div className={styles.groupTitle}>
+                                    Flip
+                                </div>
+                                <div className={styles.groupChoices}>
+                                    <div className={styles.choice}>
+                                        <ArrowsLeftRightIcon className={`${styles.icon}`}/>
+                                    </div>
+                                    <div className={styles.choice}>
+                                        <ArrowsDownUpIcon className={`${styles.icon}`}/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                     {/* Row Start */}
                     <div className={styles.row}>
                         <div className={styles.group}>
@@ -170,50 +214,6 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                                             })
                                         }
                                     />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {/* Row Start */}
-                    <div className={styles.row}>
-                        <div className={`${styles.group} ${styles.fill}`}>
-                            <div className={styles.groupTitle}>Type</div>
-                            <div className={styles.groupChoices}>
-                                <div 
-                                    className={`${styles.choice} ${selectedElement?.style?.position === "absolute" ? styles.active : styles.inactive}`}
-                                    onClick={() => {
-                                        const currentType =
-                                            selectedElement?.style?.position;
-                                        console.log(currentType);
-
-                                        onStyleChange({
-                                            position:
-                                                currentType === 'absolute'
-                                                    ? currentType
-                                                    : 'absolute',
-                                        });
-                                    }}
-                                    >
-                                        Absolute
-                                </div>
-                                <div 
-                                    className={`${styles.choice} ${selectedElement?.style?.position === "relative" ? styles.active : styles.inactive}`}
-                                    onClick={() => {
-                                        const currentType =
-                                            selectedElement?.style?.position;
-                                        console.log(currentType);
-
-                                        onStyleChange({
-                                            position:
-                                                currentType === 'relative'
-                                                    ? currentType
-                                                    : 'relative',
-                                            top: "",
-                                            left: ""
-                                        });
-                                    }}
-                                    >
-                                        Relative
                                 </div>
                             </div>
                         </div>

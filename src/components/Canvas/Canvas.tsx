@@ -489,6 +489,7 @@ export default function Canvas() {
             updateElementStyle(elementId, {
                 left: `${newLeft}px`,
                 top: `${newTop}px`,
+                margin: '',
             });
         };
 

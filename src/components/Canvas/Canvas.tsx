@@ -217,6 +217,7 @@ export default function Canvas() {
             const height = Math.abs(currentY - startY);
 
             if (width > 5 && height > 5) {
+                
 
                 const findParentNode = (nodes: ElementNode[], id: string | null): ElementNode | null => {
                     if (!id) return null;
@@ -229,27 +230,42 @@ export default function Canvas() {
                     }
                     return null;
                 };
-
                 const parentNode = findParentNode(elements, parentId);
 
-                let positionValue: 'relative' | 'absolute' = 'absolute';
-                let left = `${Math.min(startX, currentX)}px`;
-                let top = `${Math.min(startY, currentY)}px`;
+                let positionValue: 'relative' | 'absolute';
+                let leftValue: string | number;
+                let topValue: string | number;
 
-                if (parentNode?.style) {
-                    if (parentNode.style.position === 'relative' || parentNode.style.display === 'flex') {
-                        positionValue = 'relative';
+                if (parentNode?.style && (parentNode.style.display === 'flex' || parentNode.style.position === 'relative')) {
+                    positionValue = 'relative';
+                    leftValue = '';
+                    topValue = '';
+                } 
+                else {
+                    positionValue = 'absolute';
+                    let worldLeft = Math.min(startX, currentX);
+                    let worldTop = Math.min(startY, currentY);
+
+                    if (parentId && parentId !== '1') {
+                        const parentElement = elementsRef.current[parentId];
+                        if (parentElement) {
+                            const canvasRect = canvasRef.current!.getBoundingClientRect();
+                            const parentRect = parentElement.getBoundingClientRect();
+                            const parentX = (parentRect.left - canvasRect.left - offset.x) / scale;
+                            const parentY = (parentRect.top - canvasRect.top - offset.y) / scale;
+                            
+                            worldLeft -= parentX;
+                            worldTop -= parentY;
+                        }
                     }
-                    if (parentNode.style.display === 'flex') {
-                        left = '';
-                        top = '';
-                    }
+                    leftValue = worldLeft;
+                    topValue = worldTop;
                 }
 
                 const newElementStyle: React.CSSProperties = {
-                    left: left,
-                    top: top,
                     position: positionValue,
+                    left: typeof leftValue === 'number' ? `${leftValue}px` : leftValue,
+                    top: typeof topValue === 'number' ? `${topValue}px` : topValue,
                     width: `${width}px`,
                     height: `${height}px`,
                 };
@@ -268,7 +284,7 @@ export default function Canvas() {
             window.removeEventListener('mouseup', handleWindowMouseUp);
         };
 
-    }, [drawingState, activeTool, addElement, getCoordsInWorld, setActiveTool, elements]);
+    }, [drawingState, activeTool, addElement, getCoordsInWorld, setActiveTool, elements, elementsRef, offset, scale]);
 
     const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (activeTool === 'cursor') return;
@@ -330,53 +346,62 @@ export default function Canvas() {
 
     const handleDragStart = useCallback((e: React.MouseEvent) => {
         if (spacePressed.current) return;
-
         if (activeTool !== 'cursor' || e.button !== 0) return;
 
         const target = e.target as HTMLElement;
-
         const wrapper = target.closest('[data-canvas-element]') as HTMLElement;
-
         if (!wrapper) return;
 
         const id = wrapper.dataset.elementId;
-
         if (!id) return;
 
         const result = findNodeAndParent(elements, id);
-
         if (!result) return;
 
         const { node, parent } = result;
 
-
         if (parent && parent.style?.display === 'flex') {
             return;
         }
+        
+        const computedStyle = window.getComputedStyle(wrapper);
+        if (computedStyle.position === 'relative') return;
 
         if (!node || !node.style) return;
 
         const { x: mouseX, y: mouseY } = getCoordsInWorld(e);
+        
         const rect = wrapper.getBoundingClientRect();
         const canvasRect = canvasRef.current!.getBoundingClientRect();
-
         const elementX = (rect.left - canvasRect.left - offset.x) / scale;
         const elementY = (rect.top - canvasRect.top - offset.y) / scale;
 
-        const dx = mouseX - elementX;
-        const dy = mouseY - elementY;
+        let parentX = 0;
+        let parentY = 0;
+
+        if (parent && parent.id !== '1') {
+            const parentWrapper = elementsRef.current[parent.id];
+            if (parentWrapper) {
+                const parentRect = parentWrapper.getBoundingClientRect();
+                parentX = (parentRect.left - canvasRect.left - offset.x) / scale;
+                parentY = (parentRect.top - canvasRect.top - offset.y) / scale;
+            }
+        }
+
+        const relativeLeft = elementX - parentX;
+        const relativeTop = elementY - parentY;
 
         setDraggingState({
             elementId: id,
             startX: mouseX,
             startY: mouseY,
-            originalLeft: elementX,
-            originalTop: elementY,
-            offsetX: dx,
-            offsetY: dy,
+            originalLeft: relativeLeft,
+            originalTop: relativeTop,
+            offsetX: mouseX - elementX,
+            offsetY: mouseY - elementY,
         });
 
-        }, [activeTool, elements, getCoordsInWorld, offset, scale]);
+    }, [activeTool, elements, elementsRef, getCoordsInWorld, offset, scale]);
 
 
     useEffect(() => {

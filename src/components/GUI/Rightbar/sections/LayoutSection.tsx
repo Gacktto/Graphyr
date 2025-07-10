@@ -7,10 +7,10 @@ import {
     AlignTopIcon,
     AlignCenterHorizontalIcon,
     AlignCenterVerticalIcon,
-    ArrowFatLinesDownIcon,
-    ArrowFatLinesUpIcon,
-    ArrowFatLinesLeftIcon,
-    ArrowFatLinesRightIcon,
+    ArrowDownIcon,
+    ArrowUpIcon,
+    ArrowRightIcon,
+    ArrowLeftIcon,
 } from '@phosphor-icons/react';
 import type { ElementNode } from '../../../TreeView/TreeView';
 import { DimensionControl } from '../controls/DimensionControl';
@@ -181,7 +181,7 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                         });
                                     }}
                                 >
-                                    <ArrowFatLinesDownIcon className={`${styles.icon}`}/>
+                                    <ArrowDownIcon className={`${styles.icon}`}/>
                                 </div>
                                 <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "column-reverse" ? styles.active : styles.inactive}`}
                                     onClick={() => {
@@ -197,7 +197,7 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                         });
                                     }}
                                 >
-                                    <ArrowFatLinesUpIcon className={`${styles.icon}`}/>
+                                    <ArrowUpIcon className={`${styles.icon}`}/>
                                 </div>
                                 <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "row" ? styles.active : styles.inactive}`}
                                     onClick={() => {
@@ -213,7 +213,7 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                         });
                                     }}
                                 >
-                                    <ArrowFatLinesRightIcon className={`${styles.icon}`}/>
+                                    <ArrowRightIcon className={`${styles.icon}`}/>
                                 </div>
                                 <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "row-reverse" ? styles.active : styles.inactive}`}
                                     onClick={() => {
@@ -229,7 +229,7 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                         });
                                     }}
                                 >
-                                    <ArrowFatLinesLeftIcon className={`${styles.icon}`}/>
+                                    <ArrowLeftIcon className={`${styles.icon}`}/>
                                 </div>
                             </div>
                         </div>
@@ -254,7 +254,8 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                             }
                                         >
                                             {['row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || ''
-                                            ) ? <AlignTopIcon className={`${styles.icon}`}/> : <AlignLeftIcon className={`${styles.icon}`}/>}
+                                            ) ? <AlignTopIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "flex-start" ? "fill" : "regular"}/> 
+                                            : <AlignLeftIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "flex-start" ? "fill" : "regular"}/>}
                                         </div>
                                         <div className={`${styles.choice} ${selectedElement?.style?.alignItems === "center" ? styles.active : styles.inactive}`}
                                             onClick={() =>
@@ -264,7 +265,8 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                             }
                                         >
                                             {['row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || ''
-                                            ) ? <AlignCenterVerticalIcon className={`${styles.icon}`}/> : <AlignCenterHorizontalIcon className={`${styles.icon}`}/>}
+                                            ) ? <AlignCenterVerticalIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "center" ? "fill" : "regular"}/> 
+                                            : <AlignCenterHorizontalIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "center" ? "fill" : "regular"}/>}
                                         </div>
                                         <div className={`${styles.choice} ${selectedElement?.style?.alignItems === "flex-end" ? styles.active : styles.inactive}`}
                                             onClick={() =>
@@ -274,7 +276,8 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                             }
                                         >
                                             {['row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || ''
-                                            ) ? <AlignBottomIcon className={`${styles.icon}`}/> : <AlignRightIcon className={`${styles.icon}`}/>}
+                                            ) ? <AlignBottomIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "flex-end" ? "fill" : "regular"}/> 
+                                            : <AlignRightIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "flex-end" ? "fill" : "regular"}/>}
                                         </div>
                                     </div>
                                 </div>

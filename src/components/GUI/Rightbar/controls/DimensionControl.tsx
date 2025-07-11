@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { CaretDownIcon } from '@phosphor-icons/react';
 import styles from '../../../../styles/Sidebar.module.css';
 
 type DimensionMode = 'Fixed' | 'Fill' | 'Hug';
@@ -24,20 +25,26 @@ export const DimensionControl: React.FC<DimensionControlProps> = ({
 }) => {
     const [currentMode, setCurrentMode] = useState<DimensionMode>(getDimensionMode(value));
     const [inputValue, setInputValue] = useState(value || '');
+    const [showDropdown, setShowDropdown] = useState(false);
+    const modes: DimensionMode[] = ['Fixed', 'Fill', 'Hug'];
 
     useEffect(() => {
         setInputValue(value || '');
         setCurrentMode(getDimensionMode(value));
     }, [value]);
 
-    const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newMode = e.target.value as DimensionMode;
+    const handleModeSelect = (newMode: DimensionMode) => {
         setCurrentMode(newMode);
+        setShowDropdown(false);
 
         if (newMode === 'Fill') {
             onValueChange('100%');
         } else if (newMode === 'Hug') {
             onValueChange('fit-content');
+        } else if (newMode === 'Fixed') {
+            if (inputValue) {
+                onValueChange(inputValue.toString());
+            }
         }
     };
     
@@ -54,37 +61,31 @@ export const DimensionControl: React.FC<DimensionControlProps> = ({
 
     return (
         <div className={styles.group} style={{ flexDirection: 'row', gap: '10px' }}>
-            <div className={styles.groupInput}>
+            <div className={`${styles.groupInput} ${styles.dropdown}`} onClick={() => {setShowDropdown(!showDropdown)}}>
                 <div className={styles.inputLabel}>{label}</div>
                 <input
                     type="text"
                     className={styles.input}
-                    value={inputValue}
+                    value={currentMode === 'Fixed' ? inputValue : currentMode}
                     placeholder={placeholder}
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
-                    disabled={currentMode !== 'Fixed'}
-                    style={{
-                        borderTopRightRadius: 0,
-                        borderBottomRightRadius: 0,
-                        borderRight: 'none',
-                    }}
+                    readOnly={currentMode !== 'Fixed'} 
                 />
-            </div>
-            <div className={`${styles.groupInput}`} style={{ flexShrink: 0, width: '80px' }}>
-                <select
-                    className={`${styles.input} ${styles.select}`}
-                    value={currentMode}
-                    onChange={handleModeChange}
-                    style={{
-                        borderTopLeftRadius: 0,
-                        borderBottomLeftRadius: 0,
-                    }}
-                >
-                    <option value="Fixed">Fixed</option>
-                    <option value="Fill">Fill</option>
-                    <option value="Hug">Hug</option>
-                </select>
+                <CaretDownIcon className={styles.icon}/>
+                {showDropdown && (
+                    <div className={styles.dropdownContainer}>
+                        {modes.map((mode) => (
+                            <div
+                                key={mode}
+                                className={`${styles.dropdownOption} ${currentMode === mode ? styles.active : ''}`}
+                                onClick={() => handleModeSelect(mode)}
+                            >
+                                {mode}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

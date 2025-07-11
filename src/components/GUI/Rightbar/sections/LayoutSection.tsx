@@ -34,18 +34,20 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                     <div className={styles.row}>
                         <div className={styles.group}>
                             <div className={styles.groupTitle}>Size</div>
-                            <DimensionControl
-                                label="W"
-                                value={selectedElement?.style?.width}
-                                placeholder={computedStyles?.width}
-                                onValueChange={(newValue) => onStyleChange({ width: newValue })}
-                            />
-                            <DimensionControl
-                                label="H"
-                                value={selectedElement?.style?.height}
-                                placeholder={computedStyles?.height}
-                                onValueChange={(newValue) => onStyleChange({ height: newValue })}
-                            />
+                            <div className={styles.row}>
+                                <DimensionControl
+                                    label="W"
+                                    value={selectedElement?.style?.width}
+                                    placeholder={computedStyles?.width}
+                                    onValueChange={(newValue) => onStyleChange({ width: newValue })}
+                                />
+                                <DimensionControl
+                                    label="H"
+                                    value={selectedElement?.style?.height}
+                                    placeholder={computedStyles?.height}
+                                    onValueChange={(newValue) => onStyleChange({ height: newValue })}
+                                />
+                            </div>
                         </div>
                     </div>
                     {/* Row Start */}

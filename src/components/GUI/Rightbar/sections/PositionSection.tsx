@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styles from '../../../../styles/Sidebar.module.css';
 import {
     ArrowsLeftRightIcon,
@@ -27,12 +27,24 @@ const positionConfigs = [
 
 export const PositionSection: React.FC<PositionSectionProps> = React.memo(
     ({ selectedElement, computedStyles, onStyleChange }) => {
-        const [activePosition, setActivePosition] = useState<string | null>(null);
-
         const handlePositionClick = (config: typeof positionConfigs[number]) => {
-            setActivePosition(config.id);
             onStyleChange(config.style);
         };
+
+        const activeId = useMemo(() => {
+            const elementStyle = selectedElement?.style;
+
+            if (!elementStyle) {
+                return null;
+            }
+
+            const foundConfig = positionConfigs.find(config =>
+                Object.entries(config.style).every(([key, value]) => elementStyle[key as keyof React.CSSProperties] === value)
+            );
+
+            return foundConfig ? foundConfig.id : null;
+        }, [selectedElement]);
+
         return (
             <div className={styles.section}>
                 <div
@@ -52,7 +64,7 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                                         <div
                                             key={config.id}
                                             className={`${styles.buttonPosition} ${
-                                                activePosition === config.id ? styles.active : ''
+                                                activeId === config.id ? styles.active : ''
                                             }`}
                                             onClick={() => handlePositionClick(config)}
                                         />

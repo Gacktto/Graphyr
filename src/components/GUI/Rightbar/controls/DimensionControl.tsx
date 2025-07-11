@@ -69,6 +69,7 @@ export const DimensionControl: React.FC<DimensionControlProps> = ({
                     value={currentMode === 'Fixed' ? inputValue : currentMode}
                     placeholder={placeholder}
                     onChange={handleInputChange}
+                    onClick={(e) => {e.stopPropagation()}}
                     onBlur={handleInputBlur}
                     readOnly={currentMode !== 'Fixed'} 
                 />

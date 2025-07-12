@@ -287,3 +287,46 @@
     border-radius: 2px;
     border: 1px solid white;
 }
+
+.paddingBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 60px;
+    height: 60px;
+    gap: 5px;
+}
+
+.paddingOption {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #3c3c3c;
+    border-radius: 2px;
+}
+
+.paddingOption.inactive {
+    cursor: pointer;
+}
+
+.paddingOption:hover {
+    background-color: #3c3c3c;
+}
+
+.paddingOption.left{
+    border-left: 3px solid #8d8d8d;
+}
+
+.paddingOption.right{
+    border-right: 3px solid #8d8d8d;
+}
+
+.paddingOption.top{
+    border-top: 3px solid #8d8d8d;
+}
+
+.paddingOption.bottom{
+    border-bottom: 3px solid #8d8d8d;
+}

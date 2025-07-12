@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import styles from '../../../../styles/Sidebar.module.css';
 import {
     AlignBottomIcon,
@@ -11,9 +11,11 @@ import {
     ArrowUpIcon,
     ArrowRightIcon,
     ArrowLeftIcon,
+    CornersOutIcon,
 } from '@phosphor-icons/react';
 import type { ElementNode } from '../../../TreeView/TreeView';
 import { DimensionControl } from '../controls/DimensionControl';
+import { PaddingControl } from '../controls/PaddingControl';
 
 interface LayoutSectionProps {
     selectedElement: ElementNode | null;
@@ -23,6 +25,46 @@ interface LayoutSectionProps {
 
 export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
     ({ selectedElement, computedStyles, onStyleChange }) => {
+        const [isEditingIndividually, setIsEditingIndividually] = useState(false);
+
+        useEffect(() => {
+            if (!selectedElement?.style) {
+                setIsEditingIndividually(false);
+                return;
+            }
+            
+            const { paddingTop, paddingBottom, paddingLeft, paddingRight } = selectedElement.style;
+
+            const areCurrentlyDifferent = (paddingTop !== paddingBottom) || (paddingLeft !== paddingRight);
+            
+            setIsEditingIndividually(areCurrentlyDifferent);
+
+        }, [selectedElement]);
+
+        const handlePaddingChange = (side: 'paddingTop' | 'paddingBottom' | 'paddingLeft' | 'paddingRight', value: string) => {
+            const newStyle = { [side]: value ? `${value}px` : undefined };
+
+            if (!isEditingIndividually) {
+                if (side === 'paddingTop') {
+                    newStyle.paddingBottom = value ? `${value}px` : undefined;
+                } else if (side === 'paddingLeft') {
+                    newStyle.paddingRight = value ? `${value}px` : undefined;
+                }
+            }
+            
+            onStyleChange(newStyle);
+        };
+
+        const handleToggleSides = () => {
+            if (isEditingIndividually) {
+                onStyleChange({
+                    paddingRight: selectedElement?.style?.paddingLeft,
+                    paddingBottom: selectedElement?.style?.paddingTop,
+                });
+            }
+
+            setIsEditingIndividually(prevState => !prevState);
+        };
         return (
             <div className={styles.section}>
                 <div
@@ -358,113 +400,58 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                             </div>
                         </div>
                     )}
+
                     {/* Row Start */}
                     <div className={styles.row}>
                         <div className={styles.group}>
                             <div className={styles.groupTitle}>Padding</div>
-                            <div
-                                className={styles.group}
-                                style={{ flexDirection: 'row', gap: '10px' }}
-                            >
-                                <div className={`${styles.groupInput}`}>
-                                    <div className={styles.inputLabel}>T</div>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={
-                                            selectedElement?.style
-                                                ?.paddingTop !== undefined
-                                                ? String(
-                                                      selectedElement.style
-                                                          .paddingTop
-                                                  ).replace('px', '')
-                                                : ''
-                                        }
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            onStyleChange({
-                                                paddingTop: value
-                                                    ? `${value}px`
-                                                    : undefined,
-                                            });
-                                        }}
+                            <div className={styles.group} style={{ flexDirection: 'row', gap: '10px', alignItems: 'flex-end' }}>
+                                
+                                <PaddingControl
+                                    side="paddingTop"
+                                    value={selectedElement?.style?.paddingTop}
+                                    onPaddingChange={handlePaddingChange}
+                                    labelComponent={<div className={`${styles.paddingOption} ${styles.top} ${!isEditingIndividually && styles.bottom}`}></div>}
+                                />
+
+                                {isEditingIndividually && (
+                                    <PaddingControl
+                                        side="paddingBottom"
+                                        value={selectedElement?.style?.paddingBottom}
+                                        onPaddingChange={handlePaddingChange}
+                                        labelComponent={<div className={`${styles.paddingOption} ${styles.bottom}`}></div>}
                                     />
-                                </div>
-                                <div className={`${styles.groupInput}`}>
-                                    <div className={styles.inputLabel}>B</div>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={
-                                            selectedElement?.style
-                                                ?.paddingBottom !== undefined
-                                                ? String(
-                                                      selectedElement.style
-                                                          .paddingBottom
-                                                  ).replace('px', '')
-                                                : ''
-                                        }
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            onStyleChange({
-                                                paddingBottom: value
-                                                    ? `${value}px`
-                                                    : undefined,
-                                            });
-                                        }}
+                                )}
+
+                                <PaddingControl
+                                    side="paddingLeft"
+                                    value={selectedElement?.style?.paddingLeft}
+                                    onPaddingChange={handlePaddingChange}
+                                    labelComponent={<div className={`${styles.paddingOption} ${styles.left} ${!isEditingIndividually && styles.right}`}></div>}
+                                />
+                                
+                                {isEditingIndividually && (
+                                    <PaddingControl
+                                        side="paddingRight"
+                                        value={selectedElement?.style?.paddingRight}
+                                        onPaddingChange={handlePaddingChange}
+                                        labelComponent={<div className={`${styles.paddingOption} ${styles.right}`}></div>}
                                     />
+                                )}
+
+                                <div className={styles.groupChoices} style={{width: "fit-content"}}>
+                                    <div
+                                        className={`${styles.choice} ${isEditingIndividually ? `${styles.active} ${styles.toggled}` : styles.inactive}`}
+                                        onClick={handleToggleSides}
+                                    >
+                                        <CornersOutIcon className={styles.icon} weight={isEditingIndividually ? "bold" : "regular"} />
+                                    </div>
                                 </div>
-                                <div className={`${styles.groupInput}`}>
-                                    <div className={styles.inputLabel}>L</div>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={
-                                            selectedElement?.style
-                                                ?.paddingLeft !== undefined
-                                                ? String(
-                                                      selectedElement.style
-                                                          .paddingLeft
-                                                  ).replace('px', '')
-                                                : ''
-                                        }
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            onStyleChange({
-                                                paddingLeft: value
-                                                    ? `${value}px`
-                                                    : undefined,
-                                            });
-                                        }}
-                                    />
-                                </div>
-                                <div className={`${styles.groupInput}`}>
-                                    <div className={styles.inputLabel}>R</div>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={
-                                            selectedElement?.style
-                                                ?.paddingRight !== undefined
-                                                ? String(
-                                                      selectedElement.style
-                                                          .paddingRight
-                                                  ).replace('px', '')
-                                                : ''
-                                        }
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            onStyleChange({
-                                                paddingRight: value
-                                                    ? `${value}px`
-                                                    : undefined,
-                                            });
-                                        }}
-                                    />
-                                </div>
+
                             </div>
                         </div>
                     </div>
+                    
                     {/* Row Start */}
                     <div className={styles.row}>
                         <div className={`${styles.group} ${styles.fill}`}>

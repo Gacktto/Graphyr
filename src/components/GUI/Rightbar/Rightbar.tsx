@@ -17,6 +17,7 @@ import { ColorPicker } from '../../ColorPicker/ColorPicker';
 import { AppearanceSection } from './sections/AppearenceSection';
 import { PositionSection } from './sections/PositionSection';
 import { LayoutSection } from './sections/LayoutSection';
+import { StrokeSection } from './sections/StrokeSection';
 
 type PickerState = {
     property: keyof React.CSSProperties;
@@ -24,7 +25,8 @@ type PickerState = {
 };
 
 export default function Rightbar() {
-    const { elements, selectedId, elementsRef, updateElementStyle } = useCanvas();
+    const { elements, selectedId, elementsRef, updateElementStyle } =
+        useCanvas();
     const selectedElement = findElementById(elements, selectedId);
     const [computedStyles, setComputedStyles] =
         useState<CSSStyleDeclaration | null>(null);
@@ -180,6 +182,12 @@ export default function Rightbar() {
                         />
 
                         <AppearanceSection
+                            selectedElement={selectedElement}
+                            computedStyles={computedStyles}
+                            onStyleChange={handleStyleChange}
+                            onColorControlClick={handleColorControlClick}
+                        />
+                        <StrokeSection
                             selectedElement={selectedElement}
                             computedStyles={computedStyles}
                             onStyleChange={handleStyleChange}

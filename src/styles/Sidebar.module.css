@@ -179,6 +179,9 @@
 
 .dropdownOption {
     padding: 2px 5px;
+    display: flex;
+    align-items: start;
+    justify-content: start;
 }
 
 .dropdownOption:hover {
@@ -301,32 +304,25 @@
 
 .paddingOption {
     position: relative;
-    width: 10px;
-    height: 10px;
+    aspect-ratio: 1/1;
+    height: 100%;
     border: 2px solid #3c3c3c;
     border-radius: 2px;
+    box-sizing: border-box;
 }
 
-.paddingOption.inactive {
-    cursor: pointer;
-}
-
-.paddingOption:hover {
-    background-color: #3c3c3c;
-}
-
-.paddingOption.left{
+.paddingOption.left {
     border-left: 3px solid #8d8d8d;
 }
 
-.paddingOption.right{
+.paddingOption.right {
     border-right: 3px solid #8d8d8d;
 }
 
-.paddingOption.top{
+.paddingOption.top {
     border-top: 3px solid #8d8d8d;
 }
 
-.paddingOption.bottom{
+.paddingOption.bottom {
     border-bottom: 3px solid #8d8d8d;
 }

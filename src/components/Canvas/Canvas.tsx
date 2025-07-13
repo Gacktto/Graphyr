@@ -96,7 +96,7 @@ export default function Canvas() {
         pasteElement,
         undo,
         redo,
-        deleteElement
+        deleteElement,
     } = useCanvas();
 
     const { scale, offset } = useCanvasTransform(
@@ -105,8 +105,12 @@ export default function Canvas() {
     );
 
     const [drawingState, setDrawingState] = useState<DrawingState | null>(null);
-    const [resizingState, setResizingState] = useState<ResizingState | null>(null);
-    const [draggingState, setDraggingState] = useState<DraggingState | null>(null);
+    const [resizingState, setResizingState] = useState<ResizingState | null>(
+        null
+    );
+    const [draggingState, setDraggingState] = useState<DraggingState | null>(
+        null
+    );
     const [guideLines, setGuideLines] = useState<GuideLine[]>([]);
 
     useEffect(() => {
@@ -133,19 +137,21 @@ export default function Canvas() {
                 undo();
             }
 
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'z') {
+            if (
+                (e.ctrlKey || e.metaKey) &&
+                e.shiftKey &&
+                e.key.toLowerCase() === 'z'
+            ) {
                 e.preventDefault();
                 redo();
             }
 
-            if ((e.key === 'Delete') && selectedId) {
+            if (e.key === 'Delete' && selectedId) {
                 e.preventDefault();
                 deleteElement(selectedId);
             }
-
-            
         };
-        
+
         const handleKeyUp = (e: KeyboardEvent) => {
             if (e.code === 'Space') {
                 e.preventDefault();
@@ -161,7 +167,6 @@ export default function Canvas() {
         };
     }, [copySelectedElement, pasteElement, undo, redo]);
 
-
     const getCoordsInWorld = useCallback(
         (e: MouseEvent | React.MouseEvent): { x: number; y: number } => {
             if (!canvasRef.current) return { x: 0, y: 0 };
@@ -176,7 +181,7 @@ export default function Canvas() {
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
         if (resizingState || activeTool === 'cursor' || e.button !== 0) {
-            if((e.target as HTMLElement).dataset.canvasElement === undefined) {
+            if ((e.target as HTMLElement).dataset.canvasElement === undefined) {
                 setSelectedId(null);
             }
             return;
@@ -217,9 +222,10 @@ export default function Canvas() {
             const height = Math.abs(currentY - startY);
 
             if (width > 5 && height > 5) {
-                
-
-                const findParentNode = (nodes: ElementNode[], id: string | null): ElementNode | null => {
+                const findParentNode = (
+                    nodes: ElementNode[],
+                    id: string | null
+                ): ElementNode | null => {
                     if (!id) return null;
                     for (const node of nodes) {
                         if (node.id === id) return node;
@@ -236,12 +242,15 @@ export default function Canvas() {
                 let leftValue: string | number;
                 let topValue: string | number;
 
-                if (parentNode?.style && (parentNode.style.display === 'flex' || parentNode.style.position === 'relative')) {
+                if (
+                    parentNode?.style &&
+                    (parentNode.style.display === 'flex' ||
+                        parentNode.style.position === 'relative')
+                ) {
                     positionValue = 'relative';
                     leftValue = '';
                     topValue = '';
-                } 
-                else {
+                } else {
                     positionValue = 'absolute';
                     let worldLeft = Math.min(startX, currentX);
                     let worldTop = Math.min(startY, currentY);
@@ -249,11 +258,17 @@ export default function Canvas() {
                     if (parentId && parentId !== '1') {
                         const parentElement = elementsRef.current[parentId];
                         if (parentElement) {
-                            const canvasRect = canvasRef.current!.getBoundingClientRect();
-                            const parentRect = parentElement.getBoundingClientRect();
-                            const parentX = (parentRect.left - canvasRect.left - offset.x) / scale;
-                            const parentY = (parentRect.top - canvasRect.top - offset.y) / scale;
-                            
+                            const canvasRect =
+                                canvasRef.current!.getBoundingClientRect();
+                            const parentRect =
+                                parentElement.getBoundingClientRect();
+                            const parentX =
+                                (parentRect.left - canvasRect.left - offset.x) /
+                                scale;
+                            const parentY =
+                                (parentRect.top - canvasRect.top - offset.y) /
+                                scale;
+
                             worldLeft -= parentX;
                             worldTop -= parentY;
                         }
@@ -264,8 +279,14 @@ export default function Canvas() {
 
                 const newElementStyle: React.CSSProperties = {
                     position: positionValue,
-                    left: typeof leftValue === 'number' ? `${leftValue}px` : leftValue,
-                    top: typeof topValue === 'number' ? `${topValue}px` : topValue,
+                    left:
+                        typeof leftValue === 'number'
+                            ? `${leftValue}px`
+                            : leftValue,
+                    top:
+                        typeof topValue === 'number'
+                            ? `${topValue}px`
+                            : topValue,
                     width: `${width}px`,
                     height: `${height}px`,
                 };
@@ -283,8 +304,17 @@ export default function Canvas() {
             window.removeEventListener('mousemove', handleWindowMouseMove);
             window.removeEventListener('mouseup', handleWindowMouseUp);
         };
-
-    }, [drawingState, activeTool, addElement, getCoordsInWorld, setActiveTool, elements, elementsRef, offset, scale]);
+    }, [
+        drawingState,
+        activeTool,
+        addElement,
+        getCoordsInWorld,
+        setActiveTool,
+        elements,
+        elementsRef,
+        offset,
+        scale,
+    ]);
 
     const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (activeTool === 'cursor') return;
@@ -318,98 +348,107 @@ export default function Canvas() {
         };
     };
 
-    const handleResizeStart = useCallback((e: React.MouseEvent, handle: Handle, node: ElementNode) => {
-        e.stopPropagation();
-        e.preventDefault();
-        
-        const domElement = elementsRef.current[node.id];
+    const handleResizeStart = useCallback(
+        (e: React.MouseEvent, handle: Handle, node: ElementNode) => {
+            e.stopPropagation();
+            e.preventDefault();
 
-        if (!node.style || !domElement) return;
+            const domElement = elementsRef.current[node.id];
 
-        const computedWidth = domElement.offsetWidth;
-        const computedHeight = domElement.offsetHeight;
+            if (!node.style || !domElement) return;
 
-        setResizingState({
-            elementId: node.id,
-            handle,
-            startX: e.clientX,
-            startY: e.clientY,
-            originalStyle: {
-                top: parseFloat(node.style.top as string) || 0,
-                left: parseFloat(node.style.left as string) || 0,
-                width: computedWidth,
-                height: computedHeight,
-                position: node.style.position,
+            const computedWidth = domElement.offsetWidth;
+            const computedHeight = domElement.offsetHeight;
+
+            setResizingState({
+                elementId: node.id,
+                handle,
+                startX: e.clientX,
+                startY: e.clientY,
+                originalStyle: {
+                    top: parseFloat(node.style.top as string) || 0,
+                    left: parseFloat(node.style.left as string) || 0,
+                    width: computedWidth,
+                    height: computedHeight,
+                    position: node.style.position,
+                },
+            });
+        },
+        [elementsRef]
+    );
+
+    const handleDragStart = useCallback(
+        (e: React.MouseEvent) => {
+            if (spacePressed.current) return;
+            if (activeTool !== 'cursor' || e.button !== 0) return;
+
+            const target = e.target as HTMLElement;
+            const wrapper = target.closest(
+                '[data-canvas-element]'
+            ) as HTMLElement;
+            if (!wrapper) return;
+
+            const id = wrapper.dataset.elementId;
+            if (!id) return;
+
+            const result = findNodeAndParent(elements, id);
+            if (!result) return;
+
+            const { node, parent } = result;
+
+            if (parent && parent.style?.display === 'flex') {
+                return;
             }
-        });
-    }, [elementsRef]);
 
-    const handleDragStart = useCallback((e: React.MouseEvent) => {
-        if (spacePressed.current) return;
-        if (activeTool !== 'cursor' || e.button !== 0) return;
+            const computedStyle = window.getComputedStyle(wrapper);
+            if (computedStyle.position === 'relative') return;
 
-        const target = e.target as HTMLElement;
-        const wrapper = target.closest('[data-canvas-element]') as HTMLElement;
-        if (!wrapper) return;
+            if (!node || !node.style) return;
 
-        const id = wrapper.dataset.elementId;
-        if (!id) return;
+            const { x: mouseX, y: mouseY } = getCoordsInWorld(e);
 
-        const result = findNodeAndParent(elements, id);
-        if (!result) return;
+            const rect = wrapper.getBoundingClientRect();
+            const canvasRect = canvasRef.current!.getBoundingClientRect();
+            const elementX = (rect.left - canvasRect.left - offset.x) / scale;
+            const elementY = (rect.top - canvasRect.top - offset.y) / scale;
 
-        const { node, parent } = result;
+            let parentX = 0;
+            let parentY = 0;
 
-        if (parent && parent.style?.display === 'flex') {
-            return;
-        }
-        
-        const computedStyle = window.getComputedStyle(wrapper);
-        if (computedStyle.position === 'relative') return;
-
-        if (!node || !node.style) return;
-
-        const { x: mouseX, y: mouseY } = getCoordsInWorld(e);
-        
-        const rect = wrapper.getBoundingClientRect();
-        const canvasRect = canvasRef.current!.getBoundingClientRect();
-        const elementX = (rect.left - canvasRect.left - offset.x) / scale;
-        const elementY = (rect.top - canvasRect.top - offset.y) / scale;
-
-        let parentX = 0;
-        let parentY = 0;
-
-        if (parent && parent.id !== '1') {
-            const parentWrapper = elementsRef.current[parent.id];
-            if (parentWrapper) {
-                const parentRect = parentWrapper.getBoundingClientRect();
-                parentX = (parentRect.left - canvasRect.left - offset.x) / scale;
-                parentY = (parentRect.top - canvasRect.top - offset.y) / scale;
+            if (parent && parent.id !== '1') {
+                const parentWrapper = elementsRef.current[parent.id];
+                if (parentWrapper) {
+                    const parentRect = parentWrapper.getBoundingClientRect();
+                    parentX =
+                        (parentRect.left - canvasRect.left - offset.x) / scale;
+                    parentY =
+                        (parentRect.top - canvasRect.top - offset.y) / scale;
+                }
             }
-        }
 
-        const relativeLeft = elementX - parentX;
-        const relativeTop = elementY - parentY;
+            const relativeLeft = elementX - parentX;
+            const relativeTop = elementY - parentY;
 
-        setDraggingState({
-            elementId: id,
-            startX: mouseX,
-            startY: mouseY,
-            originalLeft: relativeLeft,
-            originalTop: relativeTop,
-            offsetX: mouseX - elementX,
-            offsetY: mouseY - elementY,
-        });
-
-    }, [activeTool, elements, elementsRef, getCoordsInWorld, offset, scale]);
-
+            setDraggingState({
+                elementId: id,
+                startX: mouseX,
+                startY: mouseY,
+                originalLeft: relativeLeft,
+                originalTop: relativeTop,
+                offsetX: mouseX - elementX,
+                offsetY: mouseY - elementY,
+            });
+        },
+        [activeTool, elements, elementsRef, getCoordsInWorld, offset, scale]
+    );
 
     useEffect(() => {
         if (!draggingState) return;
 
         const handleMouseMove = (e: MouseEvent) => {
-            const { elementId, originalLeft, originalTop, startX, startY } = draggingState;
-            
+            const { elementId, originalLeft, originalTop, startX, startY } =
+                draggingState;
+
             const { x, y } = getCoordsInWorld(e);
             const dx = x - startX;
             const dy = y - startY;
@@ -418,7 +457,7 @@ export default function Canvas() {
             let newTop = originalTop + dy;
 
             const activeLines: GuideLine[] = [];
-            const SNAP_THRESHOLD = 5 / scale; 
+            const SNAP_THRESHOLD = 5 / scale;
             const activeElementNode = elementsRef.current[elementId];
             if (!activeElementNode) return;
 
@@ -432,8 +471,12 @@ export default function Canvas() {
                 centerX: newLeft + activeElementNode.offsetWidth / 2,
                 centerY: newTop + activeElementNode.offsetHeight / 2,
             };
-            
-            const otherElements = elements.flatMap(node => node.id === '1' ? node.children || [] : [node]).filter(el => el.id !== elementId);
+
+            const otherElements = elements
+                .flatMap((node) =>
+                    node.id === '1' ? node.children || [] : [node]
+                )
+                .filter((el) => el.id !== elementId);
 
             for (const targetNode of otherElements) {
                 const targetElement = elementsRef.current[targetNode.id];
@@ -445,46 +488,135 @@ export default function Canvas() {
                     width: targetElement.offsetWidth,
                     height: targetElement.offsetHeight,
                     right: targetElement.offsetLeft + targetElement.offsetWidth,
-                    bottom: targetElement.offsetTop + targetElement.offsetHeight,
-                    centerX: targetElement.offsetLeft + targetElement.offsetWidth / 2,
-                    centerY: targetElement.offsetTop + targetElement.offsetHeight / 2,
+                    bottom:
+                        targetElement.offsetTop + targetElement.offsetHeight,
+                    centerX:
+                        targetElement.offsetLeft +
+                        targetElement.offsetWidth / 2,
+                    centerY:
+                        targetElement.offsetTop +
+                        targetElement.offsetHeight / 2,
                 };
 
                 const checks: SnapCheck[] = [
-                    { active: activeRect.left, target: targetRect.left, pos: 'left' },
-                    { active: activeRect.left, target: targetRect.right, pos: 'left' },
-                    { active: activeRect.left, target: targetRect.centerX, pos: 'left' },
-                    { active: activeRect.right, target: targetRect.left, pos: 'right' },
-                    { active: activeRect.right, target: targetRect.right, pos: 'right' },
-                    { active: activeRect.right, target: targetRect.centerX, pos: 'right' },
-                    { active: activeRect.centerX, target: targetRect.left, pos: 'centerX' },
-                    { active: activeRect.centerX, target: targetRect.right, pos: 'centerX' },
-                    { active: activeRect.centerX, target: targetRect.centerX, pos: 'centerX' },
+                    {
+                        active: activeRect.left,
+                        target: targetRect.left,
+                        pos: 'left',
+                    },
+                    {
+                        active: activeRect.left,
+                        target: targetRect.right,
+                        pos: 'left',
+                    },
+                    {
+                        active: activeRect.left,
+                        target: targetRect.centerX,
+                        pos: 'left',
+                    },
+                    {
+                        active: activeRect.right,
+                        target: targetRect.left,
+                        pos: 'right',
+                    },
+                    {
+                        active: activeRect.right,
+                        target: targetRect.right,
+                        pos: 'right',
+                    },
+                    {
+                        active: activeRect.right,
+                        target: targetRect.centerX,
+                        pos: 'right',
+                    },
+                    {
+                        active: activeRect.centerX,
+                        target: targetRect.left,
+                        pos: 'centerX',
+                    },
+                    {
+                        active: activeRect.centerX,
+                        target: targetRect.right,
+                        pos: 'centerX',
+                    },
+                    {
+                        active: activeRect.centerX,
+                        target: targetRect.centerX,
+                        pos: 'centerX',
+                    },
 
-                    { active: activeRect.top, target: targetRect.top, pos: 'top' },
-                    { active: activeRect.top, target: targetRect.bottom, pos: 'top' },
-                    { active: activeRect.top, target: targetRect.centerY, pos: 'top' },
-                    { active: activeRect.bottom, target: targetRect.top, pos: 'bottom' },
-                    { active: activeRect.bottom, target: targetRect.bottom, pos: 'bottom' },
-                    { active: activeRect.bottom, target: targetRect.centerY, pos: 'bottom' },
-                    { active: activeRect.centerY, target: targetRect.top, pos: 'centerY' },
-                    { active: activeRect.centerY, target: targetRect.bottom, pos: 'centerY' },
-                    { active: activeRect.centerY, target: targetRect.centerY, pos: 'centerY' },
+                    {
+                        active: activeRect.top,
+                        target: targetRect.top,
+                        pos: 'top',
+                    },
+                    {
+                        active: activeRect.top,
+                        target: targetRect.bottom,
+                        pos: 'top',
+                    },
+                    {
+                        active: activeRect.top,
+                        target: targetRect.centerY,
+                        pos: 'top',
+                    },
+                    {
+                        active: activeRect.bottom,
+                        target: targetRect.top,
+                        pos: 'bottom',
+                    },
+                    {
+                        active: activeRect.bottom,
+                        target: targetRect.bottom,
+                        pos: 'bottom',
+                    },
+                    {
+                        active: activeRect.bottom,
+                        target: targetRect.centerY,
+                        pos: 'bottom',
+                    },
+                    {
+                        active: activeRect.centerY,
+                        target: targetRect.top,
+                        pos: 'centerY',
+                    },
+                    {
+                        active: activeRect.centerY,
+                        target: targetRect.bottom,
+                        pos: 'centerY',
+                    },
+                    {
+                        active: activeRect.centerY,
+                        target: targetRect.centerY,
+                        pos: 'centerY',
+                    },
                 ];
 
                 for (const check of checks) {
-                    if (Math.abs(check.active - check.target) < SNAP_THRESHOLD) {
+                    if (
+                        Math.abs(check.active - check.target) < SNAP_THRESHOLD
+                    ) {
                         if (['left', 'right', 'centerX'].includes(check.pos)) {
-                            newLeft = check.target - (activeRect[check.pos] - activeRect.left);
-                            activeLines.push({ type: 'vertical', position: check.target });
+                            newLeft =
+                                check.target -
+                                (activeRect[check.pos] - activeRect.left);
+                            activeLines.push({
+                                type: 'vertical',
+                                position: check.target,
+                            });
                         } else {
-                            newTop = check.target - (activeRect[check.pos] - activeRect.top);
-                            activeLines.push({ type: 'horizontal', position: check.target });
+                            newTop =
+                                check.target -
+                                (activeRect[check.pos] - activeRect.top);
+                            activeLines.push({
+                                type: 'horizontal',
+                                position: check.target,
+                            });
                         }
                     }
                 }
             }
-            
+
             setGuideLines(activeLines);
             updateElementStyle(elementId, {
                 left: `${newLeft}px`,
@@ -505,15 +637,21 @@ export default function Canvas() {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [draggingState, getCoordsInWorld, updateElementStyle, elements, elementsRef, scale]);
-
-
+    }, [
+        draggingState,
+        getCoordsInWorld,
+        updateElementStyle,
+        elements,
+        elementsRef,
+        scale,
+    ]);
 
     useEffect(() => {
         if (!resizingState) return;
 
         const handleWindowMouseMove = (e: MouseEvent) => {
-            const { handle, originalStyle, startX, startY, elementId } = resizingState;
+            const { handle, originalStyle, startX, startY, elementId } =
+                resizingState;
             const dx = (e.clientX - startX) / scale;
             const dy = (e.clientY - startY) / scale;
 
@@ -534,14 +672,21 @@ export default function Canvas() {
             const SNAP_THRESHOLD = 5 / scale;
 
             const activeRect = {
-                top, left, width, height,
+                top,
+                left,
+                width,
+                height,
                 right: left + width,
                 bottom: top + height,
                 centerX: left + width / 2,
                 centerY: top + height / 2,
             };
 
-            const otherElements = elements.flatMap(node => node.id === '1' ? node.children || [] : [node]).filter(el => el.id !== elementId);
+            const otherElements = elements
+                .flatMap((node) =>
+                    node.id === '1' ? node.children || [] : [node]
+                )
+                .filter((el) => el.id !== elementId);
 
             for (const targetNode of otherElements) {
                 const targetElement = elementsRef.current[targetNode.id];
@@ -551,78 +696,121 @@ export default function Canvas() {
                     left: targetElement.offsetLeft,
                     top: targetElement.offsetTop,
                     right: targetElement.offsetLeft + targetElement.offsetWidth,
-                    bottom: targetElement.offsetTop + targetElement.offsetHeight,
-                    centerX: targetElement.offsetLeft + targetElement.offsetWidth / 2,
-                    centerY: targetElement.offsetTop + targetElement.offsetHeight / 2,
+                    bottom:
+                        targetElement.offsetTop + targetElement.offsetHeight,
+                    centerX:
+                        targetElement.offsetLeft +
+                        targetElement.offsetWidth / 2,
+                    centerY:
+                        targetElement.offsetTop +
+                        targetElement.offsetHeight / 2,
                 };
 
-                const verticalChecks = [targetRect.left, targetRect.centerX, targetRect.right];
-                const horizontalChecks = [targetRect.top, targetRect.centerY, targetRect.bottom];
+                const verticalChecks = [
+                    targetRect.left,
+                    targetRect.centerX,
+                    targetRect.right,
+                ];
+                const horizontalChecks = [
+                    targetRect.top,
+                    targetRect.centerY,
+                    targetRect.bottom,
+                ];
 
                 if (handle.includes('r')) {
                     for (const targetPos of verticalChecks) {
-                        if (Math.abs(activeRect.right - targetPos) < SNAP_THRESHOLD) {
+                        if (
+                            Math.abs(activeRect.right - targetPos) <
+                            SNAP_THRESHOLD
+                        ) {
                             width = targetPos - left;
-                            activeLines.push({ type: 'vertical', position: targetPos });
-                            break; 
+                            activeLines.push({
+                                type: 'vertical',
+                                position: targetPos,
+                            });
+                            break;
                         }
                     }
                 }
                 if (handle.includes('l')) {
                     for (const targetPos of verticalChecks) {
-                        if (Math.abs(activeRect.left - targetPos) < SNAP_THRESHOLD) {
-                            const originalRight = originalStyle.left + originalStyle.width;
+                        if (
+                            Math.abs(activeRect.left - targetPos) <
+                            SNAP_THRESHOLD
+                        ) {
+                            const originalRight =
+                                originalStyle.left + originalStyle.width;
                             left = targetPos;
                             width = originalRight - left;
-                            activeLines.push({ type: 'vertical', position: targetPos });
+                            activeLines.push({
+                                type: 'vertical',
+                                position: targetPos,
+                            });
                             break;
                         }
                     }
                 }
-                
+
                 if (handle.includes('b')) {
                     for (const targetPos of horizontalChecks) {
-                        if (Math.abs(activeRect.bottom - targetPos) < SNAP_THRESHOLD) {
+                        if (
+                            Math.abs(activeRect.bottom - targetPos) <
+                            SNAP_THRESHOLD
+                        ) {
                             height = targetPos - top;
-                            activeLines.push({ type: 'horizontal', position: targetPos });
+                            activeLines.push({
+                                type: 'horizontal',
+                                position: targetPos,
+                            });
                             break;
                         }
                     }
                 }
                 if (handle.includes('t')) {
                     for (const targetPos of horizontalChecks) {
-                        if (Math.abs(activeRect.top - targetPos) < SNAP_THRESHOLD) {
-                            const originalBottom = originalStyle.top + originalStyle.height;
+                        if (
+                            Math.abs(activeRect.top - targetPos) <
+                            SNAP_THRESHOLD
+                        ) {
+                            const originalBottom =
+                                originalStyle.top + originalStyle.height;
                             top = targetPos;
                             height = originalBottom - top;
-                            activeLines.push({ type: 'horizontal', position: targetPos });
+                            activeLines.push({
+                                type: 'horizontal',
+                                position: targetPos,
+                            });
                             break;
                         }
                     }
                 }
             }
-            
+
             const minSize = 10;
             if (width < minSize) {
-                if (handle.includes('l')) left = originalStyle.left + originalStyle.width - minSize;
+                if (handle.includes('l'))
+                    left = originalStyle.left + originalStyle.width - minSize;
                 width = minSize;
             }
             if (height < minSize) {
-                if (handle.includes('t')) top = originalStyle.top + originalStyle.height - minSize;
+                if (handle.includes('t'))
+                    top = originalStyle.top + originalStyle.height - minSize;
                 height = minSize;
             }
 
             const newStyle: React.CSSProperties = {};
             const isRelative = originalStyle.position === 'relative';
 
-            if (handle.includes('l') || handle.includes('r')) newStyle.width = `${width}px`;
-            if (handle.includes('t') || handle.includes('b')) newStyle.height = `${height}px`;
+            if (handle.includes('l') || handle.includes('r'))
+                newStyle.width = `${width}px`;
+            if (handle.includes('t') || handle.includes('b'))
+                newStyle.height = `${height}px`;
 
             if (!isRelative) {
                 if (handle.includes('t')) newStyle.top = `${top}px`;
                 if (handle.includes('l')) newStyle.left = `${left}px`;
             }
-            
+
             setGuideLines(activeLines);
             updateElementStyle(elementId, newStyle);
         };
@@ -639,8 +827,14 @@ export default function Canvas() {
             window.removeEventListener('mousemove', handleWindowMouseMove);
             window.removeEventListener('mouseup', handleWindowMouseUp);
         };
-
-    }, [resizingState, scale, updateElementStyle, getCoordsInWorld, elements, elementsRef]);
+    }, [
+        resizingState,
+        scale,
+        updateElementStyle,
+        getCoordsInWorld,
+        elements,
+        elementsRef,
+    ]);
 
     return (
         <div
@@ -665,17 +859,32 @@ export default function Canvas() {
                         key={`guide-${index}`}
                         style={{
                             position: 'absolute',
-                            backgroundColor: '#FF0000', 
+                            backgroundColor: '#FF0000',
                             ...(line.type === 'vertical'
-                                ? { left: line.position, top: 0, width: '1px', height: '100%' }
-                                : { top: line.position, left: 0, height: '1px', width: '100%' }),
-                            zIndex: 9998 
+                                ? {
+                                      left: line.position,
+                                      top: 0,
+                                      width: '1px',
+                                      height: '100%',
+                                  }
+                                : {
+                                      top: line.position,
+                                      left: 0,
+                                      height: '1px',
+                                      width: '100%',
+                                  }),
+                            zIndex: 9998,
                         }}
                     />
                 ))}
 
                 {elements.map((el) => (
-                    <ElementRenderer key={el.id} node={el} onResizeStart={handleResizeStart} onDragStart={handleDragStart}/>
+                    <ElementRenderer
+                        key={el.id}
+                        node={el}
+                        onResizeStart={handleResizeStart}
+                        onDragStart={handleDragStart}
+                    />
                 ))}
             </div>
         </div>

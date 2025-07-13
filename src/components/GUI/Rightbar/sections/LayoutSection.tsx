@@ -25,23 +25,32 @@ interface LayoutSectionProps {
 
 export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
     ({ selectedElement, computedStyles, onStyleChange }) => {
-        const [isEditingIndividually, setIsEditingIndividually] = useState(false);
+        const [isEditingIndividually, setIsEditingIndividually] =
+            useState(false);
 
         useEffect(() => {
             if (!selectedElement?.style) {
                 setIsEditingIndividually(false);
                 return;
             }
-            
-            const { paddingTop, paddingBottom, paddingLeft, paddingRight } = selectedElement.style;
 
-            const areCurrentlyDifferent = (paddingTop !== paddingBottom) || (paddingLeft !== paddingRight);
-            
+            const { paddingTop, paddingBottom, paddingLeft, paddingRight } =
+                selectedElement.style;
+
+            const areCurrentlyDifferent =
+                paddingTop !== paddingBottom || paddingLeft !== paddingRight;
+
             setIsEditingIndividually(areCurrentlyDifferent);
-
         }, [selectedElement]);
 
-        const handlePaddingChange = (side: 'paddingTop' | 'paddingBottom' | 'paddingLeft' | 'paddingRight', value: string) => {
+        const handlePaddingChange = (
+            side:
+                | 'paddingTop'
+                | 'paddingBottom'
+                | 'paddingLeft'
+                | 'paddingRight',
+            value: string
+        ) => {
             const newStyle = { [side]: value ? `${value}px` : undefined };
 
             if (!isEditingIndividually) {
@@ -51,7 +60,7 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                     newStyle.paddingRight = value ? `${value}px` : undefined;
                 }
             }
-            
+
             onStyleChange(newStyle);
         };
 
@@ -63,7 +72,7 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                 });
             }
 
-            setIsEditingIndividually(prevState => !prevState);
+            setIsEditingIndividually((prevState) => !prevState);
         };
         return (
             <div className={styles.section}>
@@ -81,13 +90,17 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                     label="W"
                                     value={selectedElement?.style?.width}
                                     placeholder={computedStyles?.width}
-                                    onValueChange={(newValue) => onStyleChange({ width: newValue })}
+                                    onValueChange={(newValue) =>
+                                        onStyleChange({ width: newValue })
+                                    }
                                 />
                                 <DimensionControl
                                     label="H"
                                     value={selectedElement?.style?.height}
                                     placeholder={computedStyles?.height}
-                                    onValueChange={(newValue) => onStyleChange({ height: newValue })}
+                                    onValueChange={(newValue) =>
+                                        onStyleChange({ height: newValue })
+                                    }
                                 />
                             </div>
                         </div>
@@ -210,7 +223,8 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                             <div
                                 className={`${styles.groupChoices} ${styles.buttonOptions}`}
                             >
-                                <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "column" ? styles.active : styles.inactive}`}
+                                <div
+                                    className={`${styles.choice} ${selectedElement?.style?.flexDirection === 'column' ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentDisplay =
                                             selectedElement?.style?.display;
@@ -225,9 +239,12 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                         });
                                     }}
                                 >
-                                    <ArrowDownIcon className={`${styles.icon}`}/>
+                                    <ArrowDownIcon
+                                        className={`${styles.icon}`}
+                                    />
                                 </div>
-                                <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "column-reverse" ? styles.active : styles.inactive}`}
+                                <div
+                                    className={`${styles.choice} ${selectedElement?.style?.flexDirection === 'column-reverse' ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentDisplay =
                                             selectedElement?.style?.display;
@@ -241,9 +258,10 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                         });
                                     }}
                                 >
-                                    <ArrowUpIcon className={`${styles.icon}`}/>
+                                    <ArrowUpIcon className={`${styles.icon}`} />
                                 </div>
-                                <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "row" ? styles.active : styles.inactive}`}
+                                <div
+                                    className={`${styles.choice} ${selectedElement?.style?.flexDirection === 'row' ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentDisplay =
                                             selectedElement?.style?.display;
@@ -257,9 +275,12 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                         });
                                     }}
                                 >
-                                    <ArrowRightIcon className={`${styles.icon}`}/>
+                                    <ArrowRightIcon
+                                        className={`${styles.icon}`}
+                                    />
                                 </div>
-                                <div className={`${styles.choice} ${selectedElement?.style?.flexDirection === "row-reverse" ? styles.active : styles.inactive}`}
+                                <div
+                                    className={`${styles.choice} ${selectedElement?.style?.flexDirection === 'row-reverse' ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentDisplay =
                                             selectedElement?.style?.display;
@@ -273,7 +294,9 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                         });
                                     }}
                                 >
-                                    <ArrowLeftIcon className={`${styles.icon}`}/>
+                                    <ArrowLeftIcon
+                                        className={`${styles.icon}`}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -288,44 +311,115 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                         <div className={styles.row}>
                             <div className={`${styles.group} ${styles.fill}`}>
                                 <div className={styles.groupTitle}>Align</div>
-                                    <div className={styles.groupChoices}>
-                                        <div className={`${styles.choice}  ${selectedElement?.style?.alignItems === "flex-start" ? styles.active : styles.inactive}`}
-                                            onClick={() =>
-                                                onStyleChange({
-                                                    alignItems:
-                                                        'flex-start',
-                                                })
-                                            }
-                                        >
-                                            {['row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || ''
-                                            ) ? <AlignTopIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "flex-start" ? "fill" : "regular"}/> 
-                                            : <AlignLeftIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "flex-start" ? "fill" : "regular"}/>}
-                                        </div>
-                                        <div className={`${styles.choice} ${selectedElement?.style?.alignItems === "center" ? styles.active : styles.inactive}`}
-                                            onClick={() =>
-                                                onStyleChange({
-                                                    alignItems: 'center',
-                                                })
-                                            }
-                                        >
-                                            {['row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || ''
-                                            ) ? <AlignCenterVerticalIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "center" ? "fill" : "regular"}/> 
-                                            : <AlignCenterHorizontalIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "center" ? "fill" : "regular"}/>}
-                                        </div>
-                                        <div className={`${styles.choice} ${selectedElement?.style?.alignItems === "flex-end" ? styles.active : styles.inactive}`}
-                                            onClick={() =>
-                                                onStyleChange({
-                                                    alignItems: 'flex-end',
-                                                })
-                                            }
-                                        >
-                                            {['row', 'row-reverse'].includes(selectedElement?.style?.flexDirection || ''
-                                            ) ? <AlignBottomIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "flex-end" ? "fill" : "regular"}/> 
-                                            : <AlignRightIcon className={`${styles.icon}`} weight={selectedElement?.style?.alignItems === "flex-end" ? "fill" : "regular"}/>}
-                                        </div>
+                                <div className={styles.groupChoices}>
+                                    <div
+                                        className={`${styles.choice}  ${selectedElement?.style?.alignItems === 'flex-start' ? styles.active : styles.inactive}`}
+                                        onClick={() =>
+                                            onStyleChange({
+                                                alignItems: 'flex-start',
+                                            })
+                                        }
+                                    >
+                                        {['row', 'row-reverse'].includes(
+                                            selectedElement?.style
+                                                ?.flexDirection || ''
+                                        ) ? (
+                                            <AlignTopIcon
+                                                className={`${styles.icon}`}
+                                                weight={
+                                                    selectedElement?.style
+                                                        ?.alignItems ===
+                                                    'flex-start'
+                                                        ? 'fill'
+                                                        : 'regular'
+                                                }
+                                            />
+                                        ) : (
+                                            <AlignLeftIcon
+                                                className={`${styles.icon}`}
+                                                weight={
+                                                    selectedElement?.style
+                                                        ?.alignItems ===
+                                                    'flex-start'
+                                                        ? 'fill'
+                                                        : 'regular'
+                                                }
+                                            />
+                                        )}
+                                    </div>
+                                    <div
+                                        className={`${styles.choice} ${selectedElement?.style?.alignItems === 'center' ? styles.active : styles.inactive}`}
+                                        onClick={() =>
+                                            onStyleChange({
+                                                alignItems: 'center',
+                                            })
+                                        }
+                                    >
+                                        {['row', 'row-reverse'].includes(
+                                            selectedElement?.style
+                                                ?.flexDirection || ''
+                                        ) ? (
+                                            <AlignCenterVerticalIcon
+                                                className={`${styles.icon}`}
+                                                weight={
+                                                    selectedElement?.style
+                                                        ?.alignItems ===
+                                                    'center'
+                                                        ? 'fill'
+                                                        : 'regular'
+                                                }
+                                            />
+                                        ) : (
+                                            <AlignCenterHorizontalIcon
+                                                className={`${styles.icon}`}
+                                                weight={
+                                                    selectedElement?.style
+                                                        ?.alignItems ===
+                                                    'center'
+                                                        ? 'fill'
+                                                        : 'regular'
+                                                }
+                                            />
+                                        )}
+                                    </div>
+                                    <div
+                                        className={`${styles.choice} ${selectedElement?.style?.alignItems === 'flex-end' ? styles.active : styles.inactive}`}
+                                        onClick={() =>
+                                            onStyleChange({
+                                                alignItems: 'flex-end',
+                                            })
+                                        }
+                                    >
+                                        {['row', 'row-reverse'].includes(
+                                            selectedElement?.style
+                                                ?.flexDirection || ''
+                                        ) ? (
+                                            <AlignBottomIcon
+                                                className={`${styles.icon}`}
+                                                weight={
+                                                    selectedElement?.style
+                                                        ?.alignItems ===
+                                                    'flex-end'
+                                                        ? 'fill'
+                                                        : 'regular'
+                                                }
+                                            />
+                                        ) : (
+                                            <AlignRightIcon
+                                                className={`${styles.icon}`}
+                                                weight={
+                                                    selectedElement?.style
+                                                        ?.alignItems ===
+                                                    'flex-end'
+                                                        ? 'fill'
+                                                        : 'regular'
+                                                }
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             </div>
+                        </div>
                     )}
                     {/* Row Start */}
                     {[
@@ -352,7 +446,9 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                         }
                                     >
                                         <option value="">Default</option>
-                                        <option value="flex-start">Start</option>
+                                        <option value="flex-start">
+                                            Start
+                                        </option>
                                         <option value="center">Center</option>
                                         <option value="flex-end">End</option>
                                         <option value="space-between">
@@ -379,8 +475,8 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                             selectedElement?.style?.gap !==
                                             undefined
                                                 ? String(
-                                                    selectedElement.style.gap
-                                                ).replace('px', '')
+                                                      selectedElement.style.gap
+                                                  ).replace('px', '')
                                                 : ''
                                         }
                                         placeholder={computedStyles?.gap?.replace(
@@ -400,26 +496,42 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                             </div>
                         </div>
                     )}
-
                     {/* Row Start */}
                     <div className={styles.row}>
                         <div className={styles.group}>
                             <div className={styles.groupTitle}>Padding</div>
-                            <div className={styles.group} style={{ flexDirection: 'row', gap: '10px', alignItems: 'flex-end' }}>
-                                
+                            <div
+                                className={styles.group}
+                                style={{
+                                    flexDirection: 'row',
+                                    gap: '10px',
+                                    alignItems: 'flex-end',
+                                }}
+                            >
                                 <PaddingControl
                                     side="paddingTop"
                                     value={selectedElement?.style?.paddingTop}
                                     onPaddingChange={handlePaddingChange}
-                                    labelComponent={<div className={`${styles.paddingOption} ${styles.top} ${!isEditingIndividually && styles.bottom}`}></div>}
+                                    labelComponent={
+                                        <div
+                                            className={`${styles.paddingOption} ${styles.top} ${!isEditingIndividually && styles.bottom}`}
+                                        ></div>
+                                    }
                                 />
 
                                 {isEditingIndividually && (
                                     <PaddingControl
                                         side="paddingBottom"
-                                        value={selectedElement?.style?.paddingBottom}
+                                        value={
+                                            selectedElement?.style
+                                                ?.paddingBottom
+                                        }
                                         onPaddingChange={handlePaddingChange}
-                                        labelComponent={<div className={`${styles.paddingOption} ${styles.bottom}`}></div>}
+                                        labelComponent={
+                                            <div
+                                                className={`${styles.paddingOption} ${styles.bottom}`}
+                                            ></div>
+                                        }
                                     />
                                 )}
 
@@ -427,31 +539,49 @@ export const LayoutSection: React.FC<LayoutSectionProps> = React.memo(
                                     side="paddingLeft"
                                     value={selectedElement?.style?.paddingLeft}
                                     onPaddingChange={handlePaddingChange}
-                                    labelComponent={<div className={`${styles.paddingOption} ${styles.left} ${!isEditingIndividually && styles.right}`}></div>}
+                                    labelComponent={
+                                        <div
+                                            className={`${styles.paddingOption} ${styles.left} ${!isEditingIndividually && styles.right}`}
+                                        ></div>
+                                    }
                                 />
-                                
+
                                 {isEditingIndividually && (
                                     <PaddingControl
                                         side="paddingRight"
-                                        value={selectedElement?.style?.paddingRight}
+                                        value={
+                                            selectedElement?.style?.paddingRight
+                                        }
                                         onPaddingChange={handlePaddingChange}
-                                        labelComponent={<div className={`${styles.paddingOption} ${styles.right}`}></div>}
+                                        labelComponent={
+                                            <div
+                                                className={`${styles.paddingOption} ${styles.right}`}
+                                            ></div>
+                                        }
                                     />
                                 )}
 
-                                <div className={styles.groupChoices} style={{width: "fit-content"}}>
+                                <div
+                                    className={styles.groupChoices}
+                                    style={{ width: 'fit-content' }}
+                                >
                                     <div
                                         className={`${styles.choice} ${isEditingIndividually ? `${styles.active} ${styles.toggled}` : styles.inactive}`}
                                         onClick={handleToggleSides}
                                     >
-                                        <CornersOutIcon className={styles.icon} weight={isEditingIndividually ? "bold" : "regular"} />
+                                        <CornersOutIcon
+                                            className={styles.icon}
+                                            weight={
+                                                isEditingIndividually
+                                                    ? 'bold'
+                                                    : 'regular'
+                                            }
+                                        />
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
-                    
                     {/* Row Start */}
                     <div className={styles.row}>
                         <div className={`${styles.group} ${styles.fill}`}>

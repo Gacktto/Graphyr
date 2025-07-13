@@ -20,11 +20,21 @@ type TreeViewProps = {
 const NodeIcon = ({ type }: { type: string }) => {
     switch (type) {
         case 'text':
-            return <TextTIcon weight="fill" size={15} color="rgb(158, 2, 96)" />;
+            return (
+                <TextTIcon weight="fill" size={15} color="rgb(158, 2, 96)" />
+            );
         case 'frame':
-            return <BoundingBoxIcon weight="fill" size={15} color="rgb(100, 100, 100)" />;
+            return (
+                <BoundingBoxIcon
+                    weight="fill"
+                    size={15}
+                    color="rgb(100, 100, 100)"
+                />
+            );
         default:
-            return <SquareIcon weight="fill" size={15} color="rgb(2, 96, 158)" />;
+            return (
+                <SquareIcon weight="fill" size={15} color="rgb(2, 96, 158)" />
+            );
     }
 };
 
@@ -34,17 +44,23 @@ export default function TreeView({
     onSelect,
 }: TreeViewProps) {
     const { moveElement } = useCanvas();
-    const dragIndicator = useRef<{ id: string, position: 'top' | 'bottom' | 'middle' } | null>(null);
+    const dragIndicator = useRef<{
+        id: string;
+        position: 'top' | 'bottom' | 'middle';
+    } | null>(null);
     const [dragOverId, setDragOverId] = useState<string | null>(null);
 
     const handleDragStart = (e: React.DragEvent, node: ElementNode) => {
-        e.dataTransfer.setData('application/json', JSON.stringify({ id: node.id }));
+        e.dataTransfer.setData(
+            'application/json',
+            JSON.stringify({ id: node.id })
+        );
         e.dataTransfer.effectAllowed = 'move';
         setTimeout(() => {
             (e.target as HTMLElement).style.opacity = '0.5';
         }, 0);
     };
-    
+
     const handleDragEnd = (e: React.DragEvent) => {
         (e.target as HTMLElement).style.opacity = '1';
         dragIndicator.current = null;
@@ -59,7 +75,7 @@ export default function TreeView({
         const y = e.clientY - rect.top;
         const height = rect.height;
         let position: 'top' | 'bottom' | 'middle' = 'middle';
-        
+
         if (node.type === 'frame') {
             position = 'middle';
         } else if (y < height * 0.25) {
@@ -67,7 +83,7 @@ export default function TreeView({
         } else if (y > height * 0.75) {
             position = 'bottom';
         }
-        
+
         dragIndicator.current = { id: node.id, position };
         setDragOverId(node.id);
     };
@@ -75,8 +91,10 @@ export default function TreeView({
     const handleDrop = (e: React.DragEvent, targetNode: ElementNode | null) => {
         e.preventDefault();
         e.stopPropagation();
-        
-        const draggedData = JSON.parse(e.dataTransfer.getData('application/json'));
+
+        const draggedData = JSON.parse(
+            e.dataTransfer.getData('application/json')
+        );
         const draggedId = draggedData.id;
 
         const dropTargetInfo = dragIndicator.current;
@@ -94,7 +112,9 @@ export default function TreeView({
     const renderNode = (node: ElementNode, depth = 0): JSX.Element => {
         const isSelected = node.id === selectedId;
         const isDraggingOver = dragOverId === node.id;
-        const indicatorPosition = isDraggingOver ? dragIndicator.current?.position : null;
+        const indicatorPosition = isDraggingOver
+            ? dragIndicator.current?.position
+            : null;
 
         return (
             <div key={node.id}>
@@ -107,7 +127,10 @@ export default function TreeView({
                     onDragLeave={() => setDragOverId(null)}
                     className={`${styles.node} ${isSelected ? styles.active : ''} ${isDraggingOver ? styles[indicatorPosition!] : ''}`}
                     style={{ paddingLeft: depth * 20 }}
-                    onClick={(e) => { e.stopPropagation(); onSelect(node.id); }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onSelect(node.id);
+                    }}
                 >
                     <div className={styles.line}>
                         <NodeIcon type={node.type} />
@@ -115,8 +138,10 @@ export default function TreeView({
                     </div>
                 </div>
                 {node.children && node.children.length > 0 && (
-                     <div className={styles.children}>
-                        {node.children.map((child) => renderNode(child, depth + 1))}
+                    <div className={styles.children}>
+                        {node.children.map((child) =>
+                            renderNode(child, depth + 1)
+                        )}
                     </div>
                 )}
             </div>
@@ -124,8 +149,8 @@ export default function TreeView({
     };
 
     return (
-        <div 
-            className={styles.treeview} 
+        <div
+            className={styles.treeview}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => handleDrop(e, null)} // Drop no container principal
         >

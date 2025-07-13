@@ -14,20 +14,49 @@ interface PositionSectionProps {
 }
 
 const positionConfigs = [
-  { id: 'topLeft', style: { top: 0, left: 0, right: '', bottom: '', margin: 'auto' } },
-  { id: 'top', style: { top: 0, left: 0, right: 0, bottom: '', margin: 'auto' } },
-  { id: 'topRight', style: { top: 0, left: '', right: 0, bottom: '', margin: 'auto' } },
-  { id: 'left', style: { top: 0, left: 0, right: '', bottom: 0, margin: 'auto' } },
-  { id: 'center', style: { top: 0, left: 0, right: 0, bottom: 0, margin: 'auto' } },
-  { id: 'right', style: { top: 0, left: '', right: 0, bottom: 0, margin: 'auto' } },
-  { id: 'bottomLeft', style: { top: '', left: 0, right: '', bottom: 0, margin: 'auto' } },
-  { id: 'bottom', style: { top: '', left: 0, right: 0, bottom: 0, margin: 'auto' } },
-  { id: 'bottomRight', style: { top: '', left: '', right: 0, bottom: 0, margin: 'auto' } },
+    {
+        id: 'topLeft',
+        style: { top: 0, left: 0, right: '', bottom: '', margin: 'auto' },
+    },
+    {
+        id: 'top',
+        style: { top: 0, left: 0, right: 0, bottom: '', margin: 'auto' },
+    },
+    {
+        id: 'topRight',
+        style: { top: 0, left: '', right: 0, bottom: '', margin: 'auto' },
+    },
+    {
+        id: 'left',
+        style: { top: 0, left: 0, right: '', bottom: 0, margin: 'auto' },
+    },
+    {
+        id: 'center',
+        style: { top: 0, left: 0, right: 0, bottom: 0, margin: 'auto' },
+    },
+    {
+        id: 'right',
+        style: { top: 0, left: '', right: 0, bottom: 0, margin: 'auto' },
+    },
+    {
+        id: 'bottomLeft',
+        style: { top: '', left: 0, right: '', bottom: 0, margin: 'auto' },
+    },
+    {
+        id: 'bottom',
+        style: { top: '', left: 0, right: 0, bottom: 0, margin: 'auto' },
+    },
+    {
+        id: 'bottomRight',
+        style: { top: '', left: '', right: 0, bottom: 0, margin: 'auto' },
+    },
 ];
 
 export const PositionSection: React.FC<PositionSectionProps> = React.memo(
     ({ selectedElement, computedStyles, onStyleChange }) => {
-        const handlePositionClick = (config: typeof positionConfigs[number]) => {
+        const handlePositionClick = (
+            config: (typeof positionConfigs)[number]
+        ) => {
             onStyleChange(config.style);
         };
 
@@ -38,8 +67,11 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                 return null;
             }
 
-            const foundConfig = positionConfigs.find(config =>
-                Object.entries(config.style).every(([key, value]) => elementStyle[key as keyof React.CSSProperties] === value)
+            const foundConfig = positionConfigs.find((config) =>
+                Object.entries(config.style).every(
+                    ([key, value]) =>
+                        elementStyle[key as keyof React.CSSProperties] === value
+                )
             );
 
             return foundConfig ? foundConfig.id : null;
@@ -54,19 +86,24 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                     Position
                     {/* Row Start */}
                     <div className={styles.row}>
-                        <div className={`${styles.group}`} style={{height: "100%"}}>
-                            <div className={styles.groupTitle}>
-                                Align
-                            </div>
+                        <div
+                            className={`${styles.group}`}
+                            style={{ height: '100%' }}
+                        >
+                            <div className={styles.groupTitle}>Align</div>
                             <div className={`${styles.groupContent}`}>
                                 <div className={styles.handlePosition}>
                                     {positionConfigs.map((config) => (
                                         <div
                                             key={config.id}
                                             className={`${styles.buttonPosition} ${
-                                                activeId === config.id ? styles.active : ''
+                                                activeId === config.id
+                                                    ? styles.active
+                                                    : ''
                                             }`}
-                                            onClick={() => handlePositionClick(config)}
+                                            onClick={() =>
+                                                handlePositionClick(config)
+                                            }
                                         />
                                     ))}
                                 </div>
@@ -76,8 +113,8 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                         <div className={`${styles.group} ${styles.fill}`}>
                             <div className={styles.groupTitle}>Type</div>
                             <div className={styles.groupChoices}>
-                                <div 
-                                    className={`${styles.choice} ${selectedElement?.style?.position === "absolute" ? styles.active : styles.inactive}`}
+                                <div
+                                    className={`${styles.choice} ${selectedElement?.style?.position === 'absolute' ? styles.active : styles.inactive}`}
                                     onClick={() => {
                                         const currentType =
                                             selectedElement?.style?.position;
@@ -90,25 +127,26 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                                                     : 'absolute',
                                         });
                                     }}
-                                    >
-                                        Absolute
+                                >
+                                    Absolute
                                 </div>
-                                <div 
-                                    className={`${styles.choice} ${selectedElement?.style?.position === "relative" ? styles.active : styles.inactive}`}
+                                <div
+                                    className={`${styles.choice} ${selectedElement?.style?.position === 'relative' ? styles.active : styles.inactive}`}
                                     onClick={() => {
-                                        const currentType = selectedElement?.style?.position;
+                                        const currentType =
+                                            selectedElement?.style?.position;
 
                                         onStyleChange({
                                             position:
                                                 currentType === 'relative'
                                                     ? currentType
                                                     : 'relative',
-                                            top: "",
-                                            left: ""
+                                            top: '',
+                                            left: '',
                                         });
                                     }}
-                                    >
-                                        Relative
+                                >
+                                    Relative
                                 </div>
                             </div>
 
@@ -116,42 +154,86 @@ export const PositionSection: React.FC<PositionSectionProps> = React.memo(
                                 <div className={styles.groupTitle}>Flip</div>
                                 <div className={styles.groupChoices}>
                                     <div
-                                    className={`${styles.choice} ${selectedElement?.style?.transform?.includes('scaleX(-1)') ? `${styles.active} ${styles.toggled}` : styles.inactive}`}
-                                    onClick={() => {
-                                        const transform = selectedElement?.style?.transform || '';
-                                        const hasFlipX = transform.includes('scaleX(-1)');
-                                        const hasFlipY = transform.includes('scaleY(-1)');
+                                        className={`${styles.choice} ${selectedElement?.style?.transform?.includes('scaleX(-1)') ? `${styles.active} ${styles.toggled}` : styles.inactive}`}
+                                        onClick={() => {
+                                            const transform =
+                                                selectedElement?.style
+                                                    ?.transform || '';
+                                            const hasFlipX =
+                                                transform.includes(
+                                                    'scaleX(-1)'
+                                                );
+                                            const hasFlipY =
+                                                transform.includes(
+                                                    'scaleY(-1)'
+                                                );
 
-                                        const newFlipX = hasFlipX ? 'scaleX(1)' : 'scaleX(-1)';
-                                        const flipY = hasFlipY ? 'scaleY(-1)' : 'scaleY(1)';
+                                            const newFlipX = hasFlipX
+                                                ? 'scaleX(1)'
+                                                : 'scaleX(-1)';
+                                            const flipY = hasFlipY
+                                                ? 'scaleY(-1)'
+                                                : 'scaleY(1)';
 
-                                        onStyleChange({ transform: `${newFlipX} ${flipY}` });
-                                    }}
+                                            onStyleChange({
+                                                transform: `${newFlipX} ${flipY}`,
+                                            });
+                                        }}
                                     >
-                                    <ArrowsLeftRightIcon className={styles.icon} weight={selectedElement?.style?.transform?.includes('scaleX(-1)') ? "fill" : "regular"} />
+                                        <ArrowsLeftRightIcon
+                                            className={styles.icon}
+                                            weight={
+                                                selectedElement?.style?.transform?.includes(
+                                                    'scaleX(-1)'
+                                                )
+                                                    ? 'fill'
+                                                    : 'regular'
+                                            }
+                                        />
                                     </div>
 
                                     <div
-                                    className={`${styles.choice} ${selectedElement?.style?.transform?.includes('scaleY(-1)') ? `${styles.active} ${styles.toggled}` : styles.inactive}`}
-                                    onClick={() => {
-                                        const transform = selectedElement?.style?.transform || '';
-                                        const hasFlipX = transform.includes('scaleX(-1)');
-                                        const hasFlipY = transform.includes('scaleY(-1)');
+                                        className={`${styles.choice} ${selectedElement?.style?.transform?.includes('scaleY(-1)') ? `${styles.active} ${styles.toggled}` : styles.inactive}`}
+                                        onClick={() => {
+                                            const transform =
+                                                selectedElement?.style
+                                                    ?.transform || '';
+                                            const hasFlipX =
+                                                transform.includes(
+                                                    'scaleX(-1)'
+                                                );
+                                            const hasFlipY =
+                                                transform.includes(
+                                                    'scaleY(-1)'
+                                                );
 
-                                        const flipX = hasFlipX ? 'scaleX(-1)' : 'scaleX(1)';
-                                        const newFlipY = hasFlipY ? 'scaleY(1)' : 'scaleY(-1)';
+                                            const flipX = hasFlipX
+                                                ? 'scaleX(-1)'
+                                                : 'scaleX(1)';
+                                            const newFlipY = hasFlipY
+                                                ? 'scaleY(1)'
+                                                : 'scaleY(-1)';
 
-                                        onStyleChange({ transform: `${flipX} ${newFlipY}` });
-                                    }}
+                                            onStyleChange({
+                                                transform: `${flipX} ${newFlipY}`,
+                                            });
+                                        }}
                                     >
-                                    <ArrowsDownUpIcon className={styles.icon} weight={selectedElement?.style?.transform?.includes('scaleY(-1)') ? "fill" : "regular"} />
+                                        <ArrowsDownUpIcon
+                                            className={styles.icon}
+                                            weight={
+                                                selectedElement?.style?.transform?.includes(
+                                                    'scaleY(-1)'
+                                                )
+                                                    ? 'fill'
+                                                    : 'regular'
+                                            }
+                                        />
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
-
                     {/* Row Start */}
                     <div className={styles.row}>
                         <div className={styles.group}>

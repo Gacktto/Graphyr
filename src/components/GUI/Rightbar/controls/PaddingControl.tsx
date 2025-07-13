@@ -1,4 +1,4 @@
-import styles from '../../../../styles/Sidebar.module.css'
+import styles from '../../../../styles/Sidebar.module.css';
 
 interface PaddingControlProps {
     side: 'paddingTop' | 'paddingBottom' | 'paddingLeft' | 'paddingRight';
@@ -7,8 +7,14 @@ interface PaddingControlProps {
     onPaddingChange: (side: PaddingControlProps['side'], value: string) => void;
 }
 
-export const PaddingControl: React.FC<PaddingControlProps> = ({ side, value, labelComponent, onPaddingChange }) => {
-    const numericValue = value !== undefined ? String(value).replace('px', '') : '';
+export const PaddingControl: React.FC<PaddingControlProps> = ({
+    side,
+    value,
+    labelComponent,
+    onPaddingChange,
+}) => {
+    const numericValue =
+        value !== undefined ? String(value).replace('px', '') : '';
 
     return (
         <div className={styles.groupInput}>

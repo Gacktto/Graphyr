@@ -19,10 +19,18 @@ export default function ActionBar() {
         { name: 'Cursor', icon: CursorIcon, type: 'cursor' as const },
         { name: 'Text', icon: TextTIcon, type: 'text' as const },
         { name: 'Frame', icon: BoundingBoxIcon, type: 'div' as const },
-        { name: 'Chart Bar Horizontal', icon: ChartBarHorizontalIcon, type: 'chartBarHorizontal' as const },
+        {
+            name: 'Chart Bar Horizontal',
+            icon: ChartBarHorizontalIcon,
+            type: 'chartBarHorizontal' as const,
+        },
         { name: 'Chart Pie', icon: ChartPieIcon, type: 'chartPie' as const },
         { name: 'Chart Line', icon: ChartLineIcon, type: 'chartLine' as const },
-        { name: 'Chart Donut', icon: ChartDonutIcon, type: 'chartDonut' as const },
+        {
+            name: 'Chart Donut',
+            icon: ChartDonutIcon,
+            type: 'chartDonut' as const,
+        },
         { name: 'Chart Bar', icon: ChartBarIcon, type: 'chartBar' as const },
         { name: 'Table', icon: TableIcon, type: 'table' as const },
     ];

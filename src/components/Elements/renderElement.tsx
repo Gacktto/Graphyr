@@ -7,7 +7,11 @@ export type Handle = 'tl' | 't' | 'tr' | 'l' | 'r' | 'bl' | 'b' | 'br';
 
 export interface ElementRendererProps {
     node: ElementNode;
-    onResizeStart: (e: React.MouseEvent, handle: Handle, node: ElementNode) => void;
+    onResizeStart: (
+        e: React.MouseEvent,
+        handle: Handle,
+        node: ElementNode
+    ) => void;
     onDragStart: (e: React.MouseEvent) => void;
 }
 
@@ -57,12 +61,17 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
             outline: isSelected ? '2px solid #007aff' : 'none',
             boxSizing: 'border-box',
         };
-        
+
         const handles: Handle[] = ['tl', 't', 'tr', 'l', 'r', 'bl', 'b', 'br'];
 
         const renderChildren = () =>
             node.children?.map((child) => (
-                <ElementRenderer key={child.id} node={child} onResizeStart={onResizeStart} onDragStart={onDragStart}/>
+                <ElementRenderer
+                    key={child.id}
+                    node={child}
+                    onResizeStart={onResizeStart}
+                    onDragStart={onDragStart}
+                />
             ));
 
         if (node.type === 'frame' || node.type === 'div') {
@@ -79,11 +88,13 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
 
                     {isSelected && activeTool === 'cursor' && (
                         <>
-                            {handles.map(handle => (
+                            {handles.map((handle) => (
                                 <div
                                     key={handle}
                                     className={`${styles.resizeHandle} ${styles[`handle-${handle}`]}`}
-                                    onMouseDown={(e) => onResizeStart(e, handle, node)}
+                                    onMouseDown={(e) =>
+                                        onResizeStart(e, handle, node)
+                                    }
                                 />
                             ))}
                         </>
@@ -108,11 +119,13 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     {node.name}
                     {isSelected && activeTool === 'cursor' && (
                         <>
-                            {handles.map(handle => (
+                            {handles.map((handle) => (
                                 <div
                                     key={handle}
                                     className={`${styles.resizeHandle} ${styles[`handle-${handle}`]}`}
-                                    onMouseDown={(e) => onResizeStart(e, handle, node)}
+                                    onMouseDown={(e) =>
+                                        onResizeStart(e, handle, node)
+                                    }
                                 />
                             ))}
                         </>
@@ -132,9 +145,9 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                 >
                     {node.name}
                 </button>
-            )
+            );
         }
 
-        return null; 
+        return null;
     }
 );

@@ -9,7 +9,16 @@ import {
 } from 'react';
 import type { ElementNode } from '../components/TreeView/TreeView';
 
-export type ActiveTool = 'cursor' | 'text' | 'div' | 'chartBarHorizontal'  | 'chartPie' | 'chartLine' | 'chartDonut' | 'chartBar' | 'table';
+export type ActiveTool =
+    | 'cursor'
+    | 'text'
+    | 'div'
+    | 'chartBarHorizontal'
+    | 'chartPie'
+    | 'chartLine'
+    | 'chartDonut'
+    | 'chartBar'
+    | 'table';
 
 type AddElementOptions = {
     parentId: string | null;
@@ -30,7 +39,18 @@ type CanvasContextType = {
     elementsRef: React.MutableRefObject<Record<string, HTMLElement | null>>;
     activeTool: ActiveTool;
     setActiveTool: (tool: ActiveTool) => void;
-    addElement: (type: 'div' | 'text' |  'chartBarHorizontal'  | 'chartPie' | 'chartLine' | 'chartDonut' | 'chartBar' | 'table' , options: AddElementOptions) => void;
+    addElement: (
+        type:
+            | 'div'
+            | 'text'
+            | 'chartBarHorizontal'
+            | 'chartPie'
+            | 'chartLine'
+            | 'chartDonut'
+            | 'chartBar'
+            | 'table',
+        options: AddElementOptions
+    ) => void;
     updateElementStyle: (id: string, newStyle: React.CSSProperties) => void;
     moveElement: (options: MoveElementOptions) => void;
     copySelectedElement: () => void;
@@ -60,7 +80,9 @@ function deepCloneAndAssignNewIds(node: ElementNode): ElementNode {
         name: node.name,
     };
     if (node.children) {
-        newNode.children = node.children.map(child => deepCloneAndAssignNewIds(child));
+        newNode.children = node.children.map((child) =>
+            deepCloneAndAssignNewIds(child)
+        );
     }
     return newNode;
 }
@@ -86,7 +108,10 @@ function findAndRemove(
     for (let i = 0; i < newNodes.length; i++) {
         const node = newNodes[i];
         if (node.children) {
-            const [foundNode, newChildren] = findAndRemove(node.children, nodeId);
+            const [foundNode, newChildren] = findAndRemove(
+                node.children,
+                nodeId
+            );
             if (foundNode) {
                 newNodes[i] = { ...node, children: newChildren };
                 return [foundNode, newNodes];
@@ -183,20 +208,25 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     ]);
     const [selectedId, setSelectedId] = useState<string | null>('1');
     const [activeTool, setActiveTool] = useState<ActiveTool>('cursor');
-    const [copiedElement, setCopiedElement] = useState<ElementNode | null>(null);
+    const [copiedElement, setCopiedElement] = useState<ElementNode | null>(
+        null
+    );
 
-    const updateElementsWithHistory = useCallback((updater: (prev: ElementNode[]) => ElementNode[]) => {
-        setElements(prev => {
-            undoStack.current.push(structuredClone(prev));
-            if (undoStack.current.length > 1000) undoStack.current.shift();
-            redoStack.current = [];
-            return updater(prev);
-        });
-    }, []);
+    const updateElementsWithHistory = useCallback(
+        (updater: (prev: ElementNode[]) => ElementNode[]) => {
+            setElements((prev) => {
+                undoStack.current.push(structuredClone(prev));
+                if (undoStack.current.length > 1000) undoStack.current.shift();
+                redoStack.current = [];
+                return updater(prev);
+            });
+        },
+        []
+    );
 
     const undo = useCallback(() => {
         if (undoStack.current.length === 0) return;
-        setElements(prev => {
+        setElements((prev) => {
             const last = undoStack.current.pop()!;
             redoStack.current.push(structuredClone(prev));
             return last;
@@ -205,116 +235,146 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
 
     const redo = useCallback(() => {
         if (redoStack.current.length === 0) return;
-        setElements(prev => {
+        setElements((prev) => {
             const next = redoStack.current.pop()!;
             undoStack.current.push(structuredClone(prev));
             return next;
         });
     }, []);
 
-    const addElement = useCallback((type: 'div' | 'text' |  'chartBarHorizontal'  | 'chartPie' | 'chartLine' | 'chartDonut' | 'chartBar' | 'table' , options: AddElementOptions) => {
-        const newId = crypto.randomUUID();
-        let newElement: ElementNode;
-        const baseStyle = { ...options.style};
+    const addElement = useCallback(
+        (
+            type:
+                | 'div'
+                | 'text'
+                | 'chartBarHorizontal'
+                | 'chartPie'
+                | 'chartLine'
+                | 'chartDonut'
+                | 'chartBar'
+                | 'table',
+            options: AddElementOptions
+        ) => {
+            const newId = crypto.randomUUID();
+            let newElement: ElementNode;
+            const baseStyle = { ...options.style };
 
-        if (type === 'div') {
-            newElement = {
-                id: newId,
-                type: 'div',
-                name: 'New Frame',
-                style: {
-                    width: '300px',
-                    height: '200px',
-                    backgroundColor: 'rgba(217, 217, 217, 1)',
-                    ...baseStyle,
-                },
-                children: [],
-            };
-        } else {
-            newElement = {
-                id: newId,
-                type: 'text',
-                name: 'New Text',
-                style: {
-                    fontSize: '16px',
-                    color: 'rgba(0, 0, 0, 1)',
-                    width: 'auto',
-                    height: 'auto',
-                    ...baseStyle,
-                },
-            };
-        }
+            if (type === 'div') {
+                newElement = {
+                    id: newId,
+                    type: 'div',
+                    name: 'New Frame',
+                    style: {
+                        width: '300px',
+                        height: '200px',
+                        backgroundColor: 'rgba(217, 217, 217, 1)',
+                        ...baseStyle,
+                    },
+                    children: [],
+                };
+            } else {
+                newElement = {
+                    id: newId,
+                    type: 'text',
+                    name: 'New Text',
+                    style: {
+                        fontSize: '16px',
+                        color: 'rgba(0, 0, 0, 1)',
+                        width: 'auto',
+                        height: 'auto',
+                        ...baseStyle,
+                    },
+                };
+            }
 
-        updateElementsWithHistory((current) => {
-            const [, updated] = insert(current, newElement, options.parentId || '1', 'inside');
-            return updated;
-        });
-        setSelectedId(newId);
-    }, []);
+            updateElementsWithHistory((current) => {
+                const [, updated] = insert(
+                    current,
+                    newElement,
+                    options.parentId || '1',
+                    'inside'
+                );
+                return updated;
+            });
+            setSelectedId(newId);
+        },
+        []
+    );
 
-    const updateElementStyle = useCallback((id: string, newStyle: React.CSSProperties) => {
-        updateElementsWithHistory(prev => {
-            let changed = false;
+    const updateElementStyle = useCallback(
+        (id: string, newStyle: React.CSSProperties) => {
+            updateElementsWithHistory((prev) => {
+                let changed = false;
 
-            const updateNode = (node: ElementNode): ElementNode => {
-                if (node.id === id) {
-                    let updatedChildren = node.children;
+                const updateNode = (node: ElementNode): ElementNode => {
+                    if (node.id === id) {
+                        let updatedChildren = node.children;
 
-                    if (newStyle.display === 'flex' && node.children) {
-                        changed = true; 
-                        updatedChildren = node.children.map(child => ({
-                            ...child,
-                            style: {
-                                ...child.style,
-                                left: '',
-                                top: '', 
-                            }
-                        }));
+                        if (newStyle.display === 'flex' && node.children) {
+                            changed = true;
+                            updatedChildren = node.children.map((child) => ({
+                                ...child,
+                                style: {
+                                    ...child.style,
+                                    left: '',
+                                    top: '',
+                                },
+                            }));
+                        }
+
+                        const updatedStyle = { ...node.style, ...newStyle };
+
+                        const styleHasChanged = Object.entries(newStyle).some(
+                            ([key, value]) =>
+                                node.style?.[
+                                    key as keyof React.CSSProperties
+                                ] !== value
+                        );
+
+                        if (styleHasChanged) {
+                            changed = true;
+                        }
+
+                        if (!changed) return node;
+
+                        return {
+                            ...node,
+                            style: updatedStyle,
+                            children: updatedChildren,
+                        };
                     }
 
-                    const updatedStyle = { ...node.style, ...newStyle };
+                    if (node.children) {
+                        const newChildren = node.children.map(updateNode);
 
-                    const styleHasChanged = Object.entries(newStyle).some(
-                        ([key, value]) => node.style?.[key as keyof React.CSSProperties] !== value
-                    );
-
-                    if (styleHasChanged) {
-                        changed = true;
+                        if (changed) {
+                            return { ...node, children: newChildren };
+                        }
                     }
-                    
-                    if (!changed) return node;
-                    
-                    return { ...node, style: updatedStyle, children: updatedChildren };
 
-                }
+                    return node;
+                };
 
-                if (node.children) {
-                    const newChildren = node.children.map(updateNode);
-
-                    if (changed) {
-                        return { ...node, children: newChildren };
-                    }
-                }
-
-                return node;
-            };
-
-            const updatedTree = prev.map(updateNode);
-            return changed ? updatedTree : prev;
-        });
-    }, []);
-
+                const updatedTree = prev.map(updateNode);
+                return changed ? updatedTree : prev;
+            });
+        },
+        []
+    );
 
     const moveElement = useCallback((options: MoveElementOptions) => {
         const { draggedId, targetId, position } = options;
         if (draggedId === targetId) return;
 
-        updateElementsWithHistory(currentElements => {
-            const [draggedNode, treeWithoutDragged] = findAndRemove(currentElements, draggedId);
+        updateElementsWithHistory((currentElements) => {
+            const [draggedNode, treeWithoutDragged] = findAndRemove(
+                currentElements,
+                draggedId
+            );
             if (!draggedNode) return currentElements;
 
             if (targetId === null) {
-                const root = treeWithoutDragged.find(n => n.type === 'frame');
+                const root = treeWithoutDragged.find((n) => n.type === 'frame');
                 if (root) {
                     root.children = [...(root.children || []), draggedNode];
                     return [...treeWithoutDragged];
@@ -322,7 +382,12 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
                 return [...treeWithoutDragged, draggedNode];
             }
 
-            const [, finalTree] = insert(treeWithoutDragged, draggedNode, targetId, position);
+            const [, finalTree] = insert(
+                treeWithoutDragged,
+                draggedNode,
+                targetId,
+                position
+            );
             return finalTree;
         });
     }, []);
@@ -339,12 +404,12 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         if (!copiedElement) return;
 
         const cloned = deepCloneAndAssignNewIds(copiedElement);
-        
+
         cloned.style = { ...cloned.style, position: 'relative' };
 
         const parentId = selectedId || '1';
 
-        updateElementsWithHistory(prev => {
+        updateElementsWithHistory((prev) => {
             const [, tree] = insert(prev, cloned, parentId, 'inside');
             return tree;
         });
@@ -352,34 +417,56 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         // setSelectedId(cloned.id);
     }, [copiedElement, selectedId]);
 
-    const deleteElement = useCallback((idToDelete: string) => {
-        if (idToDelete === '1') {
-            return;
-        }
+    const deleteElement = useCallback(
+        (idToDelete: string) => {
+            if (idToDelete === '1') {
+                return;
+            }
 
-        updateElementsWithHistory(currentElements => {
-            const [, newTree] = findAndRemove(currentElements, idToDelete);
-            return newTree;
-        });
+            updateElementsWithHistory((currentElements) => {
+                const [, newTree] = findAndRemove(currentElements, idToDelete);
+                return newTree;
+            });
 
-        if (selectedId === idToDelete) {
-            setSelectedId(null);
-        }
+            if (selectedId === idToDelete) {
+                setSelectedId(null);
+            }
+        },
+        [selectedId, updateElementsWithHistory]
+    );
 
-    }, [selectedId, updateElementsWithHistory]);
-
-    const contextValue = useMemo(() => ({
-        elements, setElements,
-        selectedId, setSelectedId,
-        elementsRef,
-        activeTool, setActiveTool,
-        addElement, updateElementStyle,
-        moveElement,
-        copySelectedElement,
-        pasteElement,
-        undo, redo,
-        deleteElement,
-    }), [elements, selectedId, activeTool, addElement, updateElementStyle, moveElement, copySelectedElement, pasteElement, undo, redo, deleteElement]);
+    const contextValue = useMemo(
+        () => ({
+            elements,
+            setElements,
+            selectedId,
+            setSelectedId,
+            elementsRef,
+            activeTool,
+            setActiveTool,
+            addElement,
+            updateElementStyle,
+            moveElement,
+            copySelectedElement,
+            pasteElement,
+            undo,
+            redo,
+            deleteElement,
+        }),
+        [
+            elements,
+            selectedId,
+            activeTool,
+            addElement,
+            updateElementStyle,
+            moveElement,
+            copySelectedElement,
+            pasteElement,
+            undo,
+            redo,
+            deleteElement,
+        ]
+    );
 
     return (
         <CanvasContext.Provider value={contextValue}>
@@ -390,6 +477,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
 
 export function useCanvas() {
     const ctx = useContext(CanvasContext);
-    if (!ctx) throw new Error('useCanvas deve ser usado dentro de CanvasProvider');
+    if (!ctx)
+        throw new Error('useCanvas deve ser usado dentro de CanvasProvider');
     return ctx;
 }

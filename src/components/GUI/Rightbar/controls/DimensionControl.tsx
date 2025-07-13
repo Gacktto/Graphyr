@@ -4,7 +4,9 @@ import styles from '../../../../styles/Sidebar.module.css';
 
 type DimensionMode = 'Fixed' | 'Fill' | 'Hug';
 
-const getDimensionMode = (value: string | number | undefined): DimensionMode => {
+const getDimensionMode = (
+    value: string | number | undefined
+): DimensionMode => {
     if (value === '100%') return 'Fill';
     if (value === 'fit-content') return 'Hug';
     return 'Fixed';
@@ -21,9 +23,11 @@ export const DimensionControl: React.FC<DimensionControlProps> = ({
     label,
     value,
     onValueChange,
-    placeholder
+    placeholder,
 }) => {
-    const [currentMode, setCurrentMode] = useState<DimensionMode>(getDimensionMode(value));
+    const [currentMode, setCurrentMode] = useState<DimensionMode>(
+        getDimensionMode(value)
+    );
     const [inputValue, setInputValue] = useState(value || '');
     const [showDropdown, setShowDropdown] = useState(false);
     const modes: DimensionMode[] = ['Fixed', 'Fill', 'Hug'];
@@ -47,7 +51,7 @@ export const DimensionControl: React.FC<DimensionControlProps> = ({
             }
         }
     };
-    
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
         setCurrentMode('Fixed');
@@ -58,10 +62,17 @@ export const DimensionControl: React.FC<DimensionControlProps> = ({
         onValueChange(value || undefined);
     };
 
-
     return (
-        <div className={styles.group} style={{ flexDirection: 'row', gap: '10px' }}>
-            <div className={`${styles.groupInput} ${styles.dropdown}`} onClick={() => {setShowDropdown(!showDropdown)}}>
+        <div
+            className={styles.group}
+            style={{ flexDirection: 'row', gap: '10px' }}
+        >
+            <div
+                className={`${styles.groupInput} ${styles.dropdown}`}
+                onClick={() => {
+                    setShowDropdown(!showDropdown);
+                }}
+            >
                 <div className={styles.inputLabel}>{label}</div>
                 <input
                     type="text"
@@ -69,11 +80,13 @@ export const DimensionControl: React.FC<DimensionControlProps> = ({
                     value={currentMode === 'Fixed' ? inputValue : currentMode}
                     placeholder={placeholder}
                     onChange={handleInputChange}
-                    onClick={(e) => {e.stopPropagation()}}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                    }}
                     onBlur={handleInputBlur}
-                    readOnly={currentMode !== 'Fixed'} 
+                    readOnly={currentMode !== 'Fixed'}
                 />
-                <CaretDownIcon className={styles.icon}/>
+                <CaretDownIcon className={styles.icon} />
                 {showDropdown && (
                     <div className={styles.dropdownContainer}>
                         {modes.map((mode) => (

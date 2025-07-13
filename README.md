@@ -17,22 +17,22 @@
 
 ## Summary
 
-* [Features](#features)
-* [Tech Stack](#tech-stack)
-* [Run Locally](#run-locally)
-* [Roadmap](#roadmap)
-* [License](#license)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Run Locally](#run-locally)
+- [Roadmap](#roadmap)
+- [License](#license)
 
 ## Features
 
-* **Dynamic Canvas:** A flexible space to bring your pages and dashboards to life.
-* **Frame:** A space to create your designs that will be published.
-* **Floating Action Bar:** Quickly select creation modes and tools from an intuitive, accessible toolbar.
-* **CSS-Based Properties Panel:** Edit element properties like colors, dimensions, and spacing using familiar CSS-based controls.
-* **Element Tree View:** Easily view, select, and organize your elements in a hierarchical layer panel.
-* **Smart Guides & Snapping:** Precisely align elements with smart guides and automatic snapping for a pixel-perfect layout.
-* **Intuitive Element Resizing:** Resize any element by simply dragging its handles.
-* **Essential Keyboard Shortcuts:**
+- **Dynamic Canvas:** A flexible space to bring your pages and dashboards to life.
+- **Frame:** A space to create your designs that will be published.
+- **Floating Action Bar:** Quickly select creation modes and tools from an intuitive, accessible toolbar.
+- **CSS-Based Properties Panel:** Edit element properties like colors, dimensions, and spacing using familiar CSS-based controls.
+- **Element Tree View:** Easily view, select, and organize your elements in a hierarchical layer panel.
+- **Smart Guides & Snapping:** Precisely align elements with smart guides and automatic snapping for a pixel-perfect layout.
+- **Intuitive Element Resizing:** Resize any element by simply dragging its handles.
+- **Essential Keyboard Shortcuts:**
   | Action | Shortcut |
   | :--- | :--- |
   | Copy / Paste | `Ctrl + C` / `Ctrl + V` |
@@ -43,33 +43,36 @@
 
 ## Tech Stack
 
-* **Frontend:** [React](https://reactjs.org/) with [TypeScript](https://www.typescriptlang.org/)
-* **State Management:** [React Context](https://react.dev/reference/react/createContext)
-* **Canvas Rendering:** [React](https://reactjs.org/)
-* **Build Tool:** [Vite](https://vitejs.dev/)
-* **Backend:** `(Not yet implemented)`
-* **Real-time Communication:** `(Not yet implemented)`
+- **Frontend:** [React](https://reactjs.org/) with [TypeScript](https://www.typescriptlang.org/)
+- **State Management:** [React Context](https://react.dev/reference/react/createContext)
+- **Canvas Rendering:** [React](https://reactjs.org/)
+- **Build Tool:** [Vite](https://vitejs.dev/)
+- **Backend:** `(Not yet implemented)`
+- **Real-time Communication:** `(Not yet implemented)`
 
 ## Run Locally
 
 ### Requirements
 
-* [Node.js](https://nodejs.org/) (`v18.x` or higher)
-* [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- [Node.js](https://nodejs.org/) (`v18.x` or higher)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
 
 ### Installation
 
 1.  **Clone the repository:**
+
     ```sh
     git clone https://github.com/Gacktto/graphyr.git
     ```
 
 2.  **Navigate to the project directory:**
+
     ```sh
     cd Graphyr
     ```
 
 3.  **Install dependencies:**
+
     ```sh
     npm install
     # or
@@ -77,6 +80,7 @@
     ```
 
 4.  **Start the development server:**
+
     ```sh
     npm run dev
     # or
@@ -89,12 +93,12 @@
 
 Next features that will be in the project:
 
-* [ ] Data Integration (Import/Export CSV, JSON)
-* [ ] Customizable Grid & Layout Aids
-* [ ] Reusable Components
-* [ ] Advanced Text Transformation Options
-* [ ] Real-time Collaboration (via WebSockets)
-* [ ] User Authentication & Cloud Project Storage
+- [ ] Data Integration (Import/Export CSV, JSON)
+- [ ] Customizable Grid & Layout Aids
+- [ ] Reusable Components
+- [ ] Advanced Text Transformation Options
+- [ ] Real-time Collaboration (via WebSockets)
+- [ ] User Authentication & Cloud Project Storage
 
 ## License
 

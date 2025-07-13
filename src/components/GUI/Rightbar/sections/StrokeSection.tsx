@@ -211,6 +211,7 @@ export const StrokeSection: React.FC<StrokeSectionProps> = React.memo(
                                                 onClick={() =>
                                                     handleAddSide(side)
                                                 }
+                                                style={{cursor: "pointer"}}
                                             >
                                                 {capitalize(side)}
                                             </div>

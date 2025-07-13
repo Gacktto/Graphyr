@@ -82,6 +82,7 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = React.memo(
                             </div>
                         </div>
                     </div>
+                    
                     {/* Row Start - Background Color */}
                     <div className={styles.row}>
                         <ColorControl
@@ -91,6 +92,7 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = React.memo(
                             onClick={onColorControlClick}
                         />
                     </div>
+
                     {/* Row Start */}
                     <div className={styles.row}>
                         <div className={`${styles.group} ${styles.fill}`}>

@@ -43,6 +43,13 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = React.memo(
         const capitalize = (s: string | undefined | null) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
         const isBlendActive = selectedElement?.style?.mixBlendMode && selectedElement.style.mixBlendMode !== 'normal';
 
+        const isVisible = selectedElement?.style?.display !== 'none';
+
+        const handleVisibilityToggle = () => {
+            const newDisplay = isVisible ? 'none' : 'flex';
+            onStyleChange({ display: newDisplay });
+        };
+
         return (
             <div className={styles.section}>
                 <div
@@ -51,38 +58,55 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = React.memo(
                 >
                     <div className={styles.row} style={{justifyContent: "space-between"}}>
                         Appearence
-                        <div style={{ position: 'relative' }}>
-                            <DropHalfIcon
-                                className={`${styles.icon} ${styles.button}`}
-                                style={{opacity: isBlendActive ? 1 : 0.5}}
-                                weight={isBlendActive ? 'fill' : 'regular'}
-                                onClick={() => setShowDropdown(!showDropdown)}
-                            />
-                            {showDropdown && (
-                                <div
-                                    className={styles.dropdownContainer}
-                                    style={{
-                                        left: 'unset', right: '100%',
-                                        width: 'fit-content', maxHeight: '200px', overflowY: 'auto'
-                                    }}
-                                >
-                                    {blendModes.map(mode => (
-                                        <div
-                                            key={mode}
-                                            className={`${styles.dropdownOption} ${selectedElement?.style?.mixBlendMode === mode ? styles.active : ''}`}
-                                            onClick={() => handleBlendModeChange(mode)}
-                                        >
-                                            {capitalize(mode)}
-                                        </div>
-                                    ))}
-                                </div>
+                        <div className={styles.row} style={{justifyContent: "end", alignItems: "center"}}>
+                            {isVisible ? (
+                                <EyeIcon
+                                    className={`${styles.icon} ${styles.button}`}
+                                    style={{opacity: 1}}
+                                    onClick={handleVisibilityToggle}
+                                />
+                            ) : (
+                                <EyeClosedIcon
+                                    className={`${styles.icon} ${styles.button}`}
+                                    style={{opacity: 0.5}}
+                                    onClick={handleVisibilityToggle}
+                                />
                             )}
+                            <div style={{ position: 'relative', display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <DropHalfIcon
+                                    className={`${styles.icon} ${styles.button}`}
+                                    style={{opacity: isBlendActive ? 1 : 0.5}}
+                                    weight={isBlendActive ? 'fill' : 'regular'}
+                                    onClick={() => setShowDropdown(!showDropdown)}
+                                />
+                                {showDropdown && (
+                                    <div
+                                        className={styles.dropdownContainer}
+                                        style={{
+                                            left: 'unset', right: '100%',
+                                            width: 'fit-content', maxHeight: '200px', overflowY: 'auto'
+                                        }}
+                                    >
+                                        {blendModes.map(mode => (
+                                            <div
+                                                key={mode}
+                                                className={`${styles.dropdownOption} ${selectedElement?.style?.mixBlendMode === mode ? styles.active : ''}`}
+                                                onClick={() => handleBlendModeChange(mode)}
+                                                style={{cursor: "pointer"}}
+                                            >
+                                                {capitalize(mode)}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
                         </div>
                     </div>
                     {/* Row Start */}
                     <div className={styles.row}>
                         <div className={`${styles.group} ${styles.fill}`}>
-                            <div className={styles.groupTitle}>Visibility</div>
+                            <div className={styles.groupTitle}>Opacity</div>
                             <div
                                 className={`${styles.group} ${styles.fill}`}
                                 style={{ flexDirection: 'row', gap: '10px' }}
@@ -107,22 +131,6 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = React.memo(
                                                 opacity: value || undefined,
                                             });
                                         }}
-                                    />
-                                </div>
-                                <div
-                                    className={`${styles.groupContent} ${styles.buttonOptions}`}
-                                >
-                                    <EyeIcon
-                                        className={`${styles.icon} ${styles.button}`}
-                                        onClick={() =>
-                                            onStyleChange({ display: 'flex' })
-                                        }
-                                    />
-                                    <EyeClosedIcon
-                                        className={`${styles.icon} ${styles.button}`}
-                                        onClick={() =>
-                                            onStyleChange({ display: 'none' })
-                                        }
                                     />
                                 </div>
                             </div>

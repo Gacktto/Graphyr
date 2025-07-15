@@ -84,7 +84,9 @@ export default function Rightbar() {
         } else {
             const initialColor = onChange
                 ? currentValue || '#000000'
-                : (selectedElement?.style?.[propertyOrId as keyof React.CSSProperties] as string) || '#000000';
+                : (selectedElement?.style?.[
+                      propertyOrId as keyof React.CSSProperties
+                  ] as string) || '#000000';
 
             setPickerState({
                 id: propertyOrId,

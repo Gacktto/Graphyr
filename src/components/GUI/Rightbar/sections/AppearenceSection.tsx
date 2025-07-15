@@ -5,7 +5,7 @@ import {
     DiceFiveIcon,
     EyeClosedIcon,
     CornersOutIcon,
-    DropHalfIcon
+    DropHalfIcon,
 } from '@phosphor-icons/react';
 import type { ElementNode } from '../../../TreeView/TreeView';
 import { ColorControl } from '../../../ColorPicker/ColorControl';
@@ -21,9 +21,22 @@ interface AppearanceSectionProps {
 }
 
 const blendModes: React.CSSProperties['mixBlendMode'][] = [
-  'normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 
-  'color-dodge', 'color-burn', 'hard-light', 'soft-light', 
-  'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'
+    'normal',
+    'multiply',
+    'screen',
+    'overlay',
+    'darken',
+    'lighten',
+    'color-dodge',
+    'color-burn',
+    'hard-light',
+    'soft-light',
+    'difference',
+    'exclusion',
+    'hue',
+    'saturation',
+    'color',
+    'luminosity',
 ];
 
 export const AppearanceSection: React.FC<AppearanceSectionProps> = React.memo(
@@ -35,13 +48,18 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = React.memo(
     }) => {
         const [showDropdown, setShowDropdown] = useState(false);
 
-        const handleBlendModeChange = (mode: React.CSSProperties['mixBlendMode']) => {
+        const handleBlendModeChange = (
+            mode: React.CSSProperties['mixBlendMode']
+        ) => {
             onStyleChange({ mixBlendMode: mode });
             setShowDropdown(false);
         };
 
-        const capitalize = (s: string | undefined | null) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-        const isBlendActive = selectedElement?.style?.mixBlendMode && selectedElement.style.mixBlendMode !== 'normal';
+        const capitalize = (s: string | undefined | null) =>
+            s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+        const isBlendActive =
+            selectedElement?.style?.mixBlendMode &&
+            selectedElement.style.mixBlendMode !== 'normal';
 
         const isVisible = selectedElement?.style?.display !== 'none';
 
@@ -56,43 +74,66 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = React.memo(
                     className={styles.container}
                     style={{ flexDirection: 'column' }}
                 >
-                    <div className={styles.row} style={{justifyContent: "space-between"}}>
+                    <div
+                        className={styles.row}
+                        style={{ justifyContent: 'space-between' }}
+                    >
                         Appearence
-                        <div className={styles.row} style={{justifyContent: "end", alignItems: "center"}}>
+                        <div
+                            className={styles.row}
+                            style={{
+                                justifyContent: 'end',
+                                alignItems: 'center',
+                            }}
+                        >
                             {isVisible ? (
                                 <EyeIcon
                                     className={`${styles.icon} ${styles.button}`}
-                                    style={{opacity: 1}}
+                                    style={{ opacity: 1 }}
                                     onClick={handleVisibilityToggle}
                                 />
                             ) : (
                                 <EyeClosedIcon
                                     className={`${styles.icon} ${styles.button}`}
-                                    style={{opacity: 0.5}}
+                                    style={{ opacity: 0.5 }}
                                     onClick={handleVisibilityToggle}
                                 />
                             )}
-                            <div style={{ position: 'relative', display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <div
+                                style={{
+                                    position: 'relative',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                            >
                                 <DropHalfIcon
                                     className={`${styles.icon} ${styles.button}`}
-                                    style={{opacity: isBlendActive ? 1 : 0.5}}
+                                    style={{ opacity: isBlendActive ? 1 : 0.5 }}
                                     weight={isBlendActive ? 'fill' : 'regular'}
-                                    onClick={() => setShowDropdown(!showDropdown)}
+                                    onClick={() =>
+                                        setShowDropdown(!showDropdown)
+                                    }
                                 />
                                 {showDropdown && (
                                     <div
                                         className={styles.dropdownContainer}
                                         style={{
-                                            left: 'unset', right: '100%',
-                                            width: 'fit-content', maxHeight: '200px', overflowY: 'auto'
+                                            left: 'unset',
+                                            right: '100%',
+                                            width: 'fit-content',
+                                            maxHeight: '200px',
+                                            overflowY: 'auto',
                                         }}
                                     >
-                                        {blendModes.map(mode => (
+                                        {blendModes.map((mode) => (
                                             <div
                                                 key={mode}
                                                 className={`${styles.dropdownOption} ${selectedElement?.style?.mixBlendMode === mode ? styles.active : ''}`}
-                                                onClick={() => handleBlendModeChange(mode)}
-                                                style={{cursor: "pointer"}}
+                                                onClick={() =>
+                                                    handleBlendModeChange(mode)
+                                                }
+                                                style={{ cursor: 'pointer' }}
                                             >
                                                 {capitalize(mode)}
                                             </div>
@@ -100,7 +141,6 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = React.memo(
                                     </div>
                                 )}
                             </div>
-
                         </div>
                     </div>
                     {/* Row Start */}

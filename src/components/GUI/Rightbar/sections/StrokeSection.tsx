@@ -277,9 +277,6 @@ export const StrokeSection: React.FC<StrokeSectionProps> = React.memo(
                                                 : undefined
                                         }
                                         onClick={(e) => {
-                                            // const propsToUpdate = side === 'all'
-                                            //     ? allIndividualSides.map(s => `border${capitalize(s)}Color`)
-                                            //     : [colorProp];
                                             onColorControlClick(e, colorProp);
                                         }}
                                     />

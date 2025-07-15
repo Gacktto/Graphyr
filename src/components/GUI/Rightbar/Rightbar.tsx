@@ -18,10 +18,14 @@ import { AppearanceSection } from './sections/AppearenceSection';
 import { PositionSection } from './sections/PositionSection';
 import { LayoutSection } from './sections/LayoutSection';
 import { StrokeSection } from './sections/StrokeSection';
+import { EffectsSection } from './sections/EffectsSection';
 
 type PickerState = {
-    property: keyof React.CSSProperties;
+    id: string;
+    // property: keyof React.CSSProperties;
     triggerRect: DOMRect;
+    initialColor: string;
+    onChangeCallback?: (newColor: string) => void;
 };
 
 export default function Rightbar() {
@@ -71,14 +75,22 @@ export default function Rightbar() {
 
     const handleColorControlClick = (
         event: React.MouseEvent,
-        property: keyof React.CSSProperties
+        propertyOrId: string,
+        onChange?: (newColor: string) => void,
+        currentValue?: string
     ) => {
-        if (pickerState?.property === property) {
+        if (pickerState?.id === propertyOrId) {
             setPickerState(null);
         } else {
+            const initialColor = onChange
+                ? currentValue || '#000000'
+                : (selectedElement?.style?.[propertyOrId as keyof React.CSSProperties] as string) || '#000000';
+
             setPickerState({
-                property: property,
+                id: propertyOrId,
                 triggerRect: event.currentTarget.getBoundingClientRect(),
+                initialColor: initialColor,
+                onChangeCallback: onChange,
             });
         }
     };
@@ -193,6 +205,11 @@ export default function Rightbar() {
                             onStyleChange={handleStyleChange}
                             onColorControlClick={handleColorControlClick}
                         />
+                        <EffectsSection
+                            selectedElement={selectedElement}
+                            onStyleChange={handleStyleChange}
+                            onColorControlClick={handleColorControlClick}
+                        />
                     </>
                 ) : (
                     <div className={styles.section}>
@@ -215,19 +232,18 @@ export default function Rightbar() {
                     }}
                 >
                     <ColorPicker
-                        key={`${selectedId}-${pickerState.property}`}
-                        color={
-                            (selectedElement.style?.[
-                                pickerState.property
-                            ] as string) || '#FFF'
-                        }
+                        key={`${selectedId}-${pickerState.id}`}
+                        color={pickerState.initialColor}
                         onChange={(newColor) => {
-                            const property = pickerState.property;
-                            updateElementStyle(selectedId!, {
-                                [property]: newColor,
-                            });
+                            if (pickerState.onChangeCallback) {
+                                pickerState.onChangeCallback(newColor);
+                            } else {
+                                updateElementStyle(selectedId!, {
+                                    [pickerState.id]: newColor,
+                                });
+                            }
                         }}
-                        debounceMs={200}
+                        debounceMs={50}
                     />
                 </div>
             )}

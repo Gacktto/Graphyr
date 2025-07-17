@@ -19,6 +19,8 @@ import { PositionSection } from './sections/PositionSection';
 import { LayoutSection } from './sections/LayoutSection';
 import { StrokeSection } from './sections/StrokeSection';
 import { EffectsSection } from './sections/EffectsSection';
+import { ChartSection } from './sections/ChartSection';
+import { DataSection } from './sections/DataSection';
 
 type PickerState = {
     id: string;
@@ -201,6 +203,17 @@ export default function Rightbar() {
                             onStyleChange={handleStyleChange}
                             onColorControlClick={handleColorControlClick}
                         />
+
+                        {selectedElement && selectedElement.type === 'chart' && (
+                            <>
+                                <ChartSection
+                                    selectedElement={selectedElement} 
+                                    onColorControlClick={handleColorControlClick}
+                                />
+                                <DataSection selectedElement={selectedElement} />
+                            </>
+                        )}
+                        
                         <StrokeSection
                             selectedElement={selectedElement}
                             computedStyles={computedStyles}

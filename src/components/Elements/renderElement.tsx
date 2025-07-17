@@ -2,6 +2,7 @@ import React from 'react';
 import type { ElementNode } from '../TreeView/TreeView';
 import { useCanvas } from '../../context/CanvasContext';
 import styles from '../../styles/Canvas.module.css';
+import { MutableChart } from '../Charts/MutableChart';
 
 export type Handle = 'tl' | 't' | 'tr' | 'l' | 'r' | 'bl' | 'b' | 'br';
 
@@ -73,6 +74,39 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     onDragStart={onDragStart}
                 />
             ));
+
+        if (node.type.startsWith('chart')) {
+            
+            return (
+                <div
+                    ref={registerRef}
+                    data-element-id={node.id}
+                    data-canvas-element
+                    onClick={handleClick}
+                    onMouseDown={onDragStart}
+                    style={wrapperStyle}
+                >
+                    <MutableChart 
+                        data={node.data || []} 
+                        chartProps={node.chartProps}
+                    />
+
+                    {isSelected && activeTool === 'cursor' && (
+                        <>
+                            {handles.map((handle) => (
+                                <div
+                                    key={handle}
+                                    className={`${styles.resizeHandle} ${styles[`handle-${handle}`]}`}
+                                    onMouseDown={(e) =>
+                                        onResizeStart(e, handle, node)
+                                    }
+                                />
+                            ))}
+                        </>
+                    )}
+                </div>
+            );
+        }
 
         if (node.type === 'frame' || node.type === 'div') {
             return (

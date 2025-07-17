@@ -3,12 +3,35 @@ import { useCanvas } from '../../context/CanvasContext';
 import styles from '../../styles/Treeview.module.css';
 import { SquareIcon, TextTIcon, BoundingBoxIcon } from '@phosphor-icons/react';
 
+export type ChartVariant = 'bar' | 'pie' | 'donut' | 'line' | 'barHorizontal';
+
+export interface ChartOptions {
+    showXAxis?: boolean;
+    showYAxis?: boolean;
+    xAxisColor?: string;
+    yAxisColor?: string;
+    barColor?: string;
+    lineColor?: string;
+    dotColor?: string;
+    xTickStrokeColor?: string;
+    yTickStrokeColor?: string;
+    xTickLabelColor?: string;
+    yTickLabelColor?: string;
+    labelKey?: string;
+    valueKey?: string;
+}
+
 export type ElementNode = {
     id: string;
     type: string;
     name: string;
     children?: ElementNode[];
     style?: React.CSSProperties;
+    data?: any[];
+    chartProps?: {
+        variant: ChartVariant;
+        options?: ChartOptions; 
+    };
 };
 
 type TreeViewProps = {
@@ -152,7 +175,7 @@ export default function TreeView({
         <div
             className={styles.treeview}
             onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => handleDrop(e, null)} // Drop no container principal
+            onDrop={(e) => handleDrop(e, null)}
         >
             {elements.map((el) => renderNode(el))}
         </div>

@@ -7,18 +7,14 @@ import {
     useMemo,
     useCallback,
 } from 'react';
-import type { ElementNode } from '../components/TreeView/TreeView';
+import type { ElementNode, ChartVariant, ChartOptions } from '../components/TreeView/TreeView';
+import { letterFrequency } from '@visx/mock-data';
 
 export type ActiveTool =
     | 'cursor'
     | 'text'
     | 'div'
-    | 'chartBarHorizontal'
-    | 'chartPie'
-    | 'chartLine'
-    | 'chartDonut'
-    | 'chartBar'
-    | 'table';
+    | 'chart';
 
 type AddElementOptions = {
     parentId: string | null;
@@ -43,12 +39,7 @@ type CanvasContextType = {
         type:
             | 'div'
             | 'text'
-            | 'chartBarHorizontal'
-            | 'chartPie'
-            | 'chartLine'
-            | 'chartDonut'
-            | 'chartBar'
-            | 'table',
+            | 'chart',
         options: AddElementOptions
     ) => void;
     updateElementStyle: (id: string, newStyle: React.CSSProperties) => void;
@@ -58,6 +49,8 @@ type CanvasContextType = {
     undo: () => void;
     redo: () => void;
     deleteElement: (idToDelete: string) => void;
+    updateElementChartProps: (id: string, newChartProps: Partial<ElementNode['chartProps']>) => void;
+    updateElementData: (id: string, data: any[]) => void;
 };
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
@@ -247,19 +240,56 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             type:
                 | 'div'
                 | 'text'
-                | 'chartBarHorizontal'
-                | 'chartPie'
-                | 'chartLine'
-                | 'chartDonut'
-                | 'chartBar'
-                | 'table',
+                | 'chart',
             options: AddElementOptions
         ) => {
             const newId = crypto.randomUUID();
             let newElement: ElementNode;
             const baseStyle = { ...options.style };
 
-            if (type === 'div') {
+            if (type.startsWith('chart')) {
+                const variantMap: Record<string, ChartVariant> = {
+                    chartBar: 'bar',
+                    chartBarHorizontal: 'barHorizontal',
+                    chartPie: 'pie',
+                    chartDonut: 'donut',
+                    chartLine: 'line',
+                };
+
+                const chartData = letterFrequency.slice(0, 255).map(d => ({ ...d, value: d.frequency * 100 }));
+
+                newElement = {
+                    id: newId,
+                    type: 'chart',
+                    name: 'New Chart',
+                    style: {
+                        width: '450px',
+                        height: '300px',
+                        backgroundColor: 'rgba(255, 255, 255, 1)',
+                        ...baseStyle,
+                    },
+                    data: [],
+                    
+                    chartProps: {
+                        variant: variantMap[type] || 'bar',
+                        options: {
+                            labelKey: '',
+                            valueKey: '',
+                            showXAxis: true,
+                            showYAxis: true,
+                            barColor: 'rgba(0, 0, 0, 1)',
+                            lineColor: 'rgba(0, 0, 0, 1)',
+                            xAxisColor: 'rgba(0, 0, 0, 1)',
+                            yAxisColor: 'rgba(0, 0, 0, 1)',
+                            dotColor: 'rgba(0, 0, 0, 1)',
+                            xTickStrokeColor: 'rgba(0, 0, 0, 1)',
+                            yTickStrokeColor: 'rgba(0, 0, 0, 1)',
+                            xTickLabelColor: 'rgba(0, 0, 0, 1)',
+                            yTickLabelColor: 'rgba(0, 0, 0, 1)',
+                        }
+                    },
+                };
+            } else if (type === 'div') {
                 newElement = {
                     id: newId,
                     type: 'div',
@@ -297,8 +327,71 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
                 return updated;
             });
             setSelectedId(newId);
+
         },
         []
+    );
+
+    const updateElementData = useCallback(
+        (id: string, data: any[]) => {
+            updateElementsWithHistory((prev) => {
+                const updateNode = (node: ElementNode): ElementNode => {
+                    if (node.id === id) {
+                        // Ao carregar novos dados, reseta o mapeamento de chaves
+                        // para que o usuário possa escolher as novas colunas
+                        return {
+                            ...node,
+                            data,
+                            chartProps: {
+                                ...node.chartProps,
+                                options: {
+                                    ...node.chartProps?.options,
+                                    labelKey: '',
+                                    valueKey: '',
+                                },
+                            } as ElementNode['chartProps'],
+                        };
+                    }
+                    if (node.children) {
+                        return { ...node, children: node.children.map(updateNode) };
+                    }
+                    return node;
+                };
+                return prev.map(updateNode);
+            });
+        },
+        [updateElementsWithHistory]
+    );
+    
+    const updateElementChartProps = useCallback(
+        (id: string, newChartProps: Partial<ElementNode['chartProps']>) => {
+            updateElementsWithHistory((prev) => {
+                const updateNode = (node: ElementNode): ElementNode => {
+                    if (node.id === id) {
+                        // Faz o merge das novas props com as existentes para não perder nada
+                        const updatedChartProps = {
+                            ...node.chartProps,
+                            ...newChartProps,
+                            // Faz o merge das opções internas também
+                            options: {
+                                ...node.chartProps?.options,
+                                ...newChartProps?.options,
+                            },
+                        };
+                        return {
+                            ...node,
+                            chartProps: updatedChartProps as ElementNode['chartProps'],
+                        };
+                    }
+                    if (node.children) {
+                        return { ...node, children: node.children.map(updateNode) };
+                    }
+                    return node;
+                };
+                return prev.map(updateNode);
+            });
+        },
+        [updateElementsWithHistory]
     );
 
     const updateElementStyle = useCallback(
@@ -452,6 +545,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             undo,
             redo,
             deleteElement,
+            updateElementChartProps,
+            updateElementData
         }),
         [
             elements,
@@ -465,6 +560,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             undo,
             redo,
             deleteElement,
+            updateElementChartProps,
+            updateElementData
         ]
     );
 

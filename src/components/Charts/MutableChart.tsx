@@ -15,9 +15,9 @@ export const MutableChart: React.FC<MutableChartProps> = ({ data, chartProps }) 
         case 'barHorizontal':
             return <BarChart data={data} options={chartProps?.options} />;
         case 'pie':
-            return <PieChart data={data} isDonut={false} /* options={...} */ />;
+            return <PieChart data={data} isDonut={false} options={chartProps?.options}/>;
         case 'donut':
-            return <PieChart data={data} isDonut={true} /* options={...} */ />;
+            return <PieChart data={data} isDonut={true} options={chartProps?.options}/>;
         case 'line':
             return <LineChart data={data} options={chartProps?.options} />;
         default:

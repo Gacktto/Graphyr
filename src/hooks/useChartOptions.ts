@@ -14,7 +14,17 @@ const defaultChartOptions: Required<ChartOptions> = {
     xTickLabelColor: 'rgba(0, 0, 0, 1)',
     yTickLabelColor: 'rgba(0, 0, 0, 1)',
     labelKey: '',
-    valueKey: ''
+    valueKey: '',
+    colorScheme: [
+        'rgba(93, 222, 169, 1)',
+        'rgba(255, 187, 80, 1)',
+        'rgba(255, 117, 136, 1)',
+        'rgba(80, 199, 255, 1)',
+        'rgba(170, 131, 255, 1)',
+    ],
+    pieLabelPosition: 'outside',
+    pieLabelColor: '#ffffff',
+    axisLabelFontSize: 11,
 };
 
 export const useChartOptions = (options?: ChartOptions): Required<ChartOptions> => {

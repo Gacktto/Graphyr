@@ -29,7 +29,7 @@ export const BarChart: React.FC<BarChartProps> = ({ data, options }) => {
         <ParentSize>
             {({ width, height }) => {
                 const margin = { top: 20, bottom: 40, left: 40, right: 20 };
-                
+
                 const xMax = width - margin.left - margin.right;
                 const yMax = height - margin.top - margin.bottom;
 

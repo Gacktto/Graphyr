@@ -10,6 +10,7 @@ export interface ChartOptions {
     showYAxis?: boolean;
     xAxisColor?: string;
     yAxisColor?: string;
+    colorScheme?: string[];
     barColor?: string;
     lineColor?: string;
     dotColor?: string;
@@ -19,6 +20,9 @@ export interface ChartOptions {
     yTickLabelColor?: string;
     labelKey?: string;
     valueKey?: string;
+    pieLabelPosition?: 'inside' | 'outside';
+    pieLabelColor?: string;
+    axisLabelFontSize?: number;
 }
 
 export type ElementNode = {

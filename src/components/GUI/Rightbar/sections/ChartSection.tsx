@@ -1,5 +1,3 @@
-// Em src/components/Sidebar/ChartSection.tsx
-
 import React from 'react';
 import { useCanvas } from '../../../../context/CanvasContext';
 import type { ElementNode, ChartVariant } from '../../../TreeView/TreeView';
@@ -195,6 +193,35 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                             </div>
                         </div>
                     </div>
+                )}
+                {(currentVariant === 'pie' || currentVariant === 'donut') && (
+                    <>
+                        <div className={styles.group}>
+                            <div className={styles.groupTitle}>Label Position</div>
+                            <select
+                                className={styles.select}
+                                value={currentOptions?.pieLabelPosition || 'outside'}
+                                onChange={(e) => handleOptionsChange({ pieLabelPosition: e.target.value as 'inside' | 'outside' })}
+                            >
+                                <option value="outside">Outside</option>
+                                <option value="inside">Inside</option>
+                            </select>
+                        </div>
+                        
+                        {currentOptions?.pieLabelPosition === 'inside' && (
+                            <ColorControl
+                                label="Label Color"
+                                property="pieLabelColor"
+                                value={currentOptions?.pieLabelColor}
+                                onClick={(e, _,) => onColorControlClick(
+                                    e,
+                                    "pieLabelColor",
+                                    (newColor) => handleOptionsChange({ pieLabelColor: newColor }),
+                                    currentOptions?.pieLabelColor
+                                )}
+                            />
+                        )}
+                    </>
                 )}
             </div>
         </div>

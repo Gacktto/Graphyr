@@ -13,7 +13,7 @@ type DataPoint = {
 };
 
 interface LineChartProps {
-    data: DataPoint[];
+    data: any[];
     options?: ChartOptions;
 }
 

@@ -4,30 +4,25 @@ import { Group } from '@visx/group';
 import { Text } from '@visx/text';
 import { scaleOrdinal } from '@visx/scale';
 import { ParentSize } from '@visx/responsive';
-
-type DataPoint = {
-    letter: string;
-    value: number;
-};
+import type { ChartOptions } from '../TreeView/TreeView';
+import { useChartOptions } from '../../hooks/useChartOptions';
 
 interface PieChartProps {
-    data: DataPoint[];
+    data: any[];
+    options?: ChartOptions;
     isDonut?: boolean;
 }
 
-const getValue = (d: DataPoint) => d.value;
-const getLabel = (d: DataPoint) => d.letter;
+export const PieChart: React.FC<PieChartProps> = ({ data, options, isDonut = false }) => {
+    const finalOptions = useChartOptions(options);
+    const { labelKey, valueKey, colorScheme, axisLabelFontSize, pieLabelPosition, pieLabelColor } = finalOptions;
 
-export const PieChart: React.FC<PieChartProps> = ({ data, isDonut = false }) => {
+    const getValue = (d: any): number => Number(d[valueKey || '']) || 0;
+    const getLabel = (d: any): string => d[labelKey || ''];
+
     const getColor = scaleOrdinal({
         domain: data.map(getLabel),
-        range: [
-            'rgba(93, 222, 169, 1)',
-            'rgba(255, 187, 80, 1)',
-            'rgba(255, 117, 136, 1)',
-            'rgba(80, 199, 255, 1)',
-            'rgba(170, 131, 255, 1)',
-        ],
+        range: colorScheme,
     });
 
     return (
@@ -37,7 +32,7 @@ export const PieChart: React.FC<PieChartProps> = ({ data, isDonut = false }) => 
                 const centerY = height / 2;
                 const radius = Math.min(width, height) / 2;
                 const donutThickness = 40;
-                const outerRadius = radius * 0.7; 
+                const outerRadius = pieLabelPosition === 'outside' ? radius * 0.7 : radius;
 
                 return (
                     <svg width={width} height={height}>
@@ -52,43 +47,69 @@ export const PieChart: React.FC<PieChartProps> = ({ data, isDonut = false }) => 
                             >
                                 {(pie) => {
                                     return pie.arcs.map((arc, index) => {
-                                        const { letter } = arc.data;
-                                        const arcFill = getColor(letter);
+                                        const label = getLabel(arc.data);
+                                        const arcFill = getColor(label);
                                         const [centroidX, centroidY] = pie.path.centroid(arc);
-                                        
-                                        const midAngle = (arc.startAngle + arc.endAngle) / 2;
-                                        const correctedAngle = midAngle - Math.PI / 2;
 
-                                        const lineBreakPointX = Math.cos(correctedAngle) * (outerRadius + 10);
-                                        const lineBreakPointY = Math.sin(correctedAngle) * (outerRadius + 10);
-                                        
-                                        const isRightSide = midAngle < Math.PI;
-
-                                        const lineEndX = (isRightSide ? 1 : -1) * (outerRadius + 30);
-                                        
                                         return (
-                                            <g key={`arc-group-${letter}-${index}`}>
+                                            <g key={`arc-group-${label}-${index}`}>
                                                 <path d={pie.path(arc) || ''} fill={arcFill} />
 
-                                                <polyline
-                                                    points={`${centroidX}, ${centroidY}, ${lineBreakPointX}, ${lineBreakPointY}, ${lineEndX}, ${lineBreakPointY}`}
-                                                    fill="none"
-                                                    stroke="#666"
-                                                    strokeWidth={1}
-                                                />
+                                                {pieLabelPosition === 'inside' && (
+                                                    (() => {
+                                                        const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.2;
+                                                        if (!hasSpaceForLabel) return null;
 
-                                                <Text
-                                                    x={lineEndX}
-                                                    y={lineBreakPointY}
-                                                    dx={isRightSide ? 5 : -5}
-                                                    dy={4}
-                                                    fill="#333"
-                                                    textAnchor={isRightSide ? 'start' : 'end'}
-                                                    fontSize={12}
-                                                    fontWeight="bold"
-                                                >
-                                                    {letter}
-                                                </Text>
+                                                        return (
+                                                            <Text
+                                                                x={centroidX}
+                                                                y={centroidY}
+                                                                fill={pieLabelColor}
+                                                                textAnchor="middle"
+                                                                dy=".33em" // Ajuste vertical
+                                                                fontSize={axisLabelFontSize}
+                                                                fontWeight="bold"
+                                                                pointerEvents="none"
+                                                            >
+                                                                {label}
+                                                            </Text>
+                                                        );
+                                                    })()
+                                                )}
+
+                                                {pieLabelPosition === 'outside' && (
+                                                    (() => {
+                                                        const midAngle = (arc.startAngle + arc.endAngle) / 2;
+                                                        const correctedAngle = midAngle - Math.PI / 2;
+                                                        const lineBreakPointX = Math.cos(correctedAngle) * (outerRadius + 10);
+                                                        const lineBreakPointY = Math.sin(correctedAngle) * (outerRadius + 10);
+                                                        const isRightSide = midAngle < Math.PI;
+                                                        const lineEndX = (isRightSide ? 1 : -1) * (outerRadius + 30);
+                                                        
+                                                        return (
+                                                            <>
+                                                                <polyline
+                                                                    points={`${centroidX}, ${centroidY}, ${lineBreakPointX}, ${lineBreakPointY}, ${lineEndX}, ${lineBreakPointY}`}
+                                                                    fill="none"
+                                                                    stroke={finalOptions.barColor}
+                                                                    strokeWidth={1}
+                                                                />
+                                                                <Text
+                                                                    x={lineEndX}
+                                                                    y={lineBreakPointY}
+                                                                    dx={isRightSide ? 5 : -5}
+                                                                    dy={4}
+                                                                    fill={finalOptions.barColor}
+                                                                    textAnchor={isRightSide ? 'start' : 'end'}
+                                                                    fontSize={axisLabelFontSize}
+                                                                    fontWeight="bold"
+                                                                >
+                                                                    {label}
+                                                                </Text>
+                                                            </>
+                                                        );
+                                                    })()
+                                                )}
                                             </g>
                                         );
                                     });

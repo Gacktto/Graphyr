@@ -42,7 +42,7 @@ export const PieChart: React.FC<PieChartProps> = ({ data, options, isDonut = fal
                                 pieValue={getValue}
                                 outerRadius={outerRadius}
                                 innerRadius={isDonut ? outerRadius - donutThickness : 0}
-                                cornerRadius={3}
+                                cornerRadius={0}
                                 padAngle={0.01}
                             >
                                 {(pie) => {
@@ -66,7 +66,7 @@ export const PieChart: React.FC<PieChartProps> = ({ data, options, isDonut = fal
                                                                 y={centroidY}
                                                                 fill={pieLabelColor}
                                                                 textAnchor="middle"
-                                                                dy=".33em" // Ajuste vertical
+                                                                dy=".33em"
                                                                 fontSize={axisLabelFontSize}
                                                                 fontWeight="bold"
                                                                 pointerEvents="none"

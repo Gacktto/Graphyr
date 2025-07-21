@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCanvas } from '../../../../context/CanvasContext';
 import type { ElementNode, ChartVariant } from '../../../TreeView/TreeView';
 import styles from '../../../../styles/Sidebar.module.css';
 import { ColorControl } from '../../../ColorPicker/ColorControl';
+import { capitalize } from 'lodash';
+import { CaretDownIcon } from '@phosphor-icons/react';
 
 interface ChartSectionProps {
     selectedElement: ElementNode;
@@ -16,12 +18,9 @@ interface ChartSectionProps {
 
 export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onColorControlClick }) => {
     const { updateElementChartProps } = useCanvas();
+    const [showDropdown, setShowDropdown] = useState(false);
 
-    const handleVariantChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        updateElementChartProps(selectedElement.id, {
-            variant: e.target.value as ChartVariant,
-        });
-    };
+    const chartVariants: ChartVariant[] = ['bar', 'line', 'donut', 'pie'];
 
     const handleOptionsChange = (newOptions: Partial<ElementNode['chartProps']['options']>) => {
         updateElementChartProps(selectedElement.id, { options: newOptions });
@@ -36,18 +35,27 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                 Chart
                 
                 <div className={styles.row}>
-                    <div className={styles.group}>
+                    <div className={`${styles.group} ${styles.fill}`}>
                         <div className={styles.groupTitle}>Type</div>
-                        <select
-                            className={styles.select}
-                            value={currentVariant || 'bar'}
-                            onChange={handleVariantChange}
+                        <div className={`${styles.groupInput} ${styles.dropdown}`}
+                            onClick={() => {
+                                setShowDropdown(!showDropdown);
+                            }}
                         >
-                            <option value="bar">Bar</option>
-                            <option value="line">Line</option>
-                            <option value="pie">Pie</option>
-                            <option value="donut">Donut</option>
-                        </select>
+                            <div className={styles.row}>
+                                {capitalize(currentVariant || 'bar')}
+                                <CaretDownIcon className={styles.icon} />
+                            </div>
+                            {showDropdown &&
+                                <div className={styles.dropdownContainer}>
+                                    {chartVariants.map((variant) => (
+                                        <div key={variant} className={`${styles.dropdownOption} ${currentVariant === variant ? styles.active : ''}`}
+                                            onClick={() => {updateElementChartProps(selectedElement.id, { variant })}}
+                                        >{capitalize(variant)}</div>
+                                    ))}
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
 

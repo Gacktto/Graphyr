@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useCanvas } from '../../../../context/CanvasContext';
-import type { ElementNode, ChartVariant } from '../../../TreeView/TreeView';
+import type { ElementNode, ChartVariant, ChartOptions } from '../../../TreeView/TreeView';
 import styles from '../../../../styles/Sidebar.module.css';
 import { ColorControl } from '../../../ColorPicker/ColorControl';
 import { capitalize } from 'lodash';
@@ -22,8 +22,10 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
 
     const chartVariants: ChartVariant[] = ['bar', 'line', 'donut', 'pie'];
 
-    const handleOptionsChange = (newOptions: Partial<ElementNode['chartProps']['options']>) => {
-        updateElementChartProps(selectedElement.id, { options: newOptions });
+    const handleOptionsChange = (newOptions: Partial<ChartOptions>) => {
+        const currentOptions = selectedElement.chartProps?.options || {};
+        const mergedOptions = { ...currentOptions, ...newOptions };
+        updateElementChartProps(selectedElement.id, { options: mergedOptions });
     };
 
     const currentOptions = selectedElement.chartProps?.options;
@@ -64,7 +66,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                         <div className={`${styles.group} ${styles.fill}`}>
                             <ColorControl
                                 label="Bar Color"
-                                property="barColor"
+                                property={"barColor" as any}
                                 value={currentOptions?.barColor}
                                 onClick={(e, _,) => onColorControlClick(
                                     e, 
@@ -80,7 +82,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                         <div className={`${styles.group} ${styles.fill}`} style={{flexDirection: "row"}}>
                             <ColorControl
                                 label="Line Color"
-                                property="lineColor"
+                                property={"lineColor" as any}
                                 value={currentOptions?.lineColor}
                                 onClick={(e, _,) => onColorControlClick(
                                     e, 
@@ -92,7 +94,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
 
                             <ColorControl
                                 label="Dot Color"
-                                property="dotColor"
+                                property={"dotColor" as any}
                                 value={currentOptions?.dotColor}
                                 onClick={(e, _,) => onColorControlClick(
                                     e, 
@@ -111,7 +113,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                             <div className={`${styles.group} ${styles.fill}`} style={{flexDirection: "row"}}>
                                 <ColorControl
                                     label="X Axis Color"
-                                    property="xAxisColor"
+                                    property={"xAxisColor" as any}
                                     value={currentOptions?.xAxisColor}
                                     onClick={(e, _,) => onColorControlClick(
                                         e, 
@@ -122,7 +124,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                                 />
                                 <ColorControl
                                     label="Y Axis Color"
-                                    property="yAxisColor"
+                                    property={"yAxisColor" as any}
                                     value={currentOptions?.yAxisColor}
                                     onClick={(e, _,) => onColorControlClick(
                                         e, 
@@ -136,7 +138,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                             <div className={`${styles.group} ${styles.fill}`} style={{flexDirection: "row"}}>
                                 <ColorControl
                                     label="X Tick Label Color"
-                                    property="xTickLabelColor"
+                                    property={"xTickLabelColor" as any}
                                     value={currentOptions?.xTickLabelColor}
                                     onClick={(e, _,) => onColorControlClick(
                                         e, 
@@ -147,7 +149,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                                 />
                                 <ColorControl
                                     label="Y Tick Label Color"
-                                    property="yTickLabelColor"
+                                    property={"yTickLabelColor" as any}
                                     value={currentOptions?.yTickLabelColor}
                                     onClick={(e, _,) => onColorControlClick(
                                         e, 
@@ -160,7 +162,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                             <div className={`${styles.group} ${styles.fill}`} style={{flexDirection: "row"}}>
                                 <ColorControl
                                     label="X Tick Stroke Color"
-                                    property="xTickStrokeColor"
+                                    property={"xTickStrokeColor" as any}
                                     value={currentOptions?.xTickStrokeColor}
                                     onClick={(e, _,) => onColorControlClick(
                                         e, 
@@ -171,7 +173,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                                 />
                                 <ColorControl
                                     label="Y Tick Stroke Color"
-                                    property="yTickStrokeColor"
+                                    property={"yTickStrokeColor" as any}
                                     value={currentOptions?.yTickStrokeColor}
                                     onClick={(e, _,) => onColorControlClick(
                                         e, 
@@ -219,7 +221,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                         {currentOptions?.pieLabelPosition === 'inside' && (
                             <ColorControl
                                 label="Label Color"
-                                property="pieLabelColor"
+                                property={"pieLabelColor" as any}
                                 value={currentOptions?.pieLabelColor}
                                 onClick={(e, _,) => onColorControlClick(
                                     e,

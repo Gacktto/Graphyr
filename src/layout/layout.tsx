@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
-import Rightbar from '../components/GUI/Rightbar/Rightbar';
-import Leftbar from '../components/GUI/Leftbar';
-import Canvas from '../components/Canvas/Canvas';
+import Rightbar from '../features/editor/Rightbar/Rightbar';
+import Leftbar from '../features/editor/Leftbar/Leftbar';
+import Canvas from '../features/canvas/Canvas';
 
 export default function Layout() {
     return (

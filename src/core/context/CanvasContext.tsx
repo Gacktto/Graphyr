@@ -7,7 +7,7 @@ import {
     useMemo,
     useCallback,
 } from 'react';
-import type { ElementNode, ChartVariant, ChartOptions } from '../features/editor/TreeView/TreeView';
+import type { ElementNode, ChartVariant, ChartOptions } from '../../features/editor/TreeView/TreeView';
 import { letterFrequency } from '@visx/mock-data';
 
 export type ActiveTool =

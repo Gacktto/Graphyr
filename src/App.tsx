@@ -1,5 +1,5 @@
 import Layout from './layout/layout';
-import { CanvasProvider } from './context/CanvasContext';
+import { CanvasProvider } from './core/context/CanvasContext';
 
 const App = () => {
     return (

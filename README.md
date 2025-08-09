@@ -17,11 +17,11 @@
 
 ## Summary
 
-- • [Features](#features)
-- • [Tech Stack](#tech-stack)
-- • [Run Locally](#run-locally)
-- • [Roadmap](#roadmap)
-- • [License](#license)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Run Locally](#run-locally)
+- [Roadmap](#roadmap)
+- [License](#license)
 
 ## Features
 

@@ -7,6 +7,7 @@ import {
     useMemo,
     useCallback,
 } from 'react';
+import { produce } from 'immer';
 import type { ElementNode, ChartVariant, ChartOptions } from '../../features/editor/TreeView/TreeView';
 import { letterFrequency } from '@visx/mock-data';
 
@@ -51,10 +52,13 @@ type CanvasContextType = {
     deleteElement: (idToDelete: string) => void;
     updateElementChartProps: (id: string, newChartProps: Partial<ElementNode['chartProps']>) => void;
     updateElementData: (id: string, data: any[]) => void;
+    updateElementProps: (id: string, props: Partial<ElementNode>) => void; // <-- Nova função
 };
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
+// Essas funções de utilidade poderiam ser movidas para /src/lib/treeUtils.ts
+// como sugerido anteriormente para organizar melhor o código.
 function findNode(nodes: ElementNode[], nodeId: string): ElementNode | null {
     for (const node of nodes) {
         if (node.id === nodeId) return node;
@@ -207,16 +211,11 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
 
     const updateElementsWithHistory = useCallback(
         (updater: (prev: ElementNode[]) => ElementNode[]) => {
-            setElements((prev) => {
-                undoStack.current.push(structuredClone(prev));
-                if (undoStack.current.length > 1000) undoStack.current.shift();
-                redoStack.current = [];
-                return updater(prev);
-            });
+            setElements(updater);
         },
         []
     );
-
+     
     const undo = useCallback(() => {
         if (undoStack.current.length === 0) return;
         setElements((prev) => {
@@ -317,173 +316,142 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
                 };
             }
 
-            updateElementsWithHistory((current) => {
-                const [, updated] = insert(
-                    current,
-                    newElement,
-                    options.parentId || '1',
-                    'inside'
-                );
-                return updated;
-            });
+            updateElementsWithHistory(
+                produce(elements, draft => {
+                    const [, updated] = insert(
+                        draft,
+                        newElement,
+                        options.parentId || '1',
+                        'inside'
+                    );
+                    return updated;
+                })
+            );
             setSelectedId(newId);
 
         },
-        []
+        [elements, updateElementsWithHistory]
     );
 
     const updateElementData = useCallback(
         (id: string, data: any[]) => {
-            updateElementsWithHistory((prev) => {
-                const updateNode = (node: ElementNode): ElementNode => {
-                    if (node.id === id) {
-                        // Ao carregar novos dados, reseta o mapeamento de chaves
-                        // para que o usuário possa escolher as novas colunas
-                        return {
-                            ...node,
-                            data,
-                            chartProps: {
-                                ...node.chartProps,
-                                options: {
-                                    ...node.chartProps?.options,
-                                    labelKey: '',
-                                    valueKey: '',
-                                },
-                            } as ElementNode['chartProps'],
-                        };
-                    }
-                    if (node.children) {
-                        return { ...node, children: node.children.map(updateNode) };
-                    }
-                    return node;
-                };
-                return prev.map(updateNode);
-            });
+            updateElementsWithHistory(
+                produce(elements, (draft) => {
+                    const findAndUpdate = (nodes: ElementNode[]) => {
+                        const node = nodes.find(n => n.id === id);
+                        if (node) {
+                            node.data = data;
+                            if (node.chartProps?.options) {
+                                node.chartProps.options.labelKey = '';
+                                node.chartProps.options.valueKey = '';
+                            }
+                        } else {
+                            nodes.forEach(n => n.children && findAndUpdate(n.children));
+                        }
+                    };
+                    findAndUpdate(draft);
+                })
+            );
         },
-        [updateElementsWithHistory]
+        [elements, updateElementsWithHistory]
     );
     
     const updateElementChartProps = useCallback(
         (id: string, newChartProps: Partial<ElementNode['chartProps']>) => {
-            updateElementsWithHistory((prev) => {
-                const updateNode = (node: ElementNode): ElementNode => {
-                    if (node.id === id) {
-                        // Faz o merge das novas props com as existentes para não perder nada
-                        const updatedChartProps = {
-                            ...node.chartProps,
-                            ...newChartProps,
-                            // Faz o merge das opções internas também
-                            options: {
-                                ...node.chartProps?.options,
-                                ...newChartProps?.options,
-                            },
-                        };
-                        return {
-                            ...node,
-                            chartProps: updatedChartProps as ElementNode['chartProps'],
-                        };
-                    }
-                    if (node.children) {
-                        return { ...node, children: node.children.map(updateNode) };
-                    }
-                    return node;
-                };
-                return prev.map(updateNode);
-            });
+            updateElementsWithHistory(
+                produce(elements, draft => {
+                    const findAndUpdate = (nodes: ElementNode[]) => {
+                        const node = nodes.find(n => n.id === id);
+                        if (node) {
+                            node.chartProps = {
+                                ...node.chartProps,
+                                ...newChartProps,
+                                options: {
+                                    ...node.chartProps?.options,
+                                    ...newChartProps?.options,
+                                },
+                            } as ElementNode['chartProps'];
+                        } else {
+                             nodes.forEach(n => n.children && findAndUpdate(n.children));
+                        }
+                    };
+                    findAndUpdate(draft);
+                })
+            );
         },
-        [updateElementsWithHistory]
+        [elements, updateElementsWithHistory]
     );
+
+    const updateElementProps = useCallback(
+        (id: string, propsToUpdate: Partial<ElementNode>) => {
+            updateElementsWithHistory(
+                produce(elements, (draft) => {
+                    const findAndUpdate = (nodes: ElementNode[]): boolean => {
+                        for (let i = 0; i < nodes.length; i++) {
+                            if (nodes[i].id === id) {
+                                Object.assign(nodes[i], propsToUpdate);
+                                return true;
+                            }
+                            if (nodes[i].children && findAndUpdate(nodes[i].children!)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    };
+                    findAndUpdate(draft);
+                })
+            );
+        },
+        [elements, updateElementsWithHistory]
+    );
+
 
     const updateElementStyle = useCallback(
         (id: string, newStyle: React.CSSProperties) => {
-            updateElementsWithHistory((prev) => {
-                let changed = false;
-
-                const updateNode = (node: ElementNode): ElementNode => {
-                    if (node.id === id) {
-                        let updatedChildren = node.children;
-
-                        if (newStyle.display === 'flex' && node.children) {
-                            changed = true;
-                            updatedChildren = node.children.map((child) => ({
-                                ...child,
-                                style: {
-                                    ...child.style,
-                                    left: '',
-                                    top: '',
-                                },
-                            }));
-                        }
-
-                        const updatedStyle = { ...node.style, ...newStyle };
-
-                        const styleHasChanged = Object.entries(newStyle).some(
-                            ([key, value]) =>
-                                node.style?.[
-                                    key as keyof React.CSSProperties
-                                ] !== value
-                        );
-
-                        if (styleHasChanged) {
-                            changed = true;
-                        }
-
-                        if (!changed) return node;
-
-                        return {
-                            ...node,
-                            style: updatedStyle,
-                            children: updatedChildren,
-                        };
-                    }
-
-                    if (node.children) {
-                        const newChildren = node.children.map(updateNode);
-
-                        if (changed) {
-                            return { ...node, children: newChildren };
-                        }
-                    }
-
-                    return node;
-                };
-
-                const updatedTree = prev.map(updateNode);
-                return changed ? updatedTree : prev;
-            });
+            updateElementsWithHistory(
+                 produce(elements, draft => {
+                     const findAndUpdate = (nodes: ElementNode[]) => {
+                         const node = nodes.find(n => n.id === id);
+                         if(node) {
+                             node.style = {...node.style, ...newStyle};
+                             if (newStyle.display === 'flex' && node.children) {
+                                 node.children.forEach(child => {
+                                     child.style = {...child.style, left: '', top: ''};
+                                 });
+                             }
+                         } else {
+                              nodes.forEach(n => n.children && findAndUpdate(n.children));
+                         }
+                     };
+                     findAndUpdate(draft);
+                 })
+            );
         },
-        []
+        [elements, updateElementsWithHistory]
     );
 
     const moveElement = useCallback((options: MoveElementOptions) => {
         const { draggedId, targetId, position } = options;
         if (draggedId === targetId) return;
 
-        updateElementsWithHistory((currentElements) => {
-            const [draggedNode, treeWithoutDragged] = findAndRemove(
-                currentElements,
-                draggedId
-            );
-            if (!draggedNode) return currentElements;
+        updateElementsWithHistory(
+            produce(elements, draft => {
+                const [draggedNode, treeWithoutDragged] = findAndRemove(draft, draggedId);
+                if (!draggedNode) return;
 
-            if (targetId === null) {
-                const root = treeWithoutDragged.find((n) => n.type === 'frame');
-                if (root) {
-                    root.children = [...(root.children || []), draggedNode];
-                    return [...treeWithoutDragged];
+                if (targetId === null) {
+                    const root = treeWithoutDragged.find((n) => n.type === 'frame');
+                    if (root) {
+                        root.children = [...(root.children || []), draggedNode];
+                    }
+                    return treeWithoutDragged;
                 }
-                return [...treeWithoutDragged, draggedNode];
-            }
 
-            const [, finalTree] = insert(
-                treeWithoutDragged,
-                draggedNode,
-                targetId,
-                position
-            );
-            return finalTree;
-        });
-    }, []);
+                const [, finalTree] = insert(treeWithoutDragged, draggedNode, targetId, position);
+                return finalTree;
+            })
+        );
+    }, [elements, updateElementsWithHistory]);
 
     const copySelectedElement = useCallback(() => {
         if (!selectedId) return;
@@ -497,35 +465,34 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         if (!copiedElement) return;
 
         const cloned = deepCloneAndAssignNewIds(copiedElement);
-
         cloned.style = { ...cloned.style, position: 'relative' };
 
         const parentId = selectedId || '1';
 
-        updateElementsWithHistory((prev) => {
-            const [, tree] = insert(prev, cloned, parentId, 'inside');
-            return tree;
-        });
-
-        // setSelectedId(cloned.id);
-    }, [copiedElement, selectedId]);
+        updateElementsWithHistory(
+            produce(elements, draft => {
+                const [, tree] = insert(draft, cloned, parentId, 'inside');
+                return tree;
+            })
+        );
+    }, [copiedElement, selectedId, elements, updateElementsWithHistory]);
 
     const deleteElement = useCallback(
         (idToDelete: string) => {
-            if (idToDelete === '1') {
-                return;
-            }
+            if (idToDelete === '1') return;
 
-            updateElementsWithHistory((currentElements) => {
-                const [, newTree] = findAndRemove(currentElements, idToDelete);
-                return newTree;
-            });
+            updateElementsWithHistory(
+                produce(elements, draft => {
+                    const [, newTree] = findAndRemove(draft, idToDelete);
+                    return newTree;
+                })
+            );
 
             if (selectedId === idToDelete) {
                 setSelectedId(null);
             }
         },
-        [selectedId, updateElementsWithHistory]
+        [selectedId, elements, updateElementsWithHistory]
     );
 
     const contextValue = useMemo(
@@ -546,7 +513,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             redo,
             deleteElement,
             updateElementChartProps,
-            updateElementData
+            updateElementData,
+            updateElementProps,
         }),
         [
             elements,
@@ -561,7 +529,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             redo,
             deleteElement,
             updateElementChartProps,
-            updateElementData
+            updateElementData,
+            updateElementProps,
         ]
     );
 

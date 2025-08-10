@@ -1,0 +1,134 @@
+.dataViewContainer {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background-color: #1d1d1d;
+    color: white;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #282828;
+    border-right: 1px solid #3c3c3c;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.createButton {
+    background-color: #007aff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.tableList {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.tableListItem {
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tableListItem:hover {
+    background-color: #3c3c3c;
+}
+
+.tableListItem.active {
+    background-color: #4a4a4a;
+    font-weight: bold;
+}
+
+.mainContent {
+    flex-grow: 1;
+    padding: 20px;
+    overflow: auto;
+}
+
+.noTableSelected {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #888;
+}
+
+.gridContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.titleInput {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding: 5px;
+    border-radius: 5px;
+}
+.titleInput:focus {
+    outline: none;
+    background-color: #3c3c3c;
+}
+
+.tableWrapper {
+    overflow: auto;
+    border: 1px solid #3c3c3c;
+    border-radius: 5px;
+}
+
+.gridTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.gridTable th,
+.gridTable td {
+    border: 1px solid #3c3c3c;
+    padding: 0;
+    text-align: left;
+    min-width: 150px;
+}
+
+.gridTable th {
+    background-color: #333;
+    padding: 10px;
+}
+
+.cellInput {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.cellInput:focus {
+    outline: 2px solid #007aff;
+    background-color: #444;
+}
+
+.addRowButton {
+    margin-top: 15px;
+    background: #3c3c3c;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: flex-start;
+}

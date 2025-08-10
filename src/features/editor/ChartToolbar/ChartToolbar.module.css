@@ -1,0 +1,72 @@
+.chartToolbar {
+    position: absolute;
+    top: 10px;
+    right: 310px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+}
+
+.iconWrapper {
+    background-color: #282828;
+    border: 1px solid #3c3c3c;
+    border-radius: 5px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.iconWrapper:hover {
+    background-color: #444;
+}
+
+.iconWrapper.active {
+    background-color: #007aff;
+    border-color: #007aff;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+.popover {
+    position: fixed;
+    width: 280px;
+    background-color: #282828;
+    border: 1px solid #3c3c3c;
+    border-radius: 5px;
+    padding: 10px;
+    z-index: 101;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.panelTitle {
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #3c3c3c;
+    margin-bottom: 8px;
+}
+
+.panelContent {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.checkboxRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}

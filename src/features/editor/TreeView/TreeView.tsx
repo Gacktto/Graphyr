@@ -32,6 +32,7 @@ export type ElementNode = {
     children?: ElementNode[];
     style?: React.CSSProperties;
     data?: any[];
+    dataSourceId?: string;
     chartProps?: {
         variant: ChartVariant;
         options?: ChartOptions; 

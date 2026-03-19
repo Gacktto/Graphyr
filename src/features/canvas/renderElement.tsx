@@ -21,19 +21,21 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
         const {
             elementsRef,
             setElements,
-            selectedId,
-            setSelectedId,
+            selectedIds,
+            // toggleSelection,
             activeTool,
         } = useCanvas();
 
-        const isSelected = node.id === selectedId;
+        const isSelected = selectedIds.includes(node.id);
+        const isSingleSelection = selectedIds.length === 1;
+        const showHandles = isSelected && isSingleSelection && activeTool === 'cursor';
 
-        const handleClick = (e: React.MouseEvent) => {
-            e.stopPropagation();
-            if (activeTool === 'cursor') {
-                setSelectedId(node.id);
-            }
-        };
+        // const handleClick = (e: React.MouseEvent) => {
+        //     e.stopPropagation();
+        //     if (activeTool === 'cursor') {
+        //         toggleSelection(node.id, e.shiftKey);
+        //     }
+        // };
 
         const handleTextBlur = (e: React.FocusEvent<HTMLDivElement>) => {
             const newText = e.currentTarget.innerText;
@@ -76,13 +78,12 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
             ));
 
         if (node.type.startsWith('chart')) {
-            
             return (
                 <div
                     ref={registerRef}
                     data-element-id={node.id}
                     data-canvas-element
-                    onClick={handleClick}
+                    // onClick={handleClick}
                     onMouseDown={onDragStart}
                     style={wrapperStyle}
                 >
@@ -91,7 +92,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                         chartProps={node.chartProps}
                     />
 
-                    {isSelected && activeTool === 'cursor' && (
+                    {showHandles && (
                         <>
                             {handles.map((handle) => (
                                 <div
@@ -114,13 +115,13 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     ref={registerRef}
                     data-element-id={node.id}
                     data-canvas-element
-                    onClick={handleClick}
+                    // onClick={handleClick}
                     onMouseDown={onDragStart}
                     style={wrapperStyle}
                 >
                     {renderChildren()}
 
-                    {isSelected && activeTool === 'cursor' && (
+                    {showHandles && (
                         <>
                             {handles.map((handle) => (
                                 <div
@@ -143,15 +144,15 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     ref={registerRef}
                     data-element-id={node.id}
                     data-canvas-element
-                    onClick={handleClick}
+                    // onClick={handleClick}
                     style={wrapperStyle}
-                    contentEditable={isSelected}
+                    contentEditable={isSingleSelection && isSelected}
                     suppressContentEditableWarning={true}
                     onMouseDown={onDragStart}
                     onBlur={handleTextBlur}
                 >
                     {node.name}
-                    {isSelected && activeTool === 'cursor' && (
+                    {showHandles && (
                         <>
                             {handles.map((handle) => (
                                 <div
@@ -174,7 +175,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     ref={registerRef}
                     data-element-id={node.id}
                     data-canvas-element
-                    onClick={handleClick}
+                    // onClick={handleClick}
                     style={wrapperStyle}
                 >
                     {node.name}

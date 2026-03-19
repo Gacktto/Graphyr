@@ -11,7 +11,7 @@ interface LeftbarProps {
 }
 
 export default function Leftbar({ setCurrentView, currentView }: LeftbarProps) {
-    const { elements, selectedId, setSelectedId } = useCanvas();
+    const { elements, selectedIds, setSelectedIds } = useCanvas();
 
     const sidebarStyle: React.CSSProperties = {
         position: currentView === 'editor' ? 'absolute' : 'relative',
@@ -63,8 +63,9 @@ export default function Leftbar({ setCurrentView, currentView }: LeftbarProps) {
                     >
                         <TreeView
                             elements={elements}
-                            selectedId={selectedId}
-                            onSelect={setSelectedId}
+                            selectedId={selectedIds.length > 0 ? selectedIds[0] : null}
+                            // O SEGREDO ESTÁ AQUI: Coloque o 'id' dentro de colchetes []
+                            onSelect={(id) => setSelectedIds([id])} 
                         />
                     </div>
                 )}

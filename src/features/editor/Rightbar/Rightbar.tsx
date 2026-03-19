@@ -29,9 +29,11 @@ type PickerState = {
 };
 
 export default function Rightbar() {
-    const { elements, selectedId, elementsRef, updateElementStyle } =
+    const { elements, selectedIds, elementsRef, updateElementStyle } =
         useCanvas();
-    const selectedElement = findElementById(elements, selectedId);
+    // Temporariamente, mostramos as propriedades do primeiro item selecionado
+    const primarySelectedId = selectedIds.length > 0 ? selectedIds[0] : null;
+    const selectedElement = findElementById(elements, primarySelectedId);
     const [computedStyles, setComputedStyles] =
         useState<CSSStyleDeclaration | null>(null);
 
@@ -41,14 +43,14 @@ export default function Rightbar() {
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (selectedId && elementsRef.current[selectedId]) {
-            const el = elementsRef.current[selectedId]!;
+        if (primarySelectedId && elementsRef.current[primarySelectedId]) {
+            const el = elementsRef.current[primarySelectedId]!;
             const computed = getComputedStyle(el);
             setComputedStyles(computed);
         } else {
             setComputedStyles(null);
         }
-    }, [selectedId, elements, elementsRef]);
+    }, [primarySelectedId, elements, elementsRef]);
 
     function findElementById(
         nodes: ElementNode[],
@@ -66,11 +68,11 @@ export default function Rightbar() {
 
     const handleStyleChange = useCallback(
         (newStyle: React.CSSProperties) => {
-            if (selectedId) {
-                updateElementStyle(selectedId, newStyle);
+            if (primarySelectedId) {
+                updateElementStyle(primarySelectedId, newStyle);
             }
         },
-        [selectedId, updateElementStyle]
+        [primarySelectedId, updateElementStyle]
     );
 
     const handleColorControlClick = (
@@ -228,13 +230,13 @@ export default function Rightbar() {
                         }}
                     >
                         <ColorPicker
-                            key={`${selectedId}-${pickerState.id}`}
+                            key={`${selectedIds}-${pickerState.id}`}
                             color={pickerState.initialColor}
                             onChange={(newColor) => {
                                 if (pickerState.onChangeCallback) {
                                     pickerState.onChangeCallback(newColor);
-                                } else if(selectedId) {
-                                    updateElementStyle(selectedId, {
+                                } else if (primarySelectedId) {
+                                    updateElementStyle(primarySelectedId, {
                                         [pickerState.id]: newColor,
                                     });
                                 }

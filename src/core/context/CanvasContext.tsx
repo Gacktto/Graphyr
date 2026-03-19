@@ -31,8 +31,9 @@ type MoveElementOptions = {
 type CanvasContextType = {
     elements: ElementNode[];
     setElements: React.Dispatch<React.SetStateAction<ElementNode[]>>;
-    selectedId: string | null;
-    setSelectedId: (id: string | null) => void;
+    selectedIds: string[];
+    setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
+    toggleSelection: (id: string, multi: boolean) => void;
     elementsRef: React.MutableRefObject<Record<string, HTMLElement | null>>;
     activeTool: ActiveTool;
     setActiveTool: (tool: ActiveTool) => void;
@@ -233,7 +234,21 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             children: [],
         },
     ]);
-    const [selectedId, setSelectedId] = useState<string | null>('1');
+    const [selectedIds, setSelectedIds] = useState<string[]>(['1']); // Frame default selecionado
+
+    const toggleSelection = useCallback((id: string, multi: boolean) => {
+        setSelectedIds((prev) => {
+            if (multi) {
+                // Se já estiver selecionado e segurar shift, remove. Senão, adiciona.
+                return prev.includes(id) 
+                    ? prev.filter((selectedIds) => selectedIds !== id) 
+                    : [...prev, id];
+            }
+            // Se clicar sem shift, seleciona apenas ele
+            return [id];
+        });
+    }, []);
+
     const [activeTool, setActiveTool] = useState<ActiveTool>('cursor');
     const [copiedElement, setCopiedElement] = useState<ElementNode | null>(
         null
@@ -363,7 +378,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
                     return updated;
                 })
             );
-            setSelectedId(newId);
+            setSelectedIds(newId);
 
         },
         [elements, updateElementsWithHistory]
@@ -490,12 +505,12 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     }, [elements, updateElementsWithHistory]);
 
     const copySelectedElement = useCallback(() => {
-        if (!selectedId) return;
-        const elementToCopy = findNode(elements, selectedId);
+        if (!selectedIds) return;
+        const elementToCopy = findNode(elements, selectedIds);
         if (elementToCopy) {
             setCopiedElement(JSON.parse(JSON.stringify(elementToCopy)));
         }
-    }, [selectedId, elements]);
+    }, [selectedIds, elements]);
 
     const pasteElement = useCallback(() => {
         if (!copiedElement) return;
@@ -503,7 +518,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         const cloned = deepCloneAndAssignNewIds(copiedElement);
         cloned.style = { ...cloned.style, position: 'relative' };
 
-        const parentId = selectedId || '1';
+        const parentId = selectedIds || '1';
 
         updateElementsWithHistory(
             produce(elements, draft => {
@@ -511,7 +526,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
                 return tree;
             })
         );
-    }, [copiedElement, selectedId, elements, updateElementsWithHistory]);
+    }, [copiedElement, selectedIds, elements, updateElementsWithHistory]);
 
     const deleteElement = useCallback(
         (idToDelete: string) => {
@@ -524,19 +539,17 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
                 })
             );
 
-            if (selectedId === idToDelete) {
-                setSelectedId(null);
-            }
+            setSelectedIds((prev) => prev.filter(id => id !== idToDelete));
         },
-        [selectedId, elements, updateElementsWithHistory]
+        [selectedIds, elements, updateElementsWithHistory]
     );
 
     const contextValue = useMemo(
         () => ({
             elements,
             setElements,
-            selectedId,
-            setSelectedId,
+            selectedIds,
+            setSelectedIds,
             elementsRef,
             activeTool,
             setActiveTool,
@@ -553,10 +566,11 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             updateElementProps,
             startInteraction,
             endInteraction,
+            toggleSelection
         }),
         [
             elements,
-            selectedId,
+            selectedIds,
             activeTool,
             addElement,
             updateElementStyle,
@@ -571,6 +585,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             updateElementProps,
             startInteraction,
             endInteraction,
+            toggleSelection
         ]
     );
 

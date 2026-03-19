@@ -97,6 +97,8 @@ export default function Canvas() {
         undo,
         redo,
         deleteElement,
+        startInteraction,
+        endInteraction,
     } = useCanvas();
 
     const { scale, offset } = useCanvasTransform(
@@ -356,6 +358,7 @@ export default function Canvas() {
             const domElement = elementsRef.current[node.id];
 
             if (!node.style || !domElement) return;
+            startInteraction();
 
             const computedWidth = domElement.offsetWidth;
             const computedHeight = domElement.offsetHeight;
@@ -428,6 +431,8 @@ export default function Canvas() {
 
             const relativeLeft = elementX - parentX;
             const relativeTop = elementY - parentY;
+
+            startInteraction();
 
             setDraggingState({
                 elementId: id,
@@ -628,6 +633,7 @@ export default function Canvas() {
         const handleMouseUp = () => {
             setDraggingState(null);
             setGuideLines([]);
+            endInteraction();
         };
 
         window.addEventListener('mousemove', handleMouseMove);
@@ -818,6 +824,7 @@ export default function Canvas() {
         const handleWindowMouseUp = () => {
             setResizingState(null);
             setGuideLines([]);
+            endInteraction();
         };
 
         window.addEventListener('mousemove', handleWindowMouseMove);

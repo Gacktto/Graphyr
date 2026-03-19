@@ -53,6 +53,9 @@ type CanvasContextType = {
     updateElementChartProps: (id: string, newChartProps: Partial<ElementNode['chartProps']>) => void;
     updateElementData: (id: string, data: any[]) => void;
     updateElementProps: (id: string, props: Partial<ElementNode>) => void; // <-- Nova função
+    // Novas tipagens:
+    startInteraction: () => void;
+    endInteraction: () => void;
 };
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
@@ -187,6 +190,33 @@ function insert(
 export function CanvasProvider({ children }: { children: ReactNode }) {
     const undoStack = useRef<ElementNode[][]>([]);
     const redoStack = useRef<ElementNode[][]>([]);
+    const isInteractionActive = useRef(false);
+    const stateBeforeInteraction = useRef<ElementNode[] | null>(null);
+
+    // Congela o histórico e tira uma "foto" de como tudo estava antes do movimento
+    const startInteraction = useCallback(() => {
+        isInteractionActive.current = true;
+        setElements((currentElements) => {
+            stateBeforeInteraction.current = currentElements;
+            return currentElements;
+        });
+    }, []);
+
+    // Salva a "foto" inicial no histórico e retoma o registro normal
+    const endInteraction = useCallback(() => {
+        isInteractionActive.current = false;
+        setElements((currentElements) => {
+            if (
+                stateBeforeInteraction.current && 
+                stateBeforeInteraction.current !== currentElements
+            ) {
+                undoStack.current.push(stateBeforeInteraction.current);
+                redoStack.current.length = 0;
+            }
+            stateBeforeInteraction.current = null;
+            return currentElements;
+        });
+    }, []);
 
     const elementsRef = useRef<Record<string, HTMLElement | null>>({});
     const [elements, setElements] = useState<ElementNode[]>([
@@ -210,8 +240,14 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     );
 
     const updateElementsWithHistory = useCallback(
-        (updater: (prev: ElementNode[]) => ElementNode[]) => {
-            setElements(updater);
+        (nextState: ElementNode[]) => {
+            setElements((prev) => {
+                if (prev !== nextState && !isInteractionActive.current) {
+                    undoStack.current.push(prev);
+                    redoStack.current.length = 0; 
+                }
+                return nextState;
+            });
         },
         []
     );
@@ -220,7 +256,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         if (undoStack.current.length === 0) return;
         setElements((prev) => {
             const last = undoStack.current.pop()!;
-            redoStack.current.push(structuredClone(prev));
+            redoStack.current.push(prev); 
             return last;
         });
     }, []);
@@ -229,7 +265,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         if (redoStack.current.length === 0) return;
         setElements((prev) => {
             const next = redoStack.current.pop()!;
-            undoStack.current.push(structuredClone(prev));
+            undoStack.current.push(prev); 
             return next;
         });
     }, []);
@@ -515,6 +551,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             updateElementChartProps,
             updateElementData,
             updateElementProps,
+            startInteraction,
+            endInteraction,
         }),
         [
             elements,
@@ -531,6 +569,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
             updateElementChartProps,
             updateElementData,
             updateElementProps,
+            startInteraction,
+            endInteraction,
         ]
     );
 

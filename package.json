@@ -28,6 +28,7 @@
         "react-dom": "^19.1.0",
         "react-pick-color": "^2.0.0",
         "react-use-measure": "^2.1.7",
+        "repopack": "^0.1.45",
         "zustand": "^5.0.6"
     },
     "devDependencies": {

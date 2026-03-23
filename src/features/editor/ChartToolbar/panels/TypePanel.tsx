@@ -11,7 +11,7 @@ interface TypePanelProps {
 }
 
 export const TypePanel: React.FC<TypePanelProps> = ({ selectedElement }) => {
-    const { updateElementChartProps } = useCanvas();
+    const { updateElementChartProps, selectedIds } = useCanvas();
     const [showDropdown, setShowDropdown] = useState(false);
 
     const chartVariants: ChartVariant[] = ['bar', 'line', 'donut', 'pie'];
@@ -37,7 +37,7 @@ export const TypePanel: React.FC<TypePanelProps> = ({ selectedElement }) => {
                                     className={`${styles.dropdownOption} ${currentVariant === variant ? styles.active : ''}`}
                                     onClick={() => {
                                         updateElementChartProps(
-                                            selectedElement.id,
+                                            selectedIds,
                                             { variant }
                                         );
                                         setShowDropdown(false);

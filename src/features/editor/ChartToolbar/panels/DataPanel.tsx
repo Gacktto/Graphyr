@@ -10,7 +10,7 @@ interface DataPanelProps {
 }
 
 export const DataPanel: React.FC<DataPanelProps> = ({ selectedElement }) => {
-    const { updateElementProps, updateElementChartProps } = useCanvas();
+    const { updateElementProps, updateElementChartProps, selectedIds } = useCanvas();
     const { tables } = useData();
 
     const connectedTable = useMemo(
@@ -28,7 +28,7 @@ export const DataPanel: React.FC<DataPanelProps> = ({ selectedElement }) => {
     const handleTableSelection = (tableId: string) => {
         const selectedTable = tables.find((t) => t.id === tableId);
         if (selectedTable) {
-            updateElementProps(selectedElement.id, {
+            updateElementProps(selectedIds, {
                 dataSourceId: tableId,
                 data: selectedTable.data,
                 chartProps: {
@@ -47,7 +47,7 @@ export const DataPanel: React.FC<DataPanelProps> = ({ selectedElement }) => {
         axis: 'labelKey' | 'valueKey',
         key: string
     ) => {
-        updateElementChartProps(selectedElement.id, {
+        updateElementChartProps(selectedIds, {
             options: { ...selectedElement.chartProps?.options, [axis]: key },
         });
     };

@@ -18,13 +18,13 @@ export const DataStylePanel: React.FC<DataStylePanelProps> = ({
     selectedElement,
     onColorControlClick,
 }) => {
-    const { updateElementChartProps } = useCanvas();
+    const { updateElementChartProps, selectedIds } = useCanvas();
     const currentOptions = selectedElement.chartProps?.options;
     const currentVariant = selectedElement.chartProps?.variant;
 
     const handleOptionsChange = (newOptions: Partial<ChartOptions>) => {
         const mergedOptions = { ...currentOptions, ...newOptions };
-        updateElementChartProps(selectedElement.id, { options: mergedOptions });
+        updateElementChartProps(selectedIds, { options: mergedOptions });
     };
 
     return (

@@ -29,17 +29,15 @@ type PickerState = {
 };
 
 export default function Rightbar() {
-    const { elements, selectedIds, elementsRef, updateElementStyle } =
-        useCanvas();
-    // Temporariamente, mostramos as propriedades do primeiro item selecionado
+    const { elements, selectedIds, elementsRef, updateElementStyle } = useCanvas();
+    
+    // Renderizamos os inputs do painel baseados no primeiro elemento selecionado
     const primarySelectedId = selectedIds.length > 0 ? selectedIds[0] : null;
     const selectedElement = findElementById(elements, primarySelectedId);
-    const [computedStyles, setComputedStyles] =
-        useState<CSSStyleDeclaration | null>(null);
+    const [computedStyles, setComputedStyles] = useState<CSSStyleDeclaration | null>(null);
 
     const [pickerState, setPickerState] = useState<PickerState | null>(null);
     const pickerRef = useRef<HTMLDivElement>(null);
-
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -52,10 +50,7 @@ export default function Rightbar() {
         }
     }, [primarySelectedId, elements, elementsRef]);
 
-    function findElementById(
-        nodes: ElementNode[],
-        id: string | null
-    ): ElementNode | null {
+    function findElementById(nodes: ElementNode[], id: string | null): ElementNode | null {
         for (const node of nodes) {
             if (node.id === id) return node;
             if (node.children) {
@@ -68,11 +63,11 @@ export default function Rightbar() {
 
     const handleStyleChange = useCallback(
         (newStyle: React.CSSProperties) => {
-            if (primarySelectedId) {
-                updateElementStyle(primarySelectedId, newStyle);
+            if (selectedIds.length > 0) {
+                updateElementStyle(selectedIds, newStyle); // Manda o array todo!
             }
         },
-        [primarySelectedId, updateElementStyle]
+        [selectedIds, updateElementStyle]
     );
 
     const handleColorControlClick = (
@@ -111,12 +106,8 @@ export default function Rightbar() {
                 }
             }
         };
-        if (pickerState) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
+        if (pickerState) document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [pickerState]);
 
     useLayoutEffect(() => {
@@ -151,27 +142,15 @@ export default function Rightbar() {
             )}
 
             <div className={styles.sidebar} style={{ right: 0 }}>
-                <div
-                    ref={menuRef}
-                    className={styles.menu}
-                    style={{ borderLeft: '1px solid #3c3c3c' }}
-                >
+                <div ref={menuRef} className={styles.menu} style={{ borderLeft: '1px solid #3c3c3c' }}>
                     <div className={styles.section}>
                         <div className={styles.container}>
-                            <div
-                                className={`${buttonStyles.button} ${buttonStyles.primary}`}
-                            >
+                            <div className={`${buttonStyles.button} ${buttonStyles.primary}`}>
                                 Publish
                                 <GlobeIcon size={20} className={styles.icon} />
                             </div>
-                            <div
-                                className={`${buttonStyles.button} ${buttonStyles.primary}`}
-                            >
-                                <ShareFatIcon
-                                    weight="fill"
-                                    size={20}
-                                    className={styles.icon}
-                                />
+                            <div className={`${buttonStyles.button} ${buttonStyles.primary}`}>
+                                <ShareFatIcon weight="fill" size={20} className={styles.icon} />
                             </div>
                         </div>
                     </div>
@@ -183,20 +162,17 @@ export default function Rightbar() {
                                 computedStyles={computedStyles}
                                 onStyleChange={handleStyleChange}
                             />
-
                             <LayoutSection
                                 selectedElement={selectedElement}
                                 computedStyles={computedStyles}
                                 onStyleChange={handleStyleChange}
                             />
-
                             <AppearanceSection
                                 selectedElement={selectedElement}
                                 computedStyles={computedStyles}
                                 onStyleChange={handleStyleChange}
                                 onColorControlClick={handleColorControlClick}
                             />
-
                             <StrokeSection
                                 selectedElement={selectedElement}
                                 computedStyles={computedStyles}
@@ -230,13 +206,13 @@ export default function Rightbar() {
                         }}
                     >
                         <ColorPicker
-                            key={`${selectedIds}-${pickerState.id}`}
+                            key={`${selectedIds.join('-')}-${pickerState.id}`}
                             color={pickerState.initialColor}
                             onChange={(newColor) => {
                                 if (pickerState.onChangeCallback) {
                                     pickerState.onChangeCallback(newColor);
-                                } else if (primarySelectedId) {
-                                    updateElementStyle(primarySelectedId, {
+                                } else if (selectedIds.length > 0) {
+                                    updateElementStyle(selectedIds, {
                                         [pickerState.id]: newColor,
                                     });
                                 }

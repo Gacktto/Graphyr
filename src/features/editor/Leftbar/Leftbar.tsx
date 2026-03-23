@@ -20,6 +20,9 @@ export default function Leftbar({ setCurrentView, currentView }: LeftbarProps) {
         flexShrink: 0,
     };
 
+    // Pegamos apenas os filhos do root para renderizar na TreeView
+    const treeElements = elements[0]?.children || [];
+
     return (
         <div className={styles.sidebar} style={sidebarStyle}>
             <div
@@ -62,9 +65,8 @@ export default function Leftbar({ setCurrentView, currentView }: LeftbarProps) {
                         }}
                     >
                         <TreeView
-                            elements={elements}
+                            elements={treeElements}
                             selectedId={selectedIds.length > 0 ? selectedIds[0] : null}
-                            // O SEGREDO ESTÁ AQUI: Coloque o 'id' dentro de colchetes []
                             onSelect={(id) => setSelectedIds([id])} 
                         />
                     </div>

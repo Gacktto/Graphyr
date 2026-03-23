@@ -13,7 +13,7 @@ export default function ActionBar() {
     const tools = [
         { name: 'Cursor', icon: CursorIcon, type: 'cursor' as const },
         { name: 'Text', icon: TextTIcon, type: 'text' as const },
-        { name: 'Frame', icon: BoundingBoxIcon, type: 'div' as const },
+        { name: 'Frame', icon: BoundingBoxIcon, type: 'frame' as const },
         { name: 'Chart', icon: ChartBarIcon, type: 'chart' as const },
     ];
 

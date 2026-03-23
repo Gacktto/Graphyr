@@ -19,12 +19,12 @@ export const PiePanel: React.FC<PiePanelProps> = ({
     selectedElement,
     onColorControlClick,
 }) => {
-    const { updateElementChartProps } = useCanvas();
+    const { updateElementChartProps, selectedIds } = useCanvas();
     const currentOptions = selectedElement.chartProps?.options;
 
     const handleOptionsChange = (newOptions: Partial<ChartOptions>) => {
         const mergedOptions = { ...currentOptions, ...newOptions };
-        updateElementChartProps(selectedElement.id, { options: mergedOptions });
+        updateElementChartProps(selectedIds, { options: mergedOptions });
     };
 
     return (

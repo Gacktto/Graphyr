@@ -13,31 +13,13 @@
     color: white;
 }
 
-.frame {
-    display: flex;
-    align-items: start;
-    justify-content: start;
-    flex-direction: column;
-    width: fit-content;
-    height: fit-content;
-}
-
-.frameInfo {
-    background-color: #444444;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 10px;
-    border-top-right-radius: 5px;
-    border-top-left-radius: 5px;
-    font-weight: bold;
-}
-
 .canvas.cursor {
     cursor: default;
 }
 
-.canvas.div,
-.canvas.text {
+.canvas.frame,
+.canvas.text,
+.canvas.chart {
     cursor: crosshair;
 }
 
@@ -68,49 +50,40 @@
     cursor: ew-resize;
 }
 
-.handle-tl {
-    top: -4px;
-    left: -4px;
-}
-.handle-t {
-    top: -4px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-.handle-tr {
-    top: -4px;
-    right: -4px;
-}
-.handle-l {
-    top: 50%;
-    left: -4px;
-    transform: translateY(-50%);
-}
-.handle-r {
-    top: 50%;
-    right: -4px;
-    transform: translateY(-50%);
-}
-.handle-bl {
-    bottom: -4px;
-    left: -4px;
-}
-.handle-b {
-    bottom: -4px;
-    left: 50%;
-    transform: translateX(-50%);
-}
-.handle-br {
-    bottom: -4px;
-    right: -4px;
+.handle-tl { top: -4px; left: -4px; }
+.handle-t { top: -4px; left: 50%; transform: translateX(-50%); }
+.handle-tr { top: -4px; right: -4px; }
+.handle-l { top: 50%; left: -4px; transform: translateY(-50%); }
+.handle-r { top: 50%; right: -4px; transform: translateY(-50%); }
+.handle-bl { bottom: -4px; left: -4px; }
+.handle-b { bottom: -4px; left: 50%; transform: translateX(-50%); }
+.handle-br { bottom: -4px; right: -4px; }
+
+.frameTitle {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    font-size: 12px;
+    font-weight: bold;
+    color: #a0a0a0;
+    white-space: nowrap;
+    cursor: default;
+    user-select: none;
+    pointer-events: auto;
 }
 
-.dropbefore {
-    border-top: 2px dashed #007aff;
+.frameTitle:hover {
+    color: #ffffff;
 }
-.dropafter {
-    border-bottom: 2px dashed #007aff;
-}
-.dropinside {
-    outline: 2px dashed #007aff;
+
+.frameTitleInput {
+    background: transparent;
+    border: 1px solid #007aff;
+    border-radius: 3px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    outline: none;
+    padding: 0 2px;
+    margin-left: -3px;
 }

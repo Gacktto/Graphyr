@@ -17,7 +17,7 @@ interface ChartSectionProps {
 }
 
 export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onColorControlClick }) => {
-    const { updateElementChartProps } = useCanvas();
+    const { updateElementChartProps, selectedIds } = useCanvas();
     const [showDropdown, setShowDropdown] = useState(false);
 
     const chartVariants: ChartVariant[] = ['bar', 'line', 'donut', 'pie'];
@@ -25,7 +25,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
     const handleOptionsChange = (newOptions: Partial<ChartOptions>) => {
         const currentOptions = selectedElement.chartProps?.options || {};
         const mergedOptions = { ...currentOptions, ...newOptions };
-        updateElementChartProps(selectedElement.id, { options: mergedOptions });
+        updateElementChartProps(selectedIds, { options: mergedOptions });
     };
 
     const currentOptions = selectedElement.chartProps?.options;
@@ -52,7 +52,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ selectedElement, onC
                                 <div className={styles.dropdownContainer}>
                                     {chartVariants.map((variant) => (
                                         <div key={variant} className={`${styles.dropdownOption} ${currentVariant === variant ? styles.active : ''}`}
-                                            onClick={() => {updateElementChartProps(selectedElement.id, { variant })}}
+                                            onClick={() => {updateElementChartProps(selectedIds, { variant })}}
                                         >{capitalize(variant)}</div>
                                     ))}
                                 </div>

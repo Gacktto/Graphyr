@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { ElementNode } from '../editor/TreeView/TreeView';
 import { useCanvas } from '../../core/context/CanvasContext';
 import styles from './Canvas.module.css';
@@ -8,6 +8,7 @@ export type Handle = 'tl' | 't' | 'tr' | 'l' | 'r' | 'bl' | 'b' | 'br';
 
 export interface ElementRendererProps {
     node: ElementNode;
+    isRootFrame?: boolean;
     onResizeStart: (
         e: React.MouseEvent,
         handle: Handle,
@@ -17,25 +18,22 @@ export interface ElementRendererProps {
 }
 
 export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
-    ({ node, onResizeStart, onDragStart }) => {
+    ({ node, isRootFrame = false, onResizeStart, onDragStart }) => {
         const {
             elementsRef,
             setElements,
             selectedIds,
-            // toggleSelection,
+            hoveredId,
             activeTool,
+            updateElementProps
         } = useCanvas();
 
+        const [isEditingTitle, setIsEditingTitle] = useState(false);
+
         const isSelected = selectedIds.includes(node.id);
+        const isHovered = hoveredId === node.id;
         const isSingleSelection = selectedIds.length === 1;
         const showHandles = isSelected && isSingleSelection && activeTool === 'cursor';
-
-        // const handleClick = (e: React.MouseEvent) => {
-        //     e.stopPropagation();
-        //     if (activeTool === 'cursor') {
-        //         toggleSelection(node.id, e.shiftKey);
-        //     }
-        // };
 
         const handleTextBlur = (e: React.FocusEvent<HTMLDivElement>) => {
             const newText = e.currentTarget.innerText;
@@ -59,9 +57,19 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
             if (el) elementsRef.current[node.id] = el;
         };
 
+        const isFrame = node.type === 'frame';
+        
+        let outlineStyle = 'none';
+        if (isSelected) {
+            outlineStyle = '2px solid #007aff';
+        } else if (isHovered) {
+            outlineStyle = '2px solid rgba(0, 122, 255, 0.4)';
+        }
+
         const wrapperStyle: React.CSSProperties = {
             ...node.style,
-            outline: isSelected ? '2px solid #007aff' : 'none',
+            outline: outlineStyle,
+            boxShadow: isFrame && !node.style?.boxShadow ? '0px 4px 15px rgba(0, 0, 0, 0.10)' : node.style?.boxShadow,
             boxSizing: 'border-box',
         };
 
@@ -72,10 +80,39 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                 <ElementRenderer
                     key={child.id}
                     node={child}
+                    isRootFrame={false}
                     onResizeStart={onResizeStart}
                     onDragStart={onDragStart}
                 />
             ));
+
+        const renderFrameTitle = () => {
+            if (!isRootFrame) return null;
+            return (
+                <div 
+                    className={styles.frameTitle} 
+                    onDoubleClick={(e) => {
+                        e.stopPropagation();
+                        setIsEditingTitle(true);
+                    }}
+                >
+                    {isEditingTitle ? (
+                        <input
+                            autoFocus
+                            className={styles.frameTitleInput}
+                            defaultValue={node.name}
+                            onBlur={(e) => {
+                                setIsEditingTitle(false);
+                                updateElementProps(node.id, { name: e.target.value || 'Frame' });
+                            }}
+                            onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+                        />
+                    ) : (
+                        node.name
+                    )}
+                </div>
+            );
+        };
 
         if (node.type.startsWith('chart')) {
             return (
@@ -83,10 +120,10 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     ref={registerRef}
                     data-element-id={node.id}
                     data-canvas-element
-                    // onClick={handleClick}
                     onMouseDown={onDragStart}
                     style={wrapperStyle}
                 >
+                    {renderFrameTitle()}
                     <MutableChart 
                         data={node.data || []} 
                         chartProps={node.chartProps}
@@ -115,10 +152,10 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     ref={registerRef}
                     data-element-id={node.id}
                     data-canvas-element
-                    // onClick={handleClick}
                     onMouseDown={onDragStart}
                     style={wrapperStyle}
                 >
+                    {renderFrameTitle()}
                     {renderChildren()}
 
                     {showHandles && (
@@ -144,13 +181,13 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     ref={registerRef}
                     data-element-id={node.id}
                     data-canvas-element
-                    // onClick={handleClick}
                     style={wrapperStyle}
                     contentEditable={isSingleSelection && isSelected}
                     suppressContentEditableWarning={true}
                     onMouseDown={onDragStart}
                     onBlur={handleTextBlur}
                 >
+                    {renderFrameTitle()}
                     {node.name}
                     {showHandles && (
                         <>
@@ -175,7 +212,6 @@ export const ElementRenderer: React.FC<ElementRendererProps> = React.memo(
                     ref={registerRef}
                     data-element-id={node.id}
                     data-canvas-element
-                    // onClick={handleClick}
                     style={wrapperStyle}
                 >
                     {node.name}
